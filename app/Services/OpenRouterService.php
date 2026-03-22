@@ -84,11 +84,8 @@ class OpenRouterService implements AiServiceInterface
     {
         $model = config('ai.models.summarizer', 'meta-llama/llama-3.1-8b-instruct:free');
 
-        $systemPrompt = 'Kamu adalah asisten HR profesional. Tugasmu adalah meringkas deskripsi lowongan kerja. '
-            . 'Balas HANYA dalam format JSON valid berikut, tanpa teks tambahan: '
-            . '{"summary": "Ringkasan dalam 2 kalimat.", "tags": ["tag1", "tag2", "tag3"]}';
-
-        $userPrompt = "Ringkas deskripsi lowongan berikut menjadi 2 kalimat dan extract 3-5 tags relevan:\n\n{$jobDescription}";
+        $systemPrompt = config('prompts.job_summary.system', 'Ringkas lowongan dalam JSON: {"summary": "...", "tags": [...]}');
+        $userPrompt = str_replace('{{job_description}}', $jobDescription, config('prompts.job_summary.user', $jobDescription));
 
         $prompt = $this->composePrompt($systemPrompt, $userPrompt);
 
@@ -111,14 +108,12 @@ class OpenRouterService implements AiServiceInterface
     {
         $model = config('ai.models.cv_matcher', 'meta-llama/llama-3.1-8b-instruct:free');
 
-        $systemPrompt = 'Kamu adalah recruiter profesional yang menganalisis kecocokan CV dengan lowongan kerja. '
-            . 'Balas HANYA dalam format JSON valid berikut, tanpa teks tambahan: '
-            . '{"match_score": 75, "strengths": ["strength1"], "weaknesses": ["weakness1"], "suggestions": ["suggestion1"]}';
-
-        $userPrompt = "Analisis kecocokan CV berikut dengan deskripsi lowongan.\n\n"
-            . "=== CV ===\n{$cvText}\n\n"
-            . "=== Deskripsi Lowongan ===\n{$jobDescription}\n\n"
-            . "Berikan match_score (0-100), strengths, weaknesses, dan suggestions.";
+        $systemPrompt = config('prompts.cv_matcher.system', 'Analisis kecocokan CV dalam JSON: {"match_score": 0-100, "strengths": [...], "weaknesses": [...], "suggestions": [...]}');
+        $userPrompt = str_replace(
+            ['{{cv_text}}', '{{job_description}}'],
+            [$cvText, $jobDescription],
+            config('prompts.cv_matcher.user', "CV:\n{$cvText}\n\nLowongan:\n{$jobDescription}")
+        );
 
         $prompt = $this->composePrompt($systemPrompt, $userPrompt);
 
