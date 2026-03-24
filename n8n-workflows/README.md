@@ -75,7 +75,9 @@ Daftar Sumber Scraping (konfigurasi portal target)
     ↓
 Scrape Halaman Index (HTTP GET ke portal)
     ↓
-Parse HTML ke Data Loker (extract judul, perusahaan, lokasi, URL)
+Extract Data dari HTML (n8n built-in HTML node, CSS selectors)
+    ↓
+Bangun Array Jobs (gabungkan hasil extract)
     ↓
 Batch per 5 Item (kirim ke AI per batch)
     ↓
@@ -87,8 +89,13 @@ Bangun Payload Ingest (format untuk Laravel API)
     ↓
 POST ke Laravel API (/api/v1/jobs/ingest)
     ↓
-Log Hasil + Cek Error
+Log Hasil
 ```
+
+## Kustomisasi CSS Selector
+
+Edit node **"Extract Data dari HTML"** untuk mengubah CSS selector sesuai portal target.
+Node ini menggunakan n8n built-in HTML extraction (bukan cheerio/library eksternal).
 
 ## Catatan
 - Workflow berjalan setiap hari pukul **02:00 WIB** (sesuaikan timezone di n8n Cloud settings)
@@ -96,3 +103,4 @@ Log Hasil + Cek Error
 - AI enrichment menggunakan model **gratis** dari OpenRouter (`meta-llama/llama-3.1-8b-instruct:free`)
 - Retry: scraping 3x, AI 2x, ingest 3x
 - Batch size 5: menghindari rate limit OpenRouter
+- **Tidak menggunakan cheerio/module eksternal** -- kompatibel dengan n8n Cloud
