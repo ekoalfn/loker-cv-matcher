@@ -5,7 +5,7 @@
 ])
 
 @php
-    $baseClasses = 'inline-flex items-center justify-center min-h-[2.75rem] px-5 py-2.5 rounded-lg font-semibold text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer';
+    $baseClasses = 'inline-flex items-center justify-center min-h-[2.75rem] px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer btn-press';
 
     $variantClasses = match($variant) {
         'primary' => 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',

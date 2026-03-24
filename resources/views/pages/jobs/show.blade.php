@@ -12,7 +12,7 @@
         </nav>
 
         {{-- Job Header --}}
-        <header class="mb-8">
+        <header class="mb-8 animate-fade-up">
             <h1 class="text-2xl md:text-3xl font-bold text-gray-900">
                 {{ $job->title }}
             </h1>
@@ -69,7 +69,7 @@
 
         {{-- AI Summary --}}
         @if($job->summary_ai)
-            <section class="mb-8 bg-blue-50 border border-blue-200 rounded-xl p-5">
+            <section class="mb-8 bg-blue-50 border border-blue-200 rounded-xl p-5 animate-fade-up delay-100">
                 <div class="flex items-start gap-3">
                     <div class="shrink-0 w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -106,7 +106,8 @@
 
         {{-- CV Matcher --}}
         <section
-            class="bg-white border border-gray-200 rounded-xl p-6"
+            class="bg-white border border-gray-200 rounded-xl p-6 transition-all duration-300"
+            :class="{ 'scanning-shimmer': scanning }"
             x-data="cvMatcher()"
         >
             <h2 class="text-xl font-bold text-gray-900 mb-2">CV Matcher</h2>
@@ -120,8 +121,8 @@
                 class="relative"
             >
                 <div
-                    class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center transition-colors"
-                    :class="{ 'border-blue-400 bg-blue-50': isDragging }"
+                    class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center transition-all duration-300"
+                    :class="{ 'border-blue-400 bg-blue-50 drag-active': isDragging }"
                     @dragover.prevent="isDragging = true"
                     @dragleave.prevent="isDragging = false"
                     @drop.prevent="handleDrop($event)"
@@ -188,16 +189,23 @@
                 </div>
 
                 {{-- Error --}}
-                <div x-show="error" x-cloak class="mt-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
+                <div x-show="error" x-cloak
+                    x-transition:enter="animate-shake"
+                    class="mt-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
                     <span x-text="error"></span>
                 </div>
             </div>
 
             {{-- Results --}}
-            <div x-show="result" x-cloak class="space-y-6">
+            <div x-show="result" x-cloak
+                x-transition:enter="transition ease-out duration-500"
+                x-transition:enter-start="opacity-0 scale-95"
+                x-transition:enter-end="opacity-100 scale-100"
+                class="space-y-6"
+            >
 
                 {{-- Match Score Gauge --}}
-                <div class="text-center">
+                <div class="text-center animate-fade-up">
                     <div class="relative inline-flex items-center justify-center w-32 h-32">
                         <svg class="w-32 h-32 -rotate-90" viewBox="0 0 120 120">
                             <circle cx="60" cy="60" r="54" fill="none" stroke="#e5e7eb" stroke-width="8" />
@@ -208,6 +216,7 @@
                                 stroke-linecap="round"
                                 :stroke-dasharray="339.292"
                                 :stroke-dashoffset="339.292 - (339.292 * (result?.score || 0) / 100)"
+                                class="gauge-circle gauge-animate"
                             />
                         </svg>
                         <div class="absolute">
@@ -222,7 +231,7 @@
                 </div>
 
                 {{-- Strengths --}}
-                <div>
+                <div class="animate-fade-up delay-200">
                     <h3 class="text-sm font-semibold text-emerald-700 mb-2 flex items-center gap-1.5">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -240,7 +249,7 @@
                 </div>
 
                 {{-- Weaknesses --}}
-                <div>
+                <div class="animate-fade-up delay-300">
                     <h3 class="text-sm font-semibold text-red-700 mb-2 flex items-center gap-1.5">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -258,7 +267,7 @@
                 </div>
 
                 {{-- Suggestions --}}
-                <div>
+                <div class="animate-fade-up delay-400">
                     <h3 class="text-sm font-semibold text-blue-700 mb-2 flex items-center gap-1.5">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />

@@ -89,7 +89,7 @@
             {{-- Job Cards Grid --}}
             <div class="flex-1">
                 @if($jobs->count() > 0)
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5" data-reveal-stagger>
                         @foreach($jobs as $job)
                             <x-job-card :job="$job" />
                         @endforeach
