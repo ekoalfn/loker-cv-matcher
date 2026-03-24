@@ -66,41 +66,50 @@ $('article[data-job-id]').each((i, el) => {
 });
 ```
 
-## Alur Workflow
+## Alur Workflow (AI-Powered)
 
 ```
 Cron 02:00 WIB
     ↓
-Daftar Sumber Scraping (konfigurasi portal target)
+Daftar Sumber (konfigurasi portal target)
     ↓
-Scrape Halaman Index (HTTP GET ke portal)
+Scrape HTML (HTTP GET ke portal)
     ↓
-Extract Data dari HTML (n8n built-in HTML node, CSS selectors)
+Bersihkan & Potong HTML (hapus script/style/nav, potong ~3000 char)
     ↓
-Bangun Array Jobs (gabungkan hasil extract)
+AI Extract Lowongan (OpenRouter membaca HTML, extract data terstruktur)
     ↓
-Batch per 5 Item (kirim ke AI per batch)
+Parse & Deduplicate (gabung chunks, hapus duplikat by URL, parse gaji)
     ↓
-AI Enrichment via OpenRouter (ringkasan 2 kalimat + tags)
+Batch per 5 (kirim ke AI per batch)
     ↓
-Parse AI Response (JSON parsing + regex fallback)
+AI Ringkasan + Tags (2 kalimat + 3-5 tags per lowongan)
     ↓
-Bangun Payload Ingest (format untuk Laravel API)
+Gabung Enrichment (merge tags + summary ke data loker)
     ↓
-POST ke Laravel API (/api/v1/jobs/ingest)
+Bangun Payload (format untuk Laravel API)
+    ↓
+POST ke Laravel (/api/v1/jobs/ingest)
     ↓
 Log Hasil
 ```
 
-## Kustomisasi CSS Selector
+## Keunggulan AI Extraction
 
-Edit node **"Extract Data dari HTML"** untuk mengubah CSS selector sesuai portal target.
-Node ini menggunakan n8n built-in HTML extraction (bukan cheerio/library eksternal).
+Workflow ini **TIDAK menggunakan CSS selectors** untuk parsing HTML. Sebagai gantinya, AI (OpenRouter) langsung membaca HTML mentah dan mengekstrak data lowongan secara cerdas. Keuntungan:
+
+- **Fleksibel**: bekerja dengan portal apapun tanpa perlu tahu struktur HTML
+- **Tahan perubahan**: jika portal mengubah layout/class name, AI tetap bisa extract
+- **Cukup tambahkan URL**: tidak perlu riset CSS selector setiap portal baru
+
+Untuk menambahkan sumber baru, cukup edit node **"Daftar Sumber"** dan tambahkan URL.
 
 ## Catatan
 - Workflow berjalan setiap hari pukul **02:00 WIB** (sesuaikan timezone di n8n Cloud settings)
-- Deduplikasi dilakukan di sisi Laravel (by `source_url`), bukan di n8n
-- AI enrichment menggunakan model **gratis** dari OpenRouter (`meta-llama/llama-3.1-8b-instruct:free`)
-- Retry: scraping 3x, AI 2x, ingest 3x
+- Deduplikasi dilakukan di 2 level: di n8n (by source_url per run) dan di Laravel (unique index)
+- AI menggunakan model **gratis** dari OpenRouter (`meta-llama/llama-3.1-8b-instruct:free`)
+- HTML dibersihkan (hapus script/svg/img) dan dipotong per ~3000 char agar muat context window
+- Retry: scraping 3x, AI extraction 2x, AI enrichment 2x, ingest 3x
 - Batch size 5: menghindari rate limit OpenRouter
-- **Tidak menggunakan cheerio/module eksternal** -- kompatibel dengan n8n Cloud
+- **Tanpa module eksternal** -- kompatibel dengan n8n Cloud
+- Gaji otomatis diparsing dari teks (misal "Rp 5,4 jt" → salary_min: 5400000)
