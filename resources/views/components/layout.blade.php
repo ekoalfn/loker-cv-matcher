@@ -3,19 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Portal Loker - Temukan lowongan kerja terbaik di Indonesia">
+    <meta name="description" content="{{ $description ?? 'Portal Loker - Temukan lowongan kerja terbaik di Indonesia dengan bantuan AI' }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'Portal Loker - Lowongan Kerja Indonesia' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen flex flex-col bg-white text-gray-800">
+<body class="min-h-screen flex flex-col bg-white text-gray-800 antialiased">
+
+    {{-- Skip to Content (A11y) --}}
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-blue-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:text-sm focus:font-semibold">
+        Langsung ke konten utama
+    </a>
 
     {{-- Header --}}
-    <header class="bg-white border-b border-gray-200 sticky top-0 z-50" x-data="{ mobileMenuOpen: false }">
+    <header class="bg-white/95 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50" x-data="{ mobileMenuOpen: false }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 {{-- Logo --}}
-                <a href="{{ route('home') }}" class="flex items-center gap-2 text-blue-600 font-bold text-xl">
+                <a href="{{ route('home') }}" class="flex items-center gap-2 text-blue-600 font-bold text-xl transition-opacity hover:opacity-80">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
@@ -23,11 +28,11 @@
                 </a>
 
                 {{-- Desktop Nav --}}
-                <nav class="hidden md:flex items-center gap-6">
-                    <a href="{{ route('home') }}" class="text-gray-600 hover:text-blue-600 transition-colors font-medium">
+                <nav class="hidden md:flex items-center gap-1">
+                    <a href="{{ route('home') }}" class="px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('home') ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50' }} transition-colors">
                         Beranda
                     </a>
-                    <a href="{{ route('jobs.index') }}" class="text-gray-600 hover:text-blue-600 transition-colors font-medium">
+                    <a href="{{ route('jobs.index') }}" class="px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('jobs.*') ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50' }} transition-colors">
                         Cari Loker
                     </a>
                 </nav>
@@ -62,10 +67,10 @@
             class="md:hidden border-t border-gray-200 bg-white"
         >
             <nav class="px-4 py-3 space-y-1">
-                <a href="{{ route('home') }}" class="block px-3 py-3 rounded-lg text-gray-600 hover:text-blue-600 hover:bg-gray-50 font-medium transition-colors">
+                <a href="{{ route('home') }}" class="block px-3 py-3 rounded-lg font-medium {{ request()->routeIs('home') ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50' }} transition-colors">
                     Beranda
                 </a>
-                <a href="{{ route('jobs.index') }}" class="block px-3 py-3 rounded-lg text-gray-600 hover:text-blue-600 hover:bg-gray-50 font-medium transition-colors">
+                <a href="{{ route('jobs.index') }}" class="block px-3 py-3 rounded-lg font-medium {{ request()->routeIs('jobs.*') ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50' }} transition-colors">
                     Cari Loker
                 </a>
             </nav>
@@ -73,7 +78,7 @@
     </header>
 
     {{-- Main Content --}}
-    <main class="flex-1">
+    <main id="main-content" class="flex-1">
         {{ $slot }}
     </main>
 
@@ -81,23 +86,17 @@
     <footer class="bg-gray-50 border-t border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-                <p class="text-gray-500 text-sm">
-                    &copy; {{ date('Y') }} Portal Loker. Hak cipta dilindungi.
-                </p>
-                <div class="flex items-center gap-6">
-                    <a href="#" class="text-gray-500 hover:text-blue-600 text-sm transition-colors">
-                        Kebijakan Privasi
-                    </a>
-                    <a href="#" class="text-gray-500 hover:text-blue-600 text-sm transition-colors">
-                        Syarat & Ketentuan
-                    </a>
+                <div class="flex items-center gap-2 text-gray-500 text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    &copy; {{ date('Y') }} Portal Loker
+                </div>
+                <div class="flex items-center gap-6 text-sm">
+                    <span class="text-gray-400">Privasi terlindungi. CV dihapus setelah analisis.</span>
                 </div>
             </div>
         </div>
     </footer>
-
-    <style>
-        [x-cloak] { display: none !important; }
-    </style>
 </body>
 </html>

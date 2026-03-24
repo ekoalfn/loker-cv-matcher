@@ -147,6 +147,9 @@
     animation: shimmer 1.5s infinite;
 }
 
+/* --- Alpine.js Cloak --- */
+[x-cloak] { display: none !important; }
+
 /* --- Reduced Motion --- */
 @media (prefers-reduced-motion: reduce) {
     *,
