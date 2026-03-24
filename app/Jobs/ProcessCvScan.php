@@ -66,6 +66,11 @@ class ProcessCvScan implements ShouldQueue
 
             // 2. Get job description (fallback chain: description_raw -> summary_ai -> title)
             $job = $this->scan->job;
+
+            if (! $job) {
+                throw new \RuntimeException('Associated job not found (may have been deleted).');
+            }
+
             $jobDescription = $job->description_raw ?: $job->summary_ai ?: $job->title;
 
             // 3. Call AI service for CV matching
@@ -95,8 +100,10 @@ class ProcessCvScan implements ShouldQueue
 
             throw $e; // Re-throw for queue retry mechanism
         } finally {
-            // Zero-retention: always delete the temporary PDF file
-            Storage::delete($this->filePath);
+            // Zero-retention: delete temp PDF on success or final attempt
+            if ($this->scan->status === CvScanStatus::Completed || $this->attempts() >= $this->tries) {
+                Storage::delete($this->filePath);
+            }
         }
     }
 }

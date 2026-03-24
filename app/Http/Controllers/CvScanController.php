@@ -48,9 +48,17 @@ class CvScanController extends Controller
     /**
      * GET /cv-scan/{id}/status -- polling status.
      */
-    public function status(int $id): JsonResponse
+    public function status(int $id, \Illuminate\Http\Request $request): JsonResponse
     {
         $scan = CvScan::findOrFail($id);
+
+        // IDOR protection: only the scan owner (by IP or user_id) can view results
+        $isOwner = ($scan->ip_address === $request->ip())
+            || (auth()->check() && $scan->user_id === auth()->id());
+
+        if (! $isOwner) {
+            abort(403);
+        }
 
         $response = [
             'status' => $scan->status->value,

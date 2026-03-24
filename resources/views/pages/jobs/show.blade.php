@@ -68,7 +68,7 @@
         </header>
 
         {{-- AI Summary --}}
-        @if($job->ai_summary)
+        @if($job->summary_ai)
             <section class="mb-8 bg-blue-50 border border-blue-200 rounded-xl p-5">
                 <div class="flex items-start gap-3">
                     <div class="shrink-0 w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -78,7 +78,7 @@
                     </div>
                     <div>
                         <h2 class="text-sm font-semibold text-blue-800 mb-1">Ringkasan AI</h2>
-                        <p class="text-sm text-blue-700 leading-relaxed">{{ $job->ai_summary }}</p>
+                        <p class="text-sm text-blue-700 leading-relaxed">{{ $job->summary_ai }}</p>
                     </div>
                 </div>
             </section>
@@ -88,7 +88,7 @@
         <section class="mb-8">
             <h2 class="text-xl font-bold text-gray-900 mb-4">Deskripsi Pekerjaan</h2>
             <div class="prose prose-sm max-w-none text-gray-700 leading-relaxed">
-                {!! $job->description !!}
+                {{ $job->description_raw }}
             </div>
         </section>
 
@@ -327,7 +327,7 @@
                     this.error = null;
 
                     const formData = new FormData();
-                    formData.append('cv', this.file);
+                    formData.append('pdf_file', this.file);
                     formData.append('job_id', '{{ $job->id }}');
 
                     try {

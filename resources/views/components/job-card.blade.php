@@ -37,9 +37,9 @@
     @endif
 
     {{-- AI Summary --}}
-    @if($job->ai_summary)
+    @if($job->summary_ai)
         <p class="text-sm text-gray-500 line-clamp-2">
-            {{ $job->ai_summary }}
+            {{ $job->summary_ai }}
         </p>
     @endif
 
