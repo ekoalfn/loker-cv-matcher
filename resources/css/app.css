@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ============================================
-   Animation System — Portal Loker
+   Liquid Glass Design System — Portal Loker
    ============================================ */
 
 /* --- Easing Tokens --- */
@@ -14,7 +14,7 @@
 @keyframes fade-up {
     from {
         opacity: 0;
-        transform: translateY(12px);
+        transform: translateY(16px);
     }
     to {
         opacity: 1;
@@ -58,9 +58,25 @@
     100% { background-position: 200% 0; }
 }
 
+@keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(10px, -10px) scale(1.02); }
+    66% { transform: translate(-5px, 5px) scale(0.98); }
+}
+
+@keyframes float-slow {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    50% { transform: translate(15px, -20px) rotate(3deg); }
+}
+
+@keyframes glow-pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.7; }
+}
+
 /* --- Utility Classes --- */
 .animate-fade-up {
-    animation: fade-up 0.6s var(--ease-out-quart) both;
+    animation: fade-up 0.7s var(--ease-out-expo) both;
 }
 
 .animate-fade-in {
@@ -75,18 +91,31 @@
     animation: shake 0.4s var(--ease-out-quart);
 }
 
+.animate-float {
+    animation: float 8s ease-in-out infinite;
+}
+
+.animate-float-slow {
+    animation: float-slow 12s ease-in-out infinite;
+}
+
+.animate-glow-pulse {
+    animation: glow-pulse 4s ease-in-out infinite;
+}
+
 /* Stagger delays for choreography */
 .delay-100 { animation-delay: 100ms; }
 .delay-200 { animation-delay: 200ms; }
 .delay-300 { animation-delay: 300ms; }
 .delay-400 { animation-delay: 400ms; }
 .delay-500 { animation-delay: 500ms; }
+.delay-600 { animation-delay: 600ms; }
 
 /* --- Scroll Reveal --- */
 .reveal {
     opacity: 0;
-    transform: translateY(12px);
-    transition: opacity 0.6s var(--ease-out-quart), transform 0.6s var(--ease-out-quart);
+    transform: translateY(16px);
+    transition: opacity 0.7s var(--ease-out-expo), transform 0.7s var(--ease-out-expo);
 }
 
 .reveal.revealed {
@@ -103,35 +132,96 @@
     animation: gauge-fill 1.2s var(--ease-out-expo) both;
 }
 
+/* ============================================
+   Liquid Glass — Core System
+   ============================================ */
+
+/* Glass Panel Base */
+.glass {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow:
+        0 1px 0 0 rgba(255, 255, 255, 0.1) inset,
+        0 4px 24px rgba(0, 0, 0, 0.04);
+}
+
+.glass-light {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow:
+        0 1px 0 0 rgba(255, 255, 255, 0.15) inset,
+        0 4px 16px rgba(0, 0, 0, 0.03);
+}
+
+.glass-strong {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow:
+        0 1px 0 0 rgba(255, 255, 255, 0.2) inset,
+        0 8px 32px rgba(0, 0, 0, 0.06);
+}
+
+.glass-subtle {
+    background: rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Glass Header */
+.glass-header {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow:
+        0 1px 0 0 rgba(255, 255, 255, 0.1) inset,
+        0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
 /* --- Button Press --- */
 .btn-press {
-    transition: transform 0.15s var(--ease-out-quart), box-shadow 0.2s var(--ease-out-quart);
+    transition: transform 0.2s var(--ease-out-quart), box-shadow 0.3s var(--ease-out-quart);
 }
 
 .btn-press:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .btn-press:active {
     transform: translateY(0) scale(0.98);
-    box-shadow: none;
 }
 
-/* --- Card Hover --- */
+/* --- Card Hover (Liquid Glass) --- */
 .card-hover {
-    transition: transform 0.25s var(--ease-out-quart), box-shadow 0.25s var(--ease-out-quart), border-color 0.25s var(--ease-out-quart);
+    transition:
+        transform 0.3s var(--ease-out-expo),
+        box-shadow 0.3s var(--ease-out-expo),
+        background 0.3s var(--ease-out-quart),
+        border-color 0.3s var(--ease-out-quart);
 }
 
 .card-hover:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow:
+        0 12px 40px rgba(99, 102, 241, 0.08),
+        0 4px 12px rgba(0, 0, 0, 0.04);
+    border-color: rgba(199, 210, 254, 0.5);
 }
 
-/* --- Focus Glow --- */
+/* --- Focus Glow (Glass) --- */
 .focus-glow:focus-within {
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-    border-color: rgb(59, 130, 246);
+    box-shadow:
+        0 0 0 3px rgba(99, 102, 241, 0.12),
+        0 1px 0 0 rgba(255, 255, 255, 0.1) inset;
+    border-color: rgba(129, 140, 248, 0.5);
     transition: box-shadow 0.2s var(--ease-out-quart), border-color 0.2s var(--ease-out-quart);
 }
 
@@ -142,9 +232,102 @@
 
 /* --- Scanning Shimmer --- */
 .scanning-shimmer {
-    background: linear-gradient(90deg, transparent 25%, rgba(59, 130, 246, 0.08) 50%, transparent 75%);
+    background: linear-gradient(90deg, transparent 25%, rgba(99, 102, 241, 0.06) 50%, transparent 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
+}
+
+/* --- Gradient Text Utility --- */
+.text-gradient {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed, #6366f1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.text-gradient-vibrant {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* --- Gradient Button Glow --- */
+.btn-gradient {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    box-shadow:
+        0 4px 16px rgba(99, 102, 241, 0.3),
+        0 1px 0 0 rgba(255, 255, 255, 0.15) inset;
+    transition: all 0.3s var(--ease-out-quart);
+}
+
+.btn-gradient:hover {
+    box-shadow:
+        0 8px 28px rgba(99, 102, 241, 0.4),
+        0 1px 0 0 rgba(255, 255, 255, 0.2) inset;
+    transform: translateY(-1px);
+}
+
+.btn-gradient:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow:
+        0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+/* --- Glass Badge --- */
+.badge-glass {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.2s var(--ease-out-quart);
+}
+
+.badge-glass:hover {
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
+}
+
+/* --- Glass Input --- */
+.input-glass {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.1) inset;
+    transition: all 0.3s var(--ease-out-quart);
+}
+
+.input-glass:focus {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(129, 140, 248, 0.4);
+    box-shadow:
+        0 0 0 3px rgba(99, 102, 241, 0.1),
+        0 1px 0 0 rgba(255, 255, 255, 0.15) inset;
+}
+
+/* --- Decorative Blobs --- */
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    pointer-events: none;
+    will-change: transform;
+}
+
+/* --- Nav Pill Hover --- */
+.nav-pill {
+    position: relative;
+    transition: all 0.25s var(--ease-out-quart);
+}
+
+.nav-pill:hover {
+    background: rgba(99, 102, 241, 0.06);
+}
+
+.nav-pill.active {
+    background: rgba(99, 102, 241, 0.08);
+    color: #4f46e5;
 }
 
 /* --- Alpine.js Cloak --- */
@@ -163,5 +346,9 @@
     .reveal {
         opacity: 1;
         transform: none;
+    }
+
+    .blob {
+        animation: none !important;
     }
 }
