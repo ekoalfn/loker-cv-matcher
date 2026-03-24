@@ -35,6 +35,7 @@ class JobIngestController extends Controller
         $stats = $this->jobRepository->upsertFromSource(
             jobs: $validated['jobs'],
             sourceId: (string) $source->id,
+            scrapedAt: $validated['scraped_at'],
         );
 
         return response()->json([

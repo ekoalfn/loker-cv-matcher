@@ -13,7 +13,7 @@ interface JobRepositoryInterface
 
     public function findBySlug(string $slug): ?Job;
 
-    public function upsertFromSource(array $jobs, string $sourceId): array;
+    public function upsertFromSource(array $jobs, string $sourceId, ?string $scrapedAt = null): array;
 
     public function getActiveCount(): int;
 

@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\EmploymentType;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\Response;
 
 class JobIngestRequest extends FormRequest
@@ -29,7 +31,7 @@ class JobIngestRequest extends FormRequest
             'jobs.*.title' => 'required|string|max:255',
             'jobs.*.company' => 'required|string|max:255',
             'jobs.*.location' => 'nullable|string|max:255',
-            'jobs.*.employment_type' => 'nullable|string|in:full-time,part-time,contract,freelance,internship',
+            'jobs.*.employment_type' => ['nullable', 'string', Rule::in(EmploymentType::cases())],
             'jobs.*.salary_min' => 'nullable|integer|min:0',
             'jobs.*.salary_max' => 'nullable|integer|min:0',
             'jobs.*.salary_currency' => 'nullable|string|max:3',

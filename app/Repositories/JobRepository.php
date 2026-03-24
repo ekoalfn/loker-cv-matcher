@@ -7,6 +7,7 @@ use App\DTOs\JobFilterDTO;
 use App\Models\Job;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class JobRepository implements JobRepositoryInterface
@@ -21,63 +22,64 @@ class JobRepository implements JobRepositoryInterface
      * @param  array<int, array<string, mixed>>  $jobs
      * @return array{total_received: int, inserted: int, updated: int, skipped: int, errors: array<int, array<string, mixed>>}
      */
-    public function upsertFromSource(array $jobs, string $sourceId): array
+    public function upsertFromSource(array $jobs, string $sourceId, ?string $scrapedAt = null): array
     {
-        $stats = [
-            'total_received' => count($jobs),
-            'inserted' => 0,
-            'updated' => 0,
-            'skipped' => 0,
-            'errors' => [],
-        ];
+        return DB::transaction(function () use ($jobs, $sourceId, $scrapedAt) {
+            $stats = [
+                'total_received' => count($jobs),
+                'inserted' => 0,
+                'updated' => 0,
+                'skipped' => 0,
+                'errors' => [],
+            ];
 
-        foreach ($jobs as $index => $jobData) {
-            try {
-                $sourceUrl = $jobData['source_url'] ?? null;
+            foreach ($jobs as $index => $jobData) {
+                try {
+                    $sourceUrl = $jobData['source_url'] ?? null;
 
-                if (empty($sourceUrl)) {
-                    $stats['errors'][] = [
-                        'index' => $index,
-                        'error' => 'Missing source_url',
-                    ];
-                    continue;
-                }
-
-                $existing = $this->model
-                    ->withTrashed()
-                    ->where('source_url', $sourceUrl)
-                    ->first();
-
-                $attributes = $this->mapJobAttributes($jobData, $sourceId);
-
-                if ($existing) {
-                    // Restore if soft-deleted
-                    if ($existing->trashed()) {
-                        $existing->restore();
+                    if (empty($sourceUrl)) {
+                        $stats['errors'][] = [
+                            'index' => $index,
+                            'error' => 'Missing source_url',
+                        ];
+                        continue;
                     }
 
-                    $existing->update($attributes);
-                    $stats['updated']++;
-                } else {
-                    $this->model->create($attributes);
-                    $stats['inserted']++;
+                    $existing = $this->model
+                        ->withTrashed()
+                        ->where('source_url', $sourceUrl)
+                        ->first();
+
+                    $attributes = $this->mapJobAttributes($jobData, $sourceId, $scrapedAt);
+
+                    if ($existing) {
+                        if ($existing->trashed()) {
+                            $existing->restore();
+                        }
+
+                        $existing->update($attributes);
+                        $stats['updated']++;
+                    } else {
+                        $this->model->create($attributes);
+                        $stats['inserted']++;
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning('Job upsert failed', [
+                        'index' => $index,
+                        'source_url' => $jobData['source_url'] ?? 'unknown',
+                        'error' => $e->getMessage(),
+                    ]);
+
+                    $stats['errors'][] = [
+                        'index' => $index,
+                        'source_url' => $jobData['source_url'] ?? 'unknown',
+                        'error' => 'Failed to process job entry.',
+                    ];
                 }
-            } catch (\Throwable $e) {
-                Log::warning('Job upsert failed', [
-                    'index' => $index,
-                    'source_url' => $jobData['source_url'] ?? 'unknown',
-                    'error' => $e->getMessage(),
-                ]);
-
-                $stats['errors'][] = [
-                    'index' => $index,
-                    'source_url' => $jobData['source_url'] ?? 'unknown',
-                    'error' => $e->getMessage(),
-                ];
             }
-        }
 
-        return $stats;
+            return $stats;
+        });
     }
 
     /**
@@ -144,7 +146,7 @@ class JobRepository implements JobRepositoryInterface
      * @param  array<string, mixed>  $jobData
      * @return array<string, mixed>
      */
-    private function mapJobAttributes(array $jobData, string $sourceId): array
+    private function mapJobAttributes(array $jobData, string $sourceId, ?string $scrapedAt = null): array
     {
         return [
             'source_id' => $sourceId,
@@ -161,7 +163,7 @@ class JobRepository implements JobRepositoryInterface
             'source_url' => $jobData['source_url'],
             'is_active' => true,
             'expires_at' => $jobData['expires_at'] ?? null,
-            'scraped_at' => $jobData['scraped_at'] ?? now(),
+            'scraped_at' => $scrapedAt ?? now(),
         ];
     }
 }
