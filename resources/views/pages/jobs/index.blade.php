@@ -1,12 +1,5 @@
 <x-layout title="Cari Lowongan Kerja - Portal Loker">
 
-    {{-- Page Header --}}
-    <div class="relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-br from-indigo-600/5 via-violet-600/5 to-transparent"></div>
-        <div class="blob w-64 h-64 bg-indigo-200/20 top-[-20%] right-[-5%] animate-float-slow"></div>
-        <div class="blob w-48 h-48 bg-violet-200/15 bottom-[-10%] left-[-3%] animate-float" style="animation-delay: -2s;"></div>
-    </div>
-
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10" x-data="{ showFilters: false }">
 
         {{-- Search Bar --}}
@@ -17,12 +10,12 @@
         {{-- Results Count + Filter Toggle --}}
         <div class="flex items-center justify-between mt-4 mb-5 md:mb-8">
             <p class="text-sm text-slate-500 font-medium">
-                <span class="text-lg font-bold text-gradient">{{ $jobs->total() }}</span>
+                <span class="text-lg font-bold text-teal-700">{{ $jobs->total() }}</span>
                 <span class="ml-1">lowongan ditemukan</span>
             </p>
             <button
                 @click="showFilters = !showFilters"
-                class="md:hidden inline-flex items-center gap-2 min-h-[2.75rem] px-4 py-2 text-sm font-semibold text-indigo-600 glass rounded-xl hover:bg-white/70 transition-all duration-200 cursor-pointer"
+                class="md:hidden inline-flex items-center gap-2 min-h-[2.75rem] px-4 py-2 text-sm font-semibold text-teal-600 glass rounded-xl hover:bg-white/70 transition-all duration-200 cursor-pointer"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
@@ -49,7 +42,7 @@
 
                     {{-- Section Title --}}
                     <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center">
+                        <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                             </svg>
@@ -83,13 +76,13 @@
                         </label>
                         <div class="space-y-1.5">
                             @foreach(['full-time' => 'Full Time', 'part-time' => 'Part Time', 'contract' => 'Kontrak', 'internship' => 'Magang'] as $value => $label)
-                                <label class="flex items-center gap-3 cursor-pointer min-h-[2.75rem] px-3 py-2 rounded-xl hover:bg-indigo-50/40 transition-colors duration-200">
+                                <label class="flex items-center gap-3 cursor-pointer min-h-[2.75rem] px-3 py-2 rounded-xl hover:bg-teal-50/40 transition-colors duration-200">
                                     <input
                                         type="checkbox"
                                         name="employment_type[]"
                                         value="{{ $value }}"
                                         @checked(in_array($value, $filters->employmentType ?? []))
-                                        class="w-4 h-4 rounded-md border-slate-300 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-0"
+                                        class="w-4 h-4 rounded-md border-slate-300 text-teal-600 focus:ring-teal-500 focus:ring-offset-0"
                                     >
                                     <span class="text-sm text-slate-700 font-medium">{{ $label }}</span>
                                 </label>
@@ -119,8 +112,8 @@
                     </div>
                 @else
                     <div class="glass rounded-3xl text-center py-20 px-6">
-                        <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-slate-100 to-indigo-100 flex items-center justify-center mb-5">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-slate-100 to-teal-100 flex items-center justify-center mb-5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
