@@ -4,20 +4,20 @@
     <section class="bg-gradient-to-br from-blue-600 to-blue-800 text-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
             <div class="max-w-3xl mx-auto text-center">
-                <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
+                <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight animate-fade-up">
                     Temukan Lowongan Kerja Terbaik di Indonesia
                 </h1>
-                <p class="mt-4 text-lg md:text-xl text-blue-100">
+                <p class="mt-4 text-lg md:text-xl text-blue-100 animate-fade-up delay-100">
                     Ribuan lowongan kerja dari perusahaan terpercaya, dirangkum oleh AI untuk memudahkan pencarian Anda.
                 </p>
 
                 {{-- Search Bar --}}
-                <div class="mt-8 max-w-xl mx-auto">
+                <div class="mt-8 max-w-xl mx-auto animate-fade-up delay-200">
                     <x-search-bar :action="route('jobs.index')" />
                 </div>
 
                 {{-- Stats --}}
-                <div class="mt-10 flex flex-wrap justify-center gap-8">
+                <div class="mt-10 flex flex-wrap justify-center gap-8 animate-fade-up delay-300">
                     <div class="text-center">
                         <p class="text-3xl md:text-4xl font-bold">{{ number_format($totalJobs) }}</p>
                         <p class="text-sm text-blue-200 mt-1">Lowongan Tersedia</p>
@@ -50,7 +50,7 @@
         </div>
 
         @if($recentJobs->count() > 0)
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" data-reveal-stagger>
                 @foreach($recentJobs as $job)
                     <x-job-card :job="$job" />
                 @endforeach

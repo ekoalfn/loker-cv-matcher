@@ -1,1 +1,164 @@
 @import "tailwindcss";
+
+/* ============================================
+   Animation System — Portal Loker
+   ============================================ */
+
+/* --- Easing Tokens --- */
+@theme {
+    --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --- Entrance Animations --- */
+@keyframes fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scale-in {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes gauge-fill {
+    from { stroke-dashoffset: 339.292; }
+}
+
+@keyframes count-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-4px); }
+    40%, 80% { transform: translateX(4px); }
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* --- Utility Classes --- */
+.animate-fade-up {
+    animation: fade-up 0.6s var(--ease-out-quart) both;
+}
+
+.animate-fade-in {
+    animation: fade-in 0.5s var(--ease-out-quart) both;
+}
+
+.animate-scale-in {
+    animation: scale-in 0.4s var(--ease-out-quart) both;
+}
+
+.animate-shake {
+    animation: shake 0.4s var(--ease-out-quart);
+}
+
+/* Stagger delays for choreography */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+
+/* --- Scroll Reveal --- */
+.reveal {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.6s var(--ease-out-quart), transform 0.6s var(--ease-out-quart);
+}
+
+.reveal.revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* --- Score Gauge Animation --- */
+.gauge-circle {
+    transition: stroke-dashoffset 1.2s var(--ease-out-expo);
+}
+
+.gauge-animate {
+    animation: gauge-fill 1.2s var(--ease-out-expo) both;
+}
+
+/* --- Button Press --- */
+.btn-press {
+    transition: transform 0.15s var(--ease-out-quart), box-shadow 0.2s var(--ease-out-quart);
+}
+
+.btn-press:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.btn-press:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: none;
+}
+
+/* --- Card Hover --- */
+.card-hover {
+    transition: transform 0.25s var(--ease-out-quart), box-shadow 0.25s var(--ease-out-quart), border-color 0.25s var(--ease-out-quart);
+}
+
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+/* --- Focus Glow --- */
+.focus-glow:focus-within {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    border-color: rgb(59, 130, 246);
+    transition: box-shadow 0.2s var(--ease-out-quart), border-color 0.2s var(--ease-out-quart);
+}
+
+/* --- Drag Active Pulse --- */
+.drag-active {
+    animation: count-pulse 0.8s var(--ease-out-quart) infinite;
+}
+
+/* --- Scanning Shimmer --- */
+.scanning-shimmer {
+    background: linear-gradient(90deg, transparent 25%, rgba(59, 130, 246, 0.08) 50%, transparent 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+/* --- Reduced Motion --- */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .reveal {
+        opacity: 1;
+        transform: none;
+    }
+}

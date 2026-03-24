@@ -2,7 +2,7 @@
     'job',
 ])
 
-<article class="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md hover:border-blue-200 transition-all duration-200 flex flex-col gap-3">
+<article class="bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-200 card-hover flex flex-col gap-3 reveal">
     {{-- Title --}}
     <h3 class="text-lg font-semibold text-gray-900">
         <a href="{{ route('jobs.show', $job) }}" class="hover:text-blue-600 transition-colors">
