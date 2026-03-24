@@ -1,41 +1,27 @@
 <x-layout :title="$job->title . ' di ' . $job->company . ' - Portal Loker'">
 
     @php
-        $employmentLabels = [
-            'full-time' => 'Full Time',
-            'part-time' => 'Part Time',
-            'contract' => 'Kontrak',
-            'freelance' => 'Freelance',
-            'internship' => 'Magang',
-        ];
-
         $avatarColors = [
-            'from-indigo-500 to-violet-500',
+            'from-teal-500 to-cyan-500',
             'from-blue-500 to-cyan-500',
             'from-emerald-500 to-teal-500',
             'from-amber-500 to-orange-500',
             'from-rose-500 to-pink-500',
-            'from-violet-500 to-purple-500',
+            'from-cyan-500 to-teal-600',
         ];
         $colorIndex = crc32($job->company ?? '') % count($avatarColors);
         $avatarGradient = $avatarColors[$colorIndex];
         $companyInitial = strtoupper(mb_substr($job->company ?? '?', 0, 1));
     @endphp
 
-    {{-- Subtle background decoration --}}
-    <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-        <div class="blob w-96 h-96 bg-indigo-200/15 top-[5%] right-[-10%] animate-float-slow"></div>
-        <div class="blob w-72 h-72 bg-violet-200/10 bottom-[10%] left-[-5%] animate-float" style="animation-delay: -4s;"></div>
-    </div>
-
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
 
         {{-- Breadcrumb --}}
-        <nav class="mb-8 text-sm text-slate-400 font-medium" aria-label="Breadcrumb">
+        <nav class="mb-8 text-sm text-slate-500 font-medium" aria-label="Breadcrumb">
             <ol class="flex flex-wrap items-center gap-1.5">
-                <li><a href="{{ route('home') }}" class="hover:text-indigo-600 transition-colors duration-200">Beranda</a></li>
+                <li><a href="{{ route('home') }}" class="hover:text-teal-600 transition-colors duration-200">Beranda</a></li>
                 <li class="text-slate-300">/</li>
-                <li><a href="{{ route('jobs.index') }}" class="hover:text-indigo-600 transition-colors duration-200">Lowongan</a></li>
+                <li><a href="{{ route('jobs.index') }}" class="hover:text-teal-600 transition-colors duration-200">Lowongan</a></li>
                 <li class="text-slate-300">/</li>
                 <li class="text-slate-600 font-semibold truncate max-w-[200px] sm:max-w-none" aria-current="page">{{ $job->title }}</li>
             </ol>
@@ -45,7 +31,7 @@
         <header class="glass rounded-3xl p-6 md:p-8 mb-8 animate-fade-up">
             <div class="flex items-start gap-4">
                 {{-- Company Avatar --}}
-                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br {{ $avatarGradient }} flex items-center justify-center shadow-lg shadow-indigo-500/15 shrink-0">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br {{ $avatarGradient }} flex items-center justify-center shadow-lg shadow-teal-500/15 shrink-0">
                     <span class="text-white font-bold text-xl">{{ $companyInitial }}</span>
                 </div>
 
@@ -57,7 +43,7 @@
                     <div class="mt-3 flex flex-wrap items-center gap-3 text-sm text-slate-500">
                         {{-- Company --}}
                         <div class="flex items-center gap-1.5">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                             </svg>
                             <span class="font-semibold text-slate-700">{{ $job->company }}</span>
@@ -66,7 +52,7 @@
                         {{-- Location --}}
                         @if($job->location)
                             <div class="flex items-center gap-1.5">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
@@ -76,7 +62,7 @@
 
                         {{-- Employment Type --}}
                         @if($job->employment_type)
-                            <x-badge :text="$employmentLabels[$job->employment_type->value ?? $job->employment_type] ?? $job->employment_type" color="blue" />
+                            <x-badge :text="employment_label($job->employment_type)" color="blue" />
                         @endif
                     </div>
                 </div>
@@ -104,7 +90,7 @@
             @if(!empty($job->tags))
                 <div class="mt-5 flex flex-wrap gap-2">
                     @foreach($job->tags as $tag)
-                        <x-badge :text="$tag" color="purple" />
+                        <x-badge :text="$tag" color="teal" />
                     @endforeach
                 </div>
             @endif
@@ -113,16 +99,16 @@
         {{-- AI Summary — Glass with Gradient Accent --}}
         @if($job->summary_ai)
             <section class="mb-8 relative animate-fade-up delay-100">
-                <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-indigo-500/5 to-violet-500/5"></div>
-                <div class="relative glass rounded-2xl p-6 border-l-4 border-l-indigo-500">
+                <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-teal-500/5 to-cyan-500/5"></div>
+                <div class="relative glass rounded-2xl p-6 border-l-4 border-l-teal-500">
                     <div class="flex items-start gap-3">
-                        <div class="shrink-0 w-9 h-9 bg-gradient-to-br from-indigo-500 to-violet-500 rounded-xl flex items-center justify-center shadow-md shadow-indigo-500/20">
+                        <div class="shrink-0 w-9 h-9 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-md shadow-teal-500/20">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                             </svg>
                         </div>
                         <div>
-                            <h2 class="text-sm font-bold text-gradient mb-1.5">Ringkasan AI</h2>
+                            <h2 class="text-sm font-bold text-amber-700 mb-1.5">Ringkasan AI</h2>
                             <p class="text-sm text-slate-700 leading-relaxed">{{ $job->summary_ai }}</p>
                         </div>
                     </div>
@@ -142,16 +128,16 @@
 
         {{-- CTA: Apply — Glass with Gradient --}}
         <section class="mb-10 relative animate-fade-up delay-300">
-            <div class="absolute inset-0 rounded-3xl bg-gradient-to-r from-indigo-500/5 via-violet-500/5 to-purple-500/5"></div>
+            <div class="absolute inset-0 rounded-3xl bg-gradient-to-r from-teal-500/5 via-cyan-500/5 to-teal-500/5"></div>
             <div class="relative glass-strong rounded-3xl p-8 text-center">
-                <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/25 mb-5">
+                <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-teal-500/25 mb-5">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>
                 </div>
                 <h2 class="text-xl font-extrabold text-slate-900 mb-2">Tertarik dengan posisi ini?</h2>
                 <p class="text-sm text-slate-500 mb-6 font-medium">Lamar langsung di situs resmi perusahaan.</p>
-                <x-button :href="route('jobs.apply', $job)">
+                <x-button variant="accent" :href="route('jobs.apply', $job)">
                     Lamar di Situs Resmi
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -167,7 +153,7 @@
             x-data="cvMatcher()"
         >
             <div class="flex items-center gap-3 mb-2">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center shadow-md shadow-indigo-500/20">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center shadow-md shadow-teal-500/20">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
@@ -181,23 +167,23 @@
             {{-- Upload Area --}}
             <div x-show="!result" class="mt-6">
                 <div
-                    class="border-2 border-dashed border-slate-200/60 rounded-2xl p-10 text-center transition-all duration-300 cursor-pointer hover:border-indigo-300/50 hover:bg-indigo-50/20"
-                    :class="{ 'border-indigo-400 bg-indigo-50/40 drag-active': isDragging }"
+                    class="border-2 border-dashed border-slate-200/60 rounded-2xl p-10 text-center transition-all duration-300 cursor-pointer hover:border-teal-300/50 hover:bg-teal-50/20"
+                    :class="{ 'border-teal-400 bg-teal-50/40 drag-active': isDragging }"
                     @dragover.prevent="isDragging = true"
                     @dragleave.prevent="isDragging = false"
                     @drop.prevent="handleDrop($event)"
                     @click="$refs.fileInput.click()"
                 >
-                    <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-indigo-100 to-violet-100 flex items-center justify-center mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-teal-100 to-cyan-100 flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                         </svg>
                     </div>
 
                     <p class="text-sm text-slate-600 mb-2 font-medium">
-                        Seret file CV ke sini, atau <span class="text-indigo-600 font-semibold">pilih file</span>
+                        Seret file CV ke sini, atau <span class="text-teal-600 font-semibold">pilih file</span>
                     </p>
-                    <p class="text-xs text-slate-400 font-medium">Hanya PDF, maksimal 5 MB</p>
+                    <p class="text-xs text-slate-500 font-medium">Hanya PDF, maksimal 5 MB</p>
 
                     <input
                         type="file"
@@ -210,14 +196,14 @@
 
                 {{-- Selected File --}}
                 <div x-show="file" x-cloak class="mt-4 flex items-center gap-3 text-sm text-slate-700 glass-light rounded-xl px-4 py-3">
-                    <div class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <div class="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                     </div>
                     <span class="truncate font-medium" x-text="file?.name"></span>
-                    <span class="text-slate-400 text-xs shrink-0 font-medium" x-text="file ? (file.size / 1024 / 1024).toFixed(1) + ' MB' : ''"></span>
-                    <button @click.stop="file = null" class="text-slate-400 hover:text-red-500 ml-auto shrink-0 p-1.5 rounded-lg hover:bg-red-50/50 transition-all duration-200" aria-label="Hapus file">
+                    <span class="text-slate-500 text-xs shrink-0 font-medium" x-text="file ? (file.size / 1024 / 1024).toFixed(1) + ' MB' : ''"></span>
+                    <button @click.stop="file = null" class="text-slate-500 hover:text-red-500 ml-auto shrink-0 p-1.5 rounded-lg hover:bg-red-50/50 transition-all duration-200" aria-label="Hapus file">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -225,7 +211,7 @@
                 </div>
 
                 {{-- Privacy Notice --}}
-                <p class="mt-4 text-xs text-slate-400 flex items-start gap-2 font-medium">
+                <p class="mt-4 text-xs text-slate-500 flex items-start gap-2 font-medium">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 mt-0.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
@@ -236,8 +222,8 @@
                 <div class="mt-5">
                     <button
                         type="button"
-                        class="inline-flex items-center justify-center w-full sm:w-auto min-h-[2.75rem] px-6 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        :class="!file || scanning ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'btn-gradient text-white cursor-pointer'"
+                        class="inline-flex items-center justify-center w-full sm:w-auto min-h-[2.75rem] px-6 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+                        :class="!file || scanning ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 cursor-pointer'"
                         :disabled="!file || scanning"
                         @click="uploadAndScan()"
                     >
@@ -310,7 +296,7 @@
                                 'text-amber-500': result?.match_score >= 40 && result?.match_score < 70,
                                 'text-red-500': result?.match_score < 40
                             }" x-text="(result?.match_score || 0) + '%'"></span>
-                            <span class="text-xs text-slate-400 mt-1 font-semibold uppercase tracking-wider">kecocokan</span>
+                            <span class="text-xs text-slate-500 mt-1 font-semibold uppercase tracking-wider">kecocokan</span>
                         </div>
                     </div>
                 </div>
@@ -362,8 +348,8 @@
                 {{-- Suggestions --}}
                 <div class="animate-fade-up delay-400">
                     <div class="glass rounded-2xl p-5">
-                        <h3 class="text-sm font-bold text-indigo-700 mb-3 flex items-center gap-2">
-                            <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center">
+                        <h3 class="text-sm font-bold text-teal-700 mb-3 flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                                 </svg>
@@ -372,8 +358,8 @@
                         </h3>
                         <ul class="space-y-2">
                             <template x-for="(item, i) in result?.suggestions" :key="'sg-'+i">
-                                <li class="text-sm text-slate-700 flex items-start gap-2.5 bg-indigo-50/40 rounded-xl px-4 py-3 border border-indigo-100/40">
-                                    <span class="text-indigo-500 font-bold mt-px shrink-0">&rarr;</span>
+                                <li class="text-sm text-slate-700 flex items-start gap-2.5 bg-teal-50/40 rounded-xl px-4 py-3 border border-teal-100/40">
+                                    <span class="text-teal-500 font-bold mt-px shrink-0">&rarr;</span>
                                     <span x-text="item"></span>
                                 </li>
                             </template>
