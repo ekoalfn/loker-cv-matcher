@@ -1,0 +1,274 @@
+{
+  "name": "Portal Loker - Scraping + AI Enrichment + Ingest",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 2 * * *"
+            }
+          ]
+        }
+      },
+      "id": "cron-trigger",
+      "name": "Cron 02:00 WIB",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.scrape_url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "http-scrape",
+      "name": "Scrape Halaman Index",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 0],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// KONFIGURASI SUMBER SCRAPING\n// Edit array ini untuk menambah/mengubah sumber\n// ============================================\n\nconst sources = [\n  {\n    name: 'contoh-portal',\n    scrape_url: 'https://contoh-portal-loker.com/lowongan',\n    // Tambahkan sumber lain di sini:\n    // name: 'jobstreet', scrape_url: 'https://...'\n  }\n];\n\nreturn sources.map(s => ({ json: s }));"
+      },
+      "id": "source-config",
+      "name": "Daftar Sumber Scraping",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// PARSER HTML → DATA LOWONGAN\n// Sesuaikan selector CSS untuk setiap sumber\n// ============================================\n\nconst cheerio = require('cheerio');\nconst html = $input.first().json.data;\nconst sourceName = $('Daftar Sumber Scraping').first().json.name;\nconst $ = cheerio.load(html);\n\nconst jobs = [];\n\n// CONTOH SELECTOR - SESUAIKAN DENGAN PORTAL TARGET\n// Ubah selector di bawah ini sesuai struktur HTML portal\n$('.job-listing, .vacancy-item, article.job').each((i, el) => {\n  const $el = $(el);\n  \n  const title = $el.find('.job-title, h2, h3').first().text().trim();\n  const company = $el.find('.company-name, .employer').first().text().trim();\n  const location = $el.find('.location, .job-location').first().text().trim();\n  const sourceUrl = $el.find('a').first().attr('href') || '';\n  \n  // Skip jika data tidak lengkap\n  if (!title || !company || !sourceUrl) return;\n  \n  // Pastikan URL absolut\n  const fullUrl = sourceUrl.startsWith('http') \n    ? sourceUrl \n    : `https://contoh-portal-loker.com${sourceUrl}`;\n  \n  jobs.push({\n    title,\n    company,\n    location: location || null,\n    source_url: fullUrl,\n    employment_type: null,\n    salary_min: null,\n    salary_max: null,\n    description_raw: $el.find('.description, .job-desc').first().text().trim() || null,\n    source_name: sourceName,\n  });\n});\n\nif (jobs.length === 0) {\n  throw new Error(`Tidak ada lowongan ditemukan dari ${sourceName}. Periksa selector CSS.`);\n}\n\nreturn jobs.map(j => ({ json: j }));"
+      },
+      "id": "html-parser",
+      "name": "Parse HTML ke Data Loker",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 0]
+    },
+    {
+      "parameters": {
+        "batchSize": 5,
+        "options": {
+          "reset": false
+        }
+      },
+      "id": "batch-splitter",
+      "name": "Batch per 5 Item",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [880, 0]
+    },
+    {
+      "parameters": {
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"meta-llama/llama-3.1-8b-instruct:free\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Kamu adalah asisten HR profesional Indonesia. Tugasmu meringkas lowongan kerja.\\n\\nATURAN OUTPUT:\\n1. Balas HANYA dengan JSON valid, tanpa markdown code block\\n2. Format: {\\\"summary\\\": \\\"Ringkasan 2 kalimat.\\\", \\\"tags\\\": [\\\"tag1\\\", \\\"tag2\\\"]}\\n3. Summary: 2 kalimat dalam Bahasa Indonesia\\n4. Tags: 3-5 tags (lokasi, tipe kerja, skill utama)\\n5. Tags dalam huruf kecil\\n\\nContoh output:\\n{\\\"summary\\\": \\\"Posisi backend developer di startup fintech Jakarta dengan fokus pada pengembangan API dan microservices. Dibutuhkan pengalaman minimal 2 tahun dengan Go atau Python.\\\", \\\"tags\\\": [\\\"jakarta\\\", \\\"backend\\\", \\\"full-time\\\", \\\"fintech\\\"]}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Ringkas lowongan berikut:\\n\\nJudul: {{ $json.title }}\\nPerusahaan: {{ $json.company }}\\nLokasi: {{ $json.location }}\\nDeskripsi: {{ $json.description_raw }}\"\n    }\n  ],\n  \"temperature\": 0.3,\n  \"max_tokens\": 512\n}",
+        "options": {}
+      },
+      "id": "openrouter-enrich",
+      "name": "AI Enrichment (OpenRouter)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 0],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "OPENROUTER_CREDENTIAL_ID",
+          "name": "OpenRouter API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse AI response dan gabungkan dengan data loker\n\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const original = item.json;\n  let summary = '';\n  let tags = [];\n\n  try {\n    // Ambil content dari OpenRouter response\n    const content = original.choices?.[0]?.message?.content || '';\n    \n    // Coba parse JSON\n    let parsed = null;\n    \n    // Direct JSON\n    try {\n      parsed = JSON.parse(content);\n    } catch (e) {\n      // Coba extract JSON dari text\n      const jsonMatch = content.match(/\\{[\\s\\S]*\\}/);\n      if (jsonMatch) {\n        try {\n          parsed = JSON.parse(jsonMatch[0]);\n        } catch (e2) {}\n      }\n    }\n    \n    if (parsed) {\n      summary = parsed.summary || '';\n      tags = Array.isArray(parsed.tags) ? parsed.tags : [];\n    } else {\n      // Regex fallback\n      const summaryMatch = content.match(/(?:summary|ringkasan)[:\\s]*(.+?)(?=\\n|tags|$)/is);\n      if (summaryMatch) summary = summaryMatch[1].trim();\n      \n      const tagsMatch = content.match(/(?:tags|label)[:\\s]*(.+?)$/is);\n      if (tagsMatch) {\n        tags = tagsMatch[1].split(',').map(t => t.trim().replace(/[\\[\\]\"']/g, '')).filter(Boolean);\n      }\n    }\n  } catch (e) {\n    // Jika AI gagal total, lanjut tanpa enrichment\n    summary = '';\n    tags = [];\n  }\n\n  results.push({\n    json: {\n      title: original.title || $('Batch per 5 Item').item.json.title,\n      company: original.company || $('Batch per 5 Item').item.json.company,\n      location: original.location || $('Batch per 5 Item').item.json.location,\n      source_url: original.source_url || $('Batch per 5 Item').item.json.source_url,\n      employment_type: original.employment_type || null,\n      salary_min: original.salary_min || null,\n      salary_max: original.salary_max || null,\n      description_raw: original.description_raw || null,\n      summary_ai: summary,\n      tags: tags,\n      source_name: original.source_name || 'unknown',\n    }\n  });\n}\n\nreturn results;"
+      },
+      "id": "parse-ai-response",
+      "name": "Parse AI Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1320, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Kumpulkan semua hasil menjadi satu payload untuk ingest API\n\nconst items = $input.all();\nconst sourceName = items[0]?.json?.source_name || 'unknown';\n\nconst payload = {\n  source: sourceName,\n  scraped_at: new Date().toISOString(),\n  jobs: items.map(item => ({\n    title: item.json.title,\n    company: item.json.company,\n    location: item.json.location,\n    employment_type: item.json.employment_type,\n    salary_min: item.json.salary_min,\n    salary_max: item.json.salary_max,\n    description_raw: item.json.description_raw,\n    summary_ai: item.json.summary_ai,\n    tags: item.json.tags,\n    source_url: item.json.source_url,\n  }))\n};\n\nreturn [{ json: payload }];"
+      },
+      "id": "build-payload",
+      "name": "Bangun Payload Ingest",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1540, 0]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.LARAVEL_API_URL || 'http://localhost:8000' }}/api/v1/jobs/ingest",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "api-ingest",
+      "name": "POST ke Laravel API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1760, 0],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "LARAVEL_API_CREDENTIAL_ID",
+          "name": "Laravel Scraping API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log hasil ingest\nconst response = $input.first().json;\n\nconst summary = {\n  status: 'SUCCESS',\n  source: response.source || 'unknown',\n  stats: response.stats || {},\n  timestamp: new Date().toISOString(),\n  message: `Ingest selesai: ${response.stats?.inserted || 0} baru, ${response.stats?.updated || 0} diupdate, ${response.stats?.skipped || 0} dilewati`\n};\n\nreturn [{ json: summary }];"
+      },
+      "id": "log-result",
+      "name": "Log Hasil",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1980, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "error-check",
+              "leftValue": "={{ $json.stats?.errors?.length }}",
+              "rightValue": "0",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "check-errors",
+      "name": "Ada Error?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1980, 220]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "error-msg",
+              "name": "error_message",
+              "value": "=Scraping pipeline error pada {{ $now.format('yyyy-MM-dd HH:mm') }}:\n\nSumber: {{ $json.source }}\nTotal: {{ $json.stats.total_received }}\nError: {{ $json.stats.errors.length }}\n\nDetail:\n{{ JSON.stringify($json.stats.errors, null, 2) }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "format-error",
+      "name": "Format Error Message",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [2200, 220]
+    }
+  ],
+  "connections": {
+    "Cron 02:00 WIB": {
+      "main": [
+        [{ "node": "Daftar Sumber Scraping", "type": "main", "index": 0 }]
+      ]
+    },
+    "Daftar Sumber Scraping": {
+      "main": [
+        [{ "node": "Scrape Halaman Index", "type": "main", "index": 0 }]
+      ]
+    },
+    "Scrape Halaman Index": {
+      "main": [
+        [{ "node": "Parse HTML ke Data Loker", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parse HTML ke Data Loker": {
+      "main": [
+        [{ "node": "Batch per 5 Item", "type": "main", "index": 0 }]
+      ]
+    },
+    "Batch per 5 Item": {
+      "main": [
+        [{ "node": "AI Enrichment (OpenRouter)", "type": "main", "index": 0 }]
+      ]
+    },
+    "AI Enrichment (OpenRouter)": {
+      "main": [
+        [{ "node": "Parse AI Response", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parse AI Response": {
+      "main": [
+        [{ "node": "Bangun Payload Ingest", "type": "main", "index": 0 }]
+      ]
+    },
+    "Bangun Payload Ingest": {
+      "main": [
+        [
+          { "node": "POST ke Laravel API", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "POST ke Laravel API": {
+      "main": [
+        [
+          { "node": "Log Hasil", "type": "main", "index": 0 },
+          { "node": "Ada Error?", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Ada Error?": {
+      "main": [
+        [{ "node": "Format Error Message", "type": "main", "index": 0 }],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "staticData": null,
+  "tags": [
+    { "name": "portal-loker" },
+    { "name": "scraping" },
+    { "name": "production" }
+  ]
+}
