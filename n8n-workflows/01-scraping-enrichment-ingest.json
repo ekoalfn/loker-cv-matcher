@@ -1,5 +1,5 @@
 {
-  "name": "Portal Loker - Scraping + AI Enrichment + Ingest",
+  "name": "Portal Loker - AI Scraping + Enrichment + Ingest",
   "nodes": [
     {
       "parameters": {
@@ -20,10 +20,10 @@
     },
     {
       "parameters": {
-        "jsCode": "// ============================================\n// KONFIGURASI SUMBER SCRAPING\n// Edit array ini untuk menambah/mengubah sumber\n// ============================================\n\nconst sources = [\n  {\n    name: 'contoh-portal',\n    scrape_url: 'https://contoh-portal-loker.com/lowongan',\n    base_url: 'https://contoh-portal-loker.com'\n  }\n  // Tambahkan sumber lain:\n  // { name: 'glints', scrape_url: 'https://glints.com/id/lowongan', base_url: 'https://glints.com' }\n];\n\nreturn sources.map(s => ({ json: s }));"
+        "jsCode": "// ============================================\n// KONFIGURASI SUMBER SCRAPING\n// Tambahkan portal loker di sini\n// ============================================\n\nconst sources = [\n  {\n    name: 'glints',\n    scrape_url: 'https://glints.com/id/opportunities/jobs/explore',\n    base_url: 'https://glints.com'\n  }\n  // Tambahkan sumber lain:\n  // { name: 'jobstreet', scrape_url: 'https://www.jobstreet.co.id/...', base_url: 'https://www.jobstreet.co.id' },\n  // { name: 'kalibrr', scrape_url: 'https://www.kalibrr.com/...', base_url: 'https://www.kalibrr.com' },\n];\n\nreturn sources.map(s => ({ json: s }));"
       },
       "id": "source-config",
-      "name": "Daftar Sumber Scraping",
+      "name": "Daftar Sumber",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [220, 0]
@@ -40,7 +40,7 @@
         }
       },
       "id": "http-scrape",
-      "name": "Scrape Halaman Index",
+      "name": "Scrape HTML",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [440, 0],
@@ -50,67 +50,13 @@
     },
     {
       "parameters": {
-        "operation": "extractHtmlContent",
-        "extractionValues": {
-          "values": [
-            {
-              "key": "titles",
-              "cssSelector": ".job-title, article h2, article h3, [data-automation='jobTitle']",
-              "returnArray": true
-            },
-            {
-              "key": "companies",
-              "cssSelector": ".company-name, .employer, [data-automation='jobCompany']",
-              "returnArray": true
-            },
-            {
-              "key": "locations",
-              "cssSelector": ".job-location, .location, [data-automation='jobLocation']",
-              "returnArray": true
-            },
-            {
-              "key": "links",
-              "cssSelector": "a.job-link, article a, .job-listing a",
-              "returnValue": "href",
-              "returnArray": true
-            },
-            {
-              "key": "descriptions",
-              "cssSelector": ".job-desc, .description, .job-snippet",
-              "returnArray": true
-            }
-          ]
-        },
-        "options": {}
+        "jsCode": "// ============================================\n// POTONG HTML MENJADI CHUNKS YANG BISA DIPROSES AI\n// Model gratis punya limit context ~4-8K tokens\n// ============================================\n\nconst html = $input.first().json.data;\nconst sourceConfig = $('Daftar Sumber').first().json;\n\n// Bersihkan HTML: hapus script, style, nav, footer, header\nlet cleaned = html\n  .replace(/<script[\\s\\S]*?<\\/script>/gi, '')\n  .replace(/<style[\\s\\S]*?<\\/style>/gi, '')\n  .replace(/<nav[\\s\\S]*?<\\/nav>/gi, '')\n  .replace(/<footer[\\s\\S]*?<\\/footer>/gi, '')\n  .replace(/<header[\\s\\S]*?<\\/header>/gi, '')\n  .replace(/<svg[\\s\\S]*?<\\/svg>/gi, '')\n  .replace(/<img[^>]*>/gi, '')\n  .replace(/<!--[\\s\\S]*?-->/g, '')\n  .replace(/\\s+/g, ' ')\n  .trim();\n\n// Potong per ~3000 karakter (aman untuk context window model gratis)\nconst CHUNK_SIZE = 3000;\nconst chunks = [];\n\nfor (let i = 0; i < cleaned.length; i += CHUNK_SIZE) {\n  const chunk = cleaned.substring(i, i + CHUNK_SIZE);\n  // Hanya kirim chunk yang kemungkinan mengandung data loker\n  if (chunk.includes('job') || chunk.includes('loker') || chunk.includes('lowongan') || \n      chunk.includes('vacancy') || chunk.includes('career') || chunk.includes('opportunity') ||\n      chunk.includes('gizi') || chunk.includes('developer') || chunk.includes('manager') ||\n      chunk.includes('Rp') || chunk.includes('Full') || chunk.includes('Part')) {\n    chunks.push({\n      html_chunk: chunk,\n      source_name: sourceConfig.name,\n      base_url: sourceConfig.base_url,\n      chunk_index: chunks.length,\n    });\n  }\n}\n\n// Batasi maksimal 10 chunks untuk hemat token\nconst limited = chunks.slice(0, 10);\n\nif (limited.length === 0) {\n  throw new Error(`Tidak ada konten loker ditemukan dari ${sourceConfig.name}`);\n}\n\nreturn limited.map(c => ({ json: c }));"
       },
-      "id": "html-extract",
-      "name": "Extract Data dari HTML",
-      "type": "n8n-nodes-base.html",
-      "typeVersion": 1.2,
-      "position": [660, 0]
-    },
-    {
-      "parameters": {
-        "jsCode": "// ============================================\n// GABUNGKAN HASIL EXTRACT MENJADI ARRAY JOBS\n// ============================================\n\nconst data = $input.first().json;\nconst sourceConfig = $('Daftar Sumber Scraping').first().json;\nconst baseUrl = sourceConfig.base_url || '';\nconst sourceName = sourceConfig.name || 'unknown';\n\nconst titles = data.titles || [];\nconst companies = data.companies || [];\nconst locations = data.locations || [];\nconst links = data.links || [];\nconst descriptions = data.descriptions || [];\n\nconst jobs = [];\n\nfor (let i = 0; i < titles.length; i++) {\n  const title = (titles[i] || '').trim();\n  const company = (companies[i] || '').trim();\n  const link = (links[i] || '').trim();\n\n  if (!title || !link) continue;\n\n  // Pastikan URL absolut\n  const sourceUrl = link.startsWith('http') ? link : baseUrl + link;\n\n  jobs.push({\n    title,\n    company: company || 'Tidak diketahui',\n    location: (locations[i] || '').trim() || null,\n    source_url: sourceUrl,\n    employment_type: null,\n    salary_min: null,\n    salary_max: null,\n    description_raw: (descriptions[i] || '').trim() || null,\n    source_name: sourceName,\n  });\n}\n\nif (jobs.length === 0) {\n  throw new Error(\n    `Tidak ada lowongan ditemukan dari ${sourceName}. ` +\n    `Periksa CSS selector di node \"Extract Data dari HTML\".`\n  );\n}\n\nreturn jobs.map(j => ({ json: j }));"
-      },
-      "id": "build-jobs",
-      "name": "Bangun Array Jobs",
+      "id": "chunk-html",
+      "name": "Bersihkan & Potong HTML",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [880, 0]
-    },
-    {
-      "parameters": {
-        "batchSize": 5,
-        "options": {
-          "reset": false
-        }
-      },
-      "id": "batch-splitter",
-      "name": "Batch per 5 Item",
-      "type": "n8n-nodes-base.splitInBatches",
-      "typeVersion": 3,
-      "position": [1100, 0]
+      "position": [660, 0]
     },
     {
       "parameters": {
@@ -119,14 +65,14 @@
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"model\": \"meta-llama/llama-3.1-8b-instruct:free\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Kamu adalah asisten HR profesional Indonesia. Tugasmu meringkas lowongan kerja.\\n\\nATURAN OUTPUT:\\n1. Balas HANYA dengan JSON valid, tanpa markdown code block\\n2. Format: {\\\"summary\\\": \\\"Ringkasan 2 kalimat.\\\", \\\"tags\\\": [\\\"tag1\\\", \\\"tag2\\\"]}\\n3. Summary: 2 kalimat dalam Bahasa Indonesia\\n4. Tags: 3-5 tags (lokasi, tipe kerja, skill utama)\\n5. Tags dalam huruf kecil\\n\\nContoh output:\\n{\\\"summary\\\": \\\"Posisi backend developer di startup fintech Jakarta dengan fokus pada pengembangan API dan microservices. Dibutuhkan pengalaman minimal 2 tahun dengan Go atau Python.\\\", \\\"tags\\\": [\\\"jakarta\\\", \\\"backend\\\", \\\"full-time\\\", \\\"fintech\\\"]}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Ringkas lowongan berikut:\\n\\nJudul: {{ $json.title }}\\nPerusahaan: {{ $json.company }}\\nLokasi: {{ $json.location }}\\nDeskripsi: {{ $json.description_raw }}\"\n    }\n  ],\n  \"temperature\": 0.3,\n  \"max_tokens\": 512\n}",
+        "jsonBody": "={\n  \"model\": \"meta-llama/llama-3.1-8b-instruct:free\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Kamu adalah web scraper AI. Tugasmu mengekstrak data lowongan kerja dari potongan HTML mentah.\\n\\nATURAN:\\n1. Ekstrak SEMUA lowongan kerja yang ada di HTML\\n2. Balas HANYA dengan JSON array, tanpa markdown code block\\n3. Jika tidak ada lowongan ditemukan, balas dengan: []\\n4. Setiap lowongan harus berformat:\\n{\\\"title\\\": \\\"Judul lowongan\\\", \\\"company\\\": \\\"Nama perusahaan\\\", \\\"location\\\": \\\"Kota, Provinsi\\\", \\\"employment_type\\\": \\\"full-time/part-time/contract/internship atau null\\\", \\\"salary_text\\\": \\\"Info gaji jika ada atau null\\\", \\\"source_path\\\": \\\"/path/ke/lowongan atau URL lengkap\\\", \\\"tags\\\": [\\\"skill1\\\", \\\"skill2\\\"]}\\n5. Untuk source_path: ambil dari href link lowongan\\n6. Untuk employment_type: normalisasi ke: full-time, part-time, contract, freelance, internship\\n7. Untuk tags: ambil skill, kategori, atau label yang terlihat\\n\\nContoh output:\\n[{\\\"title\\\": \\\"Backend Developer\\\", \\\"company\\\": \\\"PT Maju Jaya\\\", \\\"location\\\": \\\"Jakarta Selatan, DKI Jakarta\\\", \\\"employment_type\\\": \\\"full-time\\\", \\\"salary_text\\\": \\\"Rp 8-15 jt\\\", \\\"source_path\\\": \\\"/id/opportunities/jobs/backend-dev/abc123\\\", \\\"tags\\\": [\\\"golang\\\", \\\"microservices\\\"]}]\\n\\nJika HTML tidak mengandung data lowongan, balas: []\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Ekstrak semua lowongan kerja dari HTML berikut:\\n\\n{{ $json.html_chunk }}\"\n    }\n  ],\n  \"temperature\": 0.1,\n  \"max_tokens\": 2048\n}",
         "options": {}
       },
-      "id": "openrouter-enrich",
-      "name": "AI Enrichment (OpenRouter)",
+      "id": "ai-extract",
+      "name": "AI Extract Lowongan",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1320, 0],
+      "position": [880, 0],
       "retryOnFail": true,
       "maxTries": 2,
       "waitBetweenTries": 3000,
@@ -139,23 +85,71 @@
     },
     {
       "parameters": {
-        "jsCode": "// Parse AI response dan gabungkan dengan data loker asli\n\nconst items = $input.all();\nconst batchItems = $('Batch per 5 Item').all();\nconst results = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const aiResponse = items[i].json;\n  const original = batchItems[i]?.json || {};\n  let summary = '';\n  let tags = [];\n\n  try {\n    const content = aiResponse.choices?.[0]?.message?.content || '';\n    let parsed = null;\n\n    // Coba parse JSON langsung\n    try {\n      parsed = JSON.parse(content);\n    } catch (e) {\n      // Extract JSON dari text\n      const jsonMatch = content.match(/\\{[\\s\\S]*\\}/);\n      if (jsonMatch) {\n        try { parsed = JSON.parse(jsonMatch[0]); } catch (e2) {}\n      }\n    }\n\n    if (parsed) {\n      summary = parsed.summary || '';\n      tags = Array.isArray(parsed.tags) ? parsed.tags : [];\n    } else {\n      // Regex fallback\n      const sm = content.match(/(?:summary|ringkasan)[:\\s]*(.+?)(?=\\n|tags|$)/is);\n      if (sm) summary = sm[1].trim();\n      const tm = content.match(/(?:tags|label)[:\\s]*(.+?)$/is);\n      if (tm) tags = tm[1].split(',').map(t => t.trim().replace(/[\\[\\]\"']/g, '')).filter(Boolean);\n    }\n  } catch (e) {\n    summary = '';\n    tags = [];\n  }\n\n  results.push({\n    json: {\n      title: original.title,\n      company: original.company,\n      location: original.location,\n      source_url: original.source_url,\n      employment_type: original.employment_type,\n      salary_min: original.salary_min,\n      salary_max: original.salary_max,\n      description_raw: original.description_raw,\n      summary_ai: summary,\n      tags: tags,\n      source_name: original.source_name,\n    }\n  });\n}\n\nreturn results;"
+        "jsCode": "// ============================================\n// PARSE AI EXTRACTION RESPONSE\n// Gabungkan semua chunk results + deduplicate\n// ============================================\n\nconst items = $input.all();\nconst sourceConfig = $('Daftar Sumber').first().json;\nconst baseUrl = sourceConfig.base_url || '';\nconst seen = new Set();\nconst jobs = [];\n\nfor (const item of items) {\n  try {\n    const content = item.json.choices?.[0]?.message?.content || '';\n    let parsed = null;\n\n    // Coba parse JSON array\n    try {\n      parsed = JSON.parse(content);\n    } catch (e) {\n      // Extract JSON array dari text\n      const match = content.match(/\\[[\\s\\S]*\\]/);\n      if (match) {\n        try { parsed = JSON.parse(match[0]); } catch (e2) {}\n      }\n    }\n\n    if (!Array.isArray(parsed)) continue;\n\n    for (const job of parsed) {\n      if (!job.title || !job.source_path) continue;\n\n      // Buat URL lengkap\n      const sourceUrl = job.source_path.startsWith('http')\n        ? job.source_path\n        : baseUrl + job.source_path;\n\n      // Deduplicate by source_url\n      if (seen.has(sourceUrl)) continue;\n      seen.add(sourceUrl);\n\n      // Parse salary text ke angka\n      let salaryMin = null;\n      let salaryMax = null;\n      if (job.salary_text) {\n        const salaryNums = job.salary_text.match(/([\\d.,]+)/g);\n        if (salaryNums && salaryNums.length >= 1) {\n          const parseNum = (s) => {\n            let n = parseFloat(s.replace(/\\./g, '').replace(',', '.'));\n            // Jika ada 'jt' atau 'juta', kalikan 1.000.000\n            if (job.salary_text.toLowerCase().includes('jt') || job.salary_text.toLowerCase().includes('juta')) {\n              n = n * 1000000;\n            }\n            return Math.round(n);\n          };\n          salaryMin = parseNum(salaryNums[0]);\n          if (salaryNums.length >= 2) {\n            salaryMax = parseNum(salaryNums[1]);\n          }\n        }\n      }\n\n      jobs.push({\n        title: job.title.trim(),\n        company: (job.company || 'Tidak diketahui').trim(),\n        location: job.location || null,\n        source_url: sourceUrl,\n        employment_type: job.employment_type || null,\n        salary_min: salaryMin,\n        salary_max: salaryMax,\n        tags: Array.isArray(job.tags) ? job.tags : [],\n        description_raw: null,\n        source_name: sourceConfig.name,\n      });\n    }\n  } catch (e) {\n    // Skip chunk yang gagal parse\n  }\n}\n\nif (jobs.length === 0) {\n  throw new Error(`AI tidak menemukan lowongan dari ${sourceConfig.name}. Cek apakah HTML ter-scrape dengan benar.`);\n}\n\nreturn jobs.map(j => ({ json: j }));"
       },
-      "id": "parse-ai-response",
-      "name": "Parse AI Response",
+      "id": "parse-extract",
+      "name": "Parse & Deduplicate",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1540, 0]
+      "position": [1100, 0]
     },
     {
       "parameters": {
-        "jsCode": "// Kumpulkan semua hasil menjadi payload untuk ingest API\n\nconst items = $input.all();\nconst sourceName = items[0]?.json?.source_name || 'unknown';\n\nconst payload = {\n  source: sourceName,\n  scraped_at: new Date().toISOString(),\n  jobs: items.map(item => ({\n    title: item.json.title,\n    company: item.json.company,\n    location: item.json.location,\n    employment_type: item.json.employment_type,\n    salary_min: item.json.salary_min,\n    salary_max: item.json.salary_max,\n    description_raw: item.json.description_raw,\n    summary_ai: item.json.summary_ai,\n    tags: item.json.tags,\n    source_url: item.json.source_url,\n  }))\n};\n\nreturn [{ json: payload }];"
+        "batchSize": 5,
+        "options": {
+          "reset": false
+        }
       },
-      "id": "build-payload",
-      "name": "Bangun Payload Ingest",
+      "id": "batch-splitter",
+      "name": "Batch per 5",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1320, 0]
+    },
+    {
+      "parameters": {
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"meta-llama/llama-3.1-8b-instruct:free\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Kamu adalah asisten HR profesional Indonesia. Ringkas lowongan kerja ini.\\n\\nBALAS HANYA dengan JSON valid:\\n{\\\"summary\\\": \\\"Ringkasan 2 kalimat dalam Bahasa Indonesia.\\\", \\\"tags\\\": [\\\"tag1\\\", \\\"tag2\\\", \\\"tag3\\\"]}\\n\\nContoh:\\n{\\\"summary\\\": \\\"Dibutuhkan ahli gizi untuk rumah sakit di Batam dengan pengalaman minimal 1 tahun. Bertanggung jawab atas perencanaan menu dan edukasi nutrisi pasien.\\\", \\\"tags\\\": [\\\"batam\\\", \\\"kesehatan\\\", \\\"full-time\\\", \\\"gizi\\\"]}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Ringkas lowongan ini:\\nJudul: {{ $json.title }}\\nPerusahaan: {{ $json.company }}\\nLokasi: {{ $json.location }}\\nTipe: {{ $json.employment_type }}\\nGaji: {{ $json.salary_min ? 'Rp ' + $json.salary_min : '-' }}\"\n    }\n  ],\n  \"temperature\": 0.3,\n  \"max_tokens\": 256\n}",
+        "options": {}
+      },
+      "id": "ai-enrich",
+      "name": "AI Ringkasan + Tags",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1540, 0],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "OPENROUTER_CREDENTIAL_ID",
+          "name": "OpenRouter API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Gabungkan enrichment result dengan data loker asli\n\nconst items = $input.all();\nconst batchItems = $('Batch per 5').all();\nconst results = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const ai = items[i].json;\n  const original = batchItems[i]?.json || {};\n  let summary = '';\n  let enrichedTags = original.tags || [];\n\n  try {\n    const content = ai.choices?.[0]?.message?.content || '';\n    let parsed = null;\n    try { parsed = JSON.parse(content); } catch (e) {\n      const m = content.match(/\\{[\\s\\S]*\\}/);\n      if (m) try { parsed = JSON.parse(m[0]); } catch (e2) {}\n    }\n    if (parsed) {\n      summary = parsed.summary || '';\n      if (Array.isArray(parsed.tags)) {\n        // Merge tags dari extraction + enrichment, deduplicate\n        const allTags = [...new Set([...enrichedTags, ...parsed.tags])];\n        enrichedTags = allTags.slice(0, 6);\n      }\n    }\n  } catch (e) {}\n\n  results.push({ json: {\n    ...original,\n    summary_ai: summary,\n    tags: enrichedTags,\n  }});\n}\n\nreturn results;"
+      },
+      "id": "merge-enrichment",
+      "name": "Gabung Enrichment",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [1760, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Bangun payload untuk Laravel API\n\nconst items = $input.all();\nconst sourceName = items[0]?.json?.source_name || 'unknown';\n\nreturn [{ json: {\n  source: sourceName,\n  scraped_at: new Date().toISOString(),\n  jobs: items.map(item => ({\n    title: item.json.title,\n    company: item.json.company,\n    location: item.json.location,\n    employment_type: item.json.employment_type,\n    salary_min: item.json.salary_min,\n    salary_max: item.json.salary_max,\n    description_raw: item.json.description_raw,\n    summary_ai: item.json.summary_ai,\n    tags: item.json.tags,\n    source_url: item.json.source_url,\n  }))\n}}];"
+      },
+      "id": "build-payload",
+      "name": "Bangun Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1980, 0]
     },
     {
       "parameters": {
@@ -165,15 +159,13 @@
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify($json) }}",
-        "options": {
-          "timeout": 30000
-        }
+        "options": { "timeout": 30000 }
       },
       "id": "api-ingest",
-      "name": "POST ke Laravel API",
+      "name": "POST ke Laravel",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1980, 0],
+      "position": [2200, 0],
       "retryOnFail": true,
       "maxTries": 3,
       "waitBetweenTries": 5000,
@@ -186,65 +178,48 @@
     },
     {
       "parameters": {
-        "jsCode": "// Log hasil ingest\nconst response = $input.first().json;\n\nreturn [{ json: {\n  status: 'SUCCESS',\n  source: response.source || 'unknown',\n  inserted: response.stats?.inserted || 0,\n  updated: response.stats?.updated || 0,\n  skipped: response.stats?.skipped || 0,\n  errors: response.stats?.errors?.length || 0,\n  timestamp: new Date().toISOString(),\n} }];"
+        "jsCode": "const r = $input.first().json;\nreturn [{ json: {\n  status: 'OK',\n  source: r.source,\n  inserted: r.stats?.inserted || 0,\n  updated: r.stats?.updated || 0,\n  errors: r.stats?.errors?.length || 0,\n  timestamp: new Date().toISOString(),\n}}];"
       },
       "id": "log-result",
       "name": "Log Hasil",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2200, 0]
+      "position": [2420, 0]
     }
   ],
   "connections": {
     "Cron 02:00 WIB": {
-      "main": [
-        [{ "node": "Daftar Sumber Scraping", "type": "main", "index": 0 }]
-      ]
+      "main": [[{ "node": "Daftar Sumber", "type": "main", "index": 0 }]]
     },
-    "Daftar Sumber Scraping": {
-      "main": [
-        [{ "node": "Scrape Halaman Index", "type": "main", "index": 0 }]
-      ]
+    "Daftar Sumber": {
+      "main": [[{ "node": "Scrape HTML", "type": "main", "index": 0 }]]
     },
-    "Scrape Halaman Index": {
-      "main": [
-        [{ "node": "Extract Data dari HTML", "type": "main", "index": 0 }]
-      ]
+    "Scrape HTML": {
+      "main": [[{ "node": "Bersihkan & Potong HTML", "type": "main", "index": 0 }]]
     },
-    "Extract Data dari HTML": {
-      "main": [
-        [{ "node": "Bangun Array Jobs", "type": "main", "index": 0 }]
-      ]
+    "Bersihkan & Potong HTML": {
+      "main": [[{ "node": "AI Extract Lowongan", "type": "main", "index": 0 }]]
     },
-    "Bangun Array Jobs": {
-      "main": [
-        [{ "node": "Batch per 5 Item", "type": "main", "index": 0 }]
-      ]
+    "AI Extract Lowongan": {
+      "main": [[{ "node": "Parse & Deduplicate", "type": "main", "index": 0 }]]
     },
-    "Batch per 5 Item": {
-      "main": [
-        [{ "node": "AI Enrichment (OpenRouter)", "type": "main", "index": 0 }]
-      ]
+    "Parse & Deduplicate": {
+      "main": [[{ "node": "Batch per 5", "type": "main", "index": 0 }]]
     },
-    "AI Enrichment (OpenRouter)": {
-      "main": [
-        [{ "node": "Parse AI Response", "type": "main", "index": 0 }]
-      ]
+    "Batch per 5": {
+      "main": [[{ "node": "AI Ringkasan + Tags", "type": "main", "index": 0 }]]
     },
-    "Parse AI Response": {
-      "main": [
-        [{ "node": "Bangun Payload Ingest", "type": "main", "index": 0 }]
-      ]
+    "AI Ringkasan + Tags": {
+      "main": [[{ "node": "Gabung Enrichment", "type": "main", "index": 0 }]]
     },
-    "Bangun Payload Ingest": {
-      "main": [
-        [{ "node": "POST ke Laravel API", "type": "main", "index": 0 }]
-      ]
+    "Gabung Enrichment": {
+      "main": [[{ "node": "Bangun Payload", "type": "main", "index": 0 }]]
     },
-    "POST ke Laravel API": {
-      "main": [
-        [{ "node": "Log Hasil", "type": "main", "index": 0 }]
-      ]
+    "Bangun Payload": {
+      "main": [[{ "node": "POST ke Laravel", "type": "main", "index": 0 }]]
+    },
+    "POST ke Laravel": {
+      "main": [[{ "node": "Log Hasil", "type": "main", "index": 0 }]]
     }
   },
   "settings": {
@@ -252,10 +227,9 @@
     "saveManualExecutions": true,
     "callerPolicy": "workflowsFromSameOwner"
   },
-  "staticData": null,
   "tags": [
     { "name": "portal-loker" },
-    { "name": "scraping" },
+    { "name": "ai-scraping" },
     { "name": "production" }
   ]
 }
