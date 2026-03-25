@@ -3,93 +3,42 @@
 namespace App\Services;
 
 use App\Contracts\AiServiceInterface;
-use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class OpenRouterService implements AiServiceInterface
 {
     private string $baseUrl;
-
     private string $apiKey;
-
     private int $timeout;
-
-    private int $maxAttempts;
-
-    private int $retryDelayMs;
-
-    private int $retryMultiplier;
-
     private int $maxTokens;
-
     private AiResponseParser $parser;
 
     public function __construct(AiResponseParser $parser)
     {
         $this->parser = $parser;
-        $this->baseUrl = rtrim(config('ai.providers.openrouter.base_url', 'https://openrouter.ai/api/v1'), '/');
-        $this->apiKey = config('ai.providers.openrouter.api_key', '');
-        $this->timeout = (int) config('ai.providers.openrouter.timeout', 60);
-        $this->maxAttempts = (int) config('ai.retry.max_attempts', 3);
-        $this->retryDelayMs = (int) config('ai.retry.delay_ms', 1000);
-        $this->retryMultiplier = (int) config('ai.retry.multiplier', 2);
+        $this->baseUrl = rtrim(config('laravel-openrouter.api_endpoint', 'https://openrouter.ai/api/v1/'), '/');
+        $this->apiKey = config('laravel-openrouter.api_key', '');
+        $this->timeout = (int) config('laravel-openrouter.api_timeout', 60);
         $this->maxTokens = (int) config('ai.limits.max_tokens_per_request', 2048);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function chat(string $prompt, ?string $model = null): array
     {
-        $model = $model ?? config('ai.models.summarizer', 'meta-llama/llama-3.1-8b-instruct:free');
-        $fallbackModel = config('ai.models.fallback', 'mistralai/mistral-7b-instruct:free');
-
-        // Coba model utama
-        $result = $this->attemptChat($prompt, $model);
-        if ($result !== null) {
-            return $result;
-        }
-
-        // Fallback ke model cadangan jika model utama gagal
-        if ($model !== $fallbackModel) {
-            Log::warning('OpenRouter: primary model failed, trying fallback', [
-                'primary_model' => $model,
-                'fallback_model' => $fallbackModel,
-            ]);
-
-            $result = $this->attemptChat($prompt, $fallbackModel);
-            if ($result !== null) {
-                return $result;
-            }
-        }
-
-        // Semua model gagal
-        Log::error('OpenRouter: all models failed', [
-            'primary_model' => $model,
-            'fallback_model' => $fallbackModel,
-        ]);
-
-        return [
-            'content' => '',
-            'model' => $model,
-            'tokens_used' => 0,
-        ];
+        $model = $model ?? config('ai.models.summarizer');
+        return $this->callApi([
+            ['role' => 'user', 'content' => $prompt],
+        ], $model);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function summarizeJob(string $jobDescription): array
     {
-        $model = config('ai.models.summarizer', 'meta-llama/llama-3.1-8b-instruct:free');
+        $system = config('prompts.job_summary.system', 'Ringkas lowongan dalam JSON.');
+        $user = str_replace('{{job_description}}', $jobDescription, config('prompts.job_summary.user', $jobDescription));
 
-        $systemPrompt = config('prompts.job_summary.system', 'Ringkas lowongan dalam JSON: {"summary": "...", "tags": [...]}');
-        $userPrompt = str_replace('{{job_description}}', $jobDescription, config('prompts.job_summary.user', $jobDescription));
-
-        $prompt = $this->composePrompt($systemPrompt, $userPrompt);
-
-        $result = $this->chat($prompt, $model);
+        $result = $this->callApi([
+            ['role' => 'user', 'content' => "[Instruksi]\n{$system}\n\n[Permintaan]\n{$user}"],
+        ], config('ai.models.summarizer'));
 
         $parsed = $this->parser->parseJobSummary($result['content']);
 
@@ -101,23 +50,25 @@ class OpenRouterService implements AiServiceInterface
         ];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function matchCv(string $cvText, string $jobDescription): array
     {
-        $model = config('ai.models.cv_matcher', 'meta-llama/llama-3.1-8b-instruct:free');
-
-        $systemPrompt = config('prompts.cv_matcher.system', 'Analisis kecocokan CV dalam JSON: {"match_score": 0-100, "strengths": [...], "weaknesses": [...], "suggestions": [...]}');
-        $userPrompt = str_replace(
+        $system = config('prompts.cv_matcher.system', 'Analisis kecocokan CV.');
+        $user = str_replace(
             ['{{cv_text}}', '{{job_description}}'],
             [$cvText, $jobDescription],
             config('prompts.cv_matcher.user', "CV:\n{$cvText}\n\nLowongan:\n{$jobDescription}")
         );
 
-        $prompt = $this->composePrompt($systemPrompt, $userPrompt);
+        $result = $this->callApi([
+            ['role' => 'user', 'content' => "[Instruksi]\n{$system}\n\n[Permintaan]\n{$user}"],
+        ], config('ai.models.cv_matcher'));
 
-        $result = $this->chat($prompt, $model);
+        Log::info('OpenRouter raw CV match response', [
+            'model' => $result['model'],
+            'tokens' => $result['tokens_used'],
+            'content_length' => strlen($result['content']),
+            'content_preview' => mb_substr($result['content'], 0, 500),
+        ]);
 
         $parsed = $this->parser->parseCvMatch($result['content']);
 
@@ -132,101 +83,79 @@ class OpenRouterService implements AiServiceInterface
     }
 
     /**
-     * Attempt chat request dengan retry logic (exponential backoff).
-     *
-     * @return array{content: string, model: string, tokens_used: int}|null
+     * Direct HTTP call to OpenRouter API.
+     * Same pattern as Meta-Trader-Bot: OpenAI-compatible endpoint.
      */
-    private function attemptChat(string $prompt, string $model): ?array
+    private function callApi(array $messages, string $model): array
     {
-        $delayMs = $this->retryDelayMs;
+        $fallback = config('ai.models.fallback');
 
-        for ($attempt = 1; $attempt <= $this->maxAttempts; $attempt++) {
-            try {
-                $response = Http::withHeaders([
-                    'Authorization' => "Bearer {$this->apiKey}",
-                    'HTTP-Referer' => config('app.url', 'http://localhost'),
-                    'X-Title' => config('app.name', 'Portal Loker'),
-                    'Content-Type' => 'application/json',
-                ])
-                    ->timeout($this->timeout)
-                    ->post("{$this->baseUrl}/chat/completions", [
-                        'model' => $model,
-                        'messages' => [
-                            ['role' => 'user', 'content' => $prompt],
-                        ],
-                        'temperature' => 0.3,
-                        'max_tokens' => $this->maxTokens,
-                    ]);
+        // Try primary model
+        $result = $this->attempt($messages, $model);
+        if ($result !== null) {
+            return $result;
+        }
 
-                if ($response->failed()) {
-                    Log::warning('OpenRouter: HTTP request failed', [
-                        'model' => $model,
-                        'attempt' => $attempt,
-                        'status' => $response->status(),
-                        'body' => $response->body(),
-                    ]);
-
-                    if ($attempt < $this->maxAttempts) {
-                        usleep($delayMs * 1000);
-                        $delayMs *= $this->retryMultiplier;
-                    }
-
-                    continue;
-                }
-
-                $data = $response->json();
-                $content = $data['choices'][0]['message']['content'] ?? '';
-                $usedModel = $data['model'] ?? $model;
-                $tokensUsed = $data['usage']['total_tokens'] ?? 0;
-
-                Log::info('OpenRouter: request successful', [
-                    'model' => $usedModel,
-                    'tokens_used' => $tokensUsed,
-                    'attempt' => $attempt,
-                ]);
-
-                return [
-                    'content' => $content,
-                    'model' => $usedModel,
-                    'tokens_used' => (int) $tokensUsed,
-                ];
-
-            } catch (RequestException $e) {
-                Log::warning('OpenRouter: request exception', [
-                    'model' => $model,
-                    'attempt' => $attempt,
-                    'error' => $e->getMessage(),
-                ]);
-            } catch (\Throwable $e) {
-                Log::error('OpenRouter: unexpected error', [
-                    'model' => $model,
-                    'attempt' => $attempt,
-                    'error' => $e->getMessage(),
-                ]);
-            }
-
-            if ($attempt < $this->maxAttempts) {
-                usleep($delayMs * 1000);
-                $delayMs *= $this->retryMultiplier;
+        // Try fallback
+        if ($fallback && $fallback !== $model) {
+            Log::warning('OpenRouter: primary failed, trying fallback', compact('model', 'fallback'));
+            $result = $this->attempt($messages, $fallback);
+            if ($result !== null) {
+                return $result;
             }
         }
 
-        Log::error('OpenRouter: all retry attempts exhausted', [
-            'model' => $model,
-            'max_attempts' => $this->maxAttempts,
-        ]);
-
-        return null;
+        return ['content' => '', 'model' => $model, 'tokens_used' => 0];
     }
 
-    /**
-     * Compose prompt dengan system prompt dan user prompt.
-     *
-     * Format gabungan untuk dikirim sebagai single user message,
-     * karena beberapa model free tidak mendukung system messages.
-     */
-    private function composePrompt(string $systemPrompt, string $userPrompt): string
+    private function attempt(array $messages, string $model): ?array
     {
-        return "[System Instructions]\n{$systemPrompt}\n\n[User Request]\n{$userPrompt}";
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => "Bearer {$this->apiKey}",
+                'HTTP-Referer' => config('app.url', 'http://localhost'),
+                'X-Title' => config('laravel-openrouter.title', 'Lamaraja'),
+            ])
+                ->timeout($this->timeout)
+                ->post("{$this->baseUrl}/chat/completions", [
+                    'model' => $model,
+                    'messages' => $messages,
+                    'temperature' => 0.3,
+                    'max_tokens' => $this->maxTokens,
+                ]);
+
+            if ($response->failed()) {
+                Log::warning('OpenRouter HTTP failed', [
+                    'model' => $model,
+                    'status' => $response->status(),
+                    'body' => mb_substr($response->body(), 0, 300),
+                ]);
+                return null;
+            }
+
+            $data = $response->json();
+            $content = $data['choices'][0]['message']['content'] ?? '';
+            $usedModel = $data['model'] ?? $model;
+            $tokensUsed = $data['usage']['total_tokens'] ?? 0;
+
+            if (empty(trim($content))) {
+                Log::warning('OpenRouter empty content', [
+                    'model' => $usedModel,
+                    'tokens' => $tokensUsed,
+                    'raw_choices' => json_encode($data['choices'] ?? []),
+                ]);
+                return null;
+            }
+
+            return [
+                'content' => $content,
+                'model' => $usedModel,
+                'tokens_used' => (int) $tokensUsed,
+            ];
+
+        } catch (\Throwable $e) {
+            Log::warning('OpenRouter exception', ['model' => $model, 'error' => $e->getMessage()]);
+            return null;
+        }
     }
 }
