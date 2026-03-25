@@ -19,11 +19,6 @@ class ProcessCvScan implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
-     * The queue this job should be dispatched to.
-     */
-    public string $queue = 'cv-processing';
-
-    /**
      * The number of seconds the job can run before timing out.
      */
     public int $timeout = 120;
@@ -39,7 +34,9 @@ class ProcessCvScan implements ShouldQueue
     public function __construct(
         public CvScan $scan,
         public string $filePath,
-    ) {}
+    ) {
+        $this->onQueue('cv-processing');
+    }
 
     /**
      * Execute the job.
