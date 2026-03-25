@@ -4,20 +4,20 @@
 
         {{-- Sticky Search --}}
         <div class="sticky top-14 md:top-16 z-40 py-3 -mx-4 px-4 sm:mx-0 sm:px-0 md:relative md:top-auto md:z-auto md:py-0 md:mb-6"
-             style="background: rgba(7,7,26,0.80); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);"
-             :style="{ background: 'rgba(7,7,26,0.80)', backdropFilter: 'blur(24px)' }">
+             style="background: rgba(250,248,246,0.88); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);"
+             :style="{ background: 'rgba(250,248,246,0.88)', backdropFilter: 'blur(24px)' }">
             <x-search-bar :keyword="$filters->keyword ?? ''" :action="route('jobs.index')" />
         </div>
 
         {{-- Results header --}}
         <div class="flex items-center justify-between mt-3 mb-5 md:mt-0">
-            <p class="text-sm text-white/50">
-                <span class="font-semibold text-white/85">{{ $jobs->total() }}</span> lowongan ditemukan
+            <p class="text-sm text-stone-500">
+                <span class="font-semibold text-slate-700">{{ $jobs->total() }}</span> lowongan ditemukan
             </p>
             <button
                 @click="showFilters = !showFilters"
-                class="md:hidden inline-flex items-center gap-2 min-h-[2.5rem] px-3.5 py-2 text-sm font-medium text-white/65 rounded-xl transition-colors cursor-pointer interactive-focus"
-                style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.09);"
+                class="md:hidden inline-flex items-center gap-2 min-h-[2.5rem] px-3.5 py-2 text-sm font-medium text-stone-600 rounded-xl transition-colors cursor-pointer interactive-focus"
+                style="background: #f5f3f0; border: 1px solid #eae7e3;"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
@@ -42,11 +42,11 @@
                         <input type="hidden" name="keyword" value="{{ $filters->keyword }}">
                     @endif
 
-                    <h3 class="font-semibold text-white/85 text-sm">Filter</h3>
+                    <h3 class="font-semibold text-slate-700 text-sm">Filter</h3>
 
                     {{-- Lokasi --}}
                     <div>
-                        <label for="filter-location" class="block text-sm font-medium text-white/60 mb-1.5">Lokasi</label>
+                        <label for="filter-location" class="block text-sm font-medium text-stone-500 mb-1.5">Lokasi</label>
                         <select
                             id="filter-location"
                             name="location"
@@ -61,10 +61,10 @@
 
                     {{-- Tipe Kerja --}}
                     <div>
-                        <label class="block text-sm font-medium text-white/60 mb-1.5">Tipe Kerja</label>
+                        <label class="block text-sm font-medium text-stone-500 mb-1.5">Tipe Kerja</label>
                         <div class="space-y-1">
                             @foreach(['full-time' => 'Full Time', 'part-time' => 'Part Time', 'contract' => 'Kontrak', 'internship' => 'Magang'] as $value => $label)
-                                <label class="flex items-center gap-2.5 cursor-pointer min-h-[2.25rem] px-2 py-1.5 rounded-xl hover:bg-white/05 transition-colors">
+                                <label class="flex items-center gap-2.5 cursor-pointer min-h-[2.25rem] px-2 py-1.5 rounded-xl hover:bg-slate-50 transition-colors">
                                     <input
                                         type="checkbox"
                                         name="employment_type[]"
@@ -72,7 +72,7 @@
                                         @checked(in_array($value, $filters->employmentType ?? []))
                                         class="glass-check"
                                     >
-                                    <span class="text-sm text-white/65">{{ $label }}</span>
+                                    <span class="text-sm text-stone-600">{{ $label }}</span>
                                 </label>
                             @endforeach
                         </div>
@@ -94,12 +94,12 @@
                         {{ $jobs->withQueryString()->links() }}
                     </div>
                 @else
-                    <div class="surface rounded-2xl text-center py-16 px-6 glass-shimmer">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white/20 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <div class="surface rounded-2xl text-center py-16 px-6 ">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-stone-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
-                        <h3 class="font-[family-name:var(--font-display)] text-lg font-bold text-white/75 mb-1">Tidak ada hasil ditemukan</h3>
-                        <p class="text-sm text-white/45 mb-5">Coba ubah kata kunci atau hapus beberapa filter.</p>
+                        <h3 class="font-[family-name:var(--font-display)] text-lg font-bold text-slate-700 mb-1">Tidak ada hasil ditemukan</h3>
+                        <p class="text-sm text-stone-400 mb-5">Coba ubah kata kunci atau hapus beberapa filter.</p>
                         <x-button variant="secondary" :href="route('jobs.index')">Hapus Filter</x-button>
                     </div>
                 @endif

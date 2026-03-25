@@ -15,7 +15,7 @@
     <div class="relative flex items-center surface-search {{ $isLg ? 'rounded-2xl' : 'rounded-xl' }} focus-glow">
 
         {{-- Search icon --}}
-        <div class="absolute {{ $iconClasses }} pointer-events-none text-white/40">
+        <div class="absolute {{ $iconClasses }} pointer-events-none text-stone-400">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
@@ -26,7 +26,7 @@
             name="keyword"
             value="{{ $keyword }}"
             placeholder="Cari posisi, perusahaan, atau lokasi..."
-            class="w-full {{ $inputClasses }} rounded-{{ $isLg ? '2xl' : 'xl' }} bg-transparent text-white placeholder-white/35 focus:outline-none"
+            class="w-full {{ $inputClasses }} rounded-{{ $isLg ? '2xl' : 'xl' }} bg-transparent text-slate-800 placeholder-stone-400 focus:outline-none"
             aria-label="Cari lowongan kerja"
             autocomplete="off"
         >

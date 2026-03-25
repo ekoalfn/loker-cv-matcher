@@ -1,5 +1,5 @@
 {
-  "name": "Portal Loker - AI Scraping + Enrichment + Ingest",
+  "name": "Lamaraja - AI Scraping + Enrichment + Ingest",
   "nodes": [
     {
       "parameters": {
@@ -20,7 +20,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// ============================================\n// KONFIGURASI SUMBER SCRAPING\n// ============================================\n\nconst sources = [\n  {\n    name: 'glints',\n    scrape_url: 'https://glints.com/id/opportunities/jobs/explore',\n    base_url: 'https://glints.com'\n  },\n  {\n    name: 'jobindo',\n    scrape_url: 'https://jobindo.com/lowongan-kerja',\n    base_url: 'https://jobindo.com'\n  }\n];\n\nreturn sources.map(s => ({ json: s }));"
+        "jsCode": "const sources = [\n  {\n    name: 'glints',\n    scrape_url: 'https://glints.com/id/opportunities/jobs/explore',\n    base_url: 'https://glints.com'\n  }\n];\n\nreturn sources.map(s => ({ json: s }));"
       },
       "id": "source-config",
       "name": "Daftar Sumber",
@@ -32,15 +32,11 @@
       "parameters": {
         "url": "={{ $json.scrape_url }}",
         "options": {
-          "response": {
-            "response": {
-              "responseFormat": "text"
-            }
-          }
+          "response": { "response": { "responseFormat": "text" } }
         }
       },
       "id": "http-scrape",
-      "name": "Scrape HTML",
+      "name": "Scrape Listing",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [440, 0],
@@ -50,7 +46,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// ============================================\n// SMART PARSER\n// Deteksi data terstruktur (Next.js / Inertia)\n// Jika tidak ada, fallback ke HTML chunking\n// ============================================\n\nconst html = $input.first().json.data;\nconst sourceConfig = $('Daftar Sumber').first().json;\nconst baseUrl = sourceConfig.base_url || '';\n\nconst TYPE_MAP = {\n  'FULL_TIME': 'full-time',\n  'PART_TIME': 'part-time',\n  'CONTRACT': 'contract',\n  'INTERNSHIP': 'internship',\n  'FREELANCE': 'freelance',\n};\n\n// ---- 1. Glints: __NEXT_DATA__ (Next.js SSR) ----\nconst nextDataMatch = html.match(/<script id=\"__NEXT_DATA__\"[^>]*>([\\s\\S]*?)<\\/script>/);\nif (nextDataMatch) {\n  try {\n    const data = JSON.parse(nextDataMatch[1]);\n    const rawJobs = data?.props?.pageProps?.initialJobs?.jobsInPage || [];\n    if (rawJobs.length > 0) {\n      const jobs = rawJobs.map(job => {\n        const loc = [\n          job.citySubDivision?.name,\n          job.city?.name,\n          job.location?.name\n        ].filter(Boolean);\n        return {\n          _structured: true,\n          title: job.title,\n          company: job.company?.name || 'Tidak diketahui',\n          location: loc.length > 0 ? loc.join(', ') : null,\n          source_url: `${baseUrl}/id/opportunities/jobs/-/${job.id}`,\n          employment_type: TYPE_MAP[job.type] || null,\n          salary_min: job.salaries?.[0]?.minAmount || null,\n          salary_max: job.salaries?.[0]?.maxAmount || null,\n          tags: [\n            job.company?.industry?.name,\n            job.educationLevel ? job.educationLevel.toLowerCase() : null,\n            job.workArrangementOption ? job.workArrangementOption.toLowerCase() : null\n          ].filter(Boolean),\n          description_raw: null,\n          source_name: sourceConfig.name,\n        };\n      });\n      return jobs.map(j => ({ json: j }));\n    }\n  } catch (e) { /* parse gagal, lanjut ke metode lain */ }\n}\n\n// ---- 2. Inertia.js data-page (Jobindo dll) ----\nconst inertiaMatch = html.match(/data-page=\"([^\"]*)\"/s);\nif (inertiaMatch) {\n  try {\n    const decoded = inertiaMatch[1]\n      .replace(/&quot;/g, '\"')\n      .replace(/&amp;/g, '&')\n      .replace(/&lt;/g, '<')\n      .replace(/&gt;/g, '>')\n      .replace(/&#039;/g, \"'\");\n    const data = JSON.parse(decoded);\n    // Coba pola umum Inertia untuk data loker\n    const jobArray = data?.props?.jobs?.data\n      || data?.props?.vacancies?.data\n      || data?.props?.lowongan?.data\n      || null;\n    if (Array.isArray(jobArray) && jobArray.length > 0) {\n      const jobs = jobArray.map(job => ({\n        _structured: true,\n        title: job.title || job.name,\n        company: job.company?.name || job.company || 'Tidak diketahui',\n        location: job.location || job.city || null,\n        source_url: job.url\n          ? (job.url.startsWith('http') ? job.url : baseUrl + job.url)\n          : `${baseUrl}/lowongan/${job.slug || job.id}`,\n        employment_type: (job.type || job.employment_type || '')\n          .toLowerCase().replace(/_/g, '-') || null,\n        salary_min: job.salary_min || null,\n        salary_max: job.salary_max || null,\n        tags: Array.isArray(job.tags) ? job.tags : (Array.isArray(job.skills) ? job.skills : []),\n        description_raw: job.description || null,\n        source_name: sourceConfig.name,\n      }));\n      return jobs.map(j => ({ json: j }));\n    }\n  } catch (e) { /* parse gagal, fallback ke chunking */ }\n}\n\n// ---- 3. Fallback: bersihkan & potong HTML untuk AI extraction ----\nlet cleaned = html\n  .replace(/<script[\\s\\S]*?<\\/script>/gi, '')\n  .replace(/<style[\\s\\S]*?<\\/style>/gi, '')\n  .replace(/<nav[\\s\\S]*?<\\/nav>/gi, '')\n  .replace(/<footer[\\s\\S]*?<\\/footer>/gi, '')\n  .replace(/<header[\\s\\S]*?<\\/header>/gi, '')\n  .replace(/<svg[\\s\\S]*?<\\/svg>/gi, '')\n  .replace(/<img[^>]*>/gi, '')\n  .replace(/<!--[\\s\\S]*?-->/g, '')\n  .replace(/\\s+/g, ' ')\n  .trim();\n\nconst CHUNK_SIZE = 3000;\nconst chunks = [];\nfor (let i = 0; i < cleaned.length; i += CHUNK_SIZE) {\n  const chunk = cleaned.substring(i, i + CHUNK_SIZE);\n  if (chunk.includes('job') || chunk.includes('loker') || chunk.includes('lowongan') ||\n      chunk.includes('vacancy') || chunk.includes('career') || chunk.includes('opportunity') ||\n      chunk.includes('developer') || chunk.includes('manager') ||\n      chunk.includes('Rp') || chunk.includes('Full') || chunk.includes('Part') ||\n      chunk.includes('title') || chunk.includes('company')) {\n    chunks.push({\n      _structured: false,\n      html_chunk: chunk,\n      source_name: sourceConfig.name,\n      base_url: baseUrl,\n      chunk_index: chunks.length,\n    });\n  }\n}\n\nconst limited = chunks.slice(0, 10);\nif (limited.length === 0) {\n  throw new Error(`Tidak ada konten loker ditemukan dari ${sourceConfig.name}`);\n}\nreturn limited.map(c => ({ json: c }));"
+        "jsCode": "// ============================================\n// SMART PARSER — Extract jobs from listing page\n// Builds detail_url for each job using title slug + id\n// ============================================\n\nconst html = $input.first().json.data;\nconst sourceConfig = $('Daftar Sumber').first().json;\nconst baseUrl = sourceConfig.base_url || '';\n\nconst TYPE_MAP = {\n  'FULL_TIME': 'full-time',\n  'PART_TIME': 'part-time',\n  'CONTRACT': 'contract',\n  'INTERNSHIP': 'internship',\n  'FREELANCE': 'freelance',\n};\n\nfunction slugify(text) {\n  return text.toLowerCase()\n    .replace(/[^a-z0-9\\s-]/g, '')\n    .replace(/\\s+/g, '-')\n    .replace(/-+/g, '-')\n    .trim();\n}\n\n// ---- Glints: __NEXT_DATA__ (Next.js SSR) ----\nconst nextDataMatch = html.match(/<script id=\"__NEXT_DATA__\"[^>]*>([\\s\\S]*?)<\\/script>/);\nif (nextDataMatch) {\n  try {\n    const data = JSON.parse(nextDataMatch[1]);\n    const rawJobs = data?.props?.pageProps?.initialJobs?.jobsInPage || [];\n    if (rawJobs.length > 0) {\n      const jobs = rawJobs.map(job => {\n        const loc = [\n          job.citySubDivision?.name,\n          job.city?.name,\n          job.location?.name\n        ].filter(Boolean);\n\n        // Build location with city/province from parents\n        const parents = job.location?.parents || [];\n        const city = parents.find(p => p.level === 3)?.name;\n        const province = parents.find(p => p.level === 2)?.name;\n        const locationFull = [job.location?.name, city, province].filter(Boolean).join(', ');\n\n        // Build detail URL with proper slug\n        const slug = slugify(job.title);\n        const detailUrl = `${baseUrl}/id/opportunities/jobs/${slug}/${job.id}`;\n\n        // Extract skills\n        const skills = (job.skills || []).map(s => s.skill?.name).filter(Boolean);\n\n        // Extract job category\n        const category = job.hierarchicalJobCategory?.parents?.[0]?.name\n          || job.hierarchicalJobCategory?.name\n          || null;\n\n        return {\n          _structured: true,\n          title: job.title,\n          company: job.company?.name || 'Tidak diketahui',\n          location: locationFull || null,\n          source_url: detailUrl,\n          detail_url: detailUrl,\n          employment_type: TYPE_MAP[job.type] || null,\n          salary_min: job.salaries?.[0]?.minAmount || null,\n          salary_max: job.salaries?.[0]?.maxAmount || null,\n          tags: [\n            category,\n            ...skills.slice(0, 3)\n          ].filter(Boolean),\n          description_raw: null,\n          source_name: sourceConfig.name,\n        };\n      });\n      return jobs.map(j => ({ json: j }));\n    }\n  } catch (e) {}\n}\n\n// ---- Inertia.js / fallback ----\nconst inertiaMatch = html.match(/data-page=\"([^\"]*)\"/s);\nif (inertiaMatch) {\n  try {\n    const decoded = inertiaMatch[1].replace(/&quot;/g, '\"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#039;/g, \"'\");\n    const data = JSON.parse(decoded);\n    const jobArray = data?.props?.jobs?.data || data?.props?.vacancies?.data || data?.props?.lowongan?.data || null;\n    if (Array.isArray(jobArray) && jobArray.length > 0) {\n      return jobArray.map(job => ({ json: {\n        _structured: true,\n        title: job.title || job.name,\n        company: job.company?.name || job.company || 'Tidak diketahui',\n        location: job.location || job.city || null,\n        source_url: job.url ? (job.url.startsWith('http') ? job.url : baseUrl + job.url) : `${baseUrl}/lowongan/${job.slug || job.id}`,\n        detail_url: null,\n        employment_type: (job.type || job.employment_type || '').toLowerCase().replace(/_/g, '-') || null,\n        salary_min: job.salary_min || null,\n        salary_max: job.salary_max || null,\n        tags: Array.isArray(job.tags) ? job.tags : (Array.isArray(job.skills) ? job.skills : []),\n        description_raw: job.description || null,\n        source_name: sourceConfig.name,\n      }}));\n    }\n  } catch (e) {}\n}\n\n// ---- Fallback: chunk HTML ----\nlet cleaned = html.replace(/<script[\\s\\S]*?<\\/script>/gi, '').replace(/<style[\\s\\S]*?<\\/style>/gi, '').replace(/<nav[\\s\\S]*?<\\/nav>/gi, '').replace(/<footer[\\s\\S]*?<\\/footer>/gi, '').replace(/<header[\\s\\S]*?<\\/header>/gi, '').replace(/<svg[\\s\\S]*?<\\/svg>/gi, '').replace(/<img[^>]*>/gi, '').replace(/<!--[\\s\\S]*?-->/g, '').replace(/\\s+/g, ' ').trim();\nconst CHUNK_SIZE = 3000;\nconst chunks = [];\nfor (let i = 0; i < cleaned.length; i += CHUNK_SIZE) {\n  const chunk = cleaned.substring(i, i + CHUNK_SIZE);\n  if (chunk.match(/job|loker|lowongan|vacancy|career|developer|manager|Rp|title|company/i)) {\n    chunks.push({ _structured: false, html_chunk: chunk, source_name: sourceConfig.name, base_url: baseUrl, chunk_index: chunks.length });\n  }\n}\nconst limited = chunks.slice(0, 10);\nif (limited.length === 0) throw new Error(`Tidak ada konten loker dari ${sourceConfig.name}`);\nreturn limited.map(c => ({ json: c }));"
       },
       "id": "smart-parser",
       "name": "Smart Parser",
@@ -61,21 +57,8 @@
     {
       "parameters": {
         "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": ""
-          },
-          "conditions": [
-            {
-              "id": "structured-check",
-              "leftValue": "={{ $json._structured }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true"
-              }
-            }
-          ],
+          "options": { "caseSensitive": true, "leftValue": "" },
+          "conditions": [{ "id": "structured-check", "leftValue": "={{ $json._structured }}", "rightValue": "", "operator": { "type": "boolean", "operation": "true" } }],
           "combinator": "and"
         }
       },
@@ -90,7 +73,7 @@
         "promptType": "define",
         "text": "=Ekstrak semua lowongan kerja dari konten HTML berikut:\n\n{{ $json.html_chunk }}",
         "options": {
-          "systemMessage": "Kamu adalah web scraper AI. Tugasmu mengekstrak data lowongan kerja dari potongan HTML mentah.\n\nATURAN:\n1. Ekstrak SEMUA lowongan kerja yang ada\n2. Balas HANYA dengan JSON array, tanpa markdown code block, tanpa penjelasan\n3. Jika tidak ada lowongan ditemukan, balas dengan: []\n4. Setiap lowongan harus berformat:\n{\"title\": \"Judul lowongan\", \"company\": \"Nama perusahaan\", \"location\": \"Kota, Provinsi\", \"employment_type\": \"full-time/part-time/contract/internship atau null\", \"salary_text\": \"Info gaji jika ada atau null\", \"source_path\": \"/path/ke/lowongan atau URL lengkap\", \"tags\": [\"skill1\", \"skill2\"]}\n5. Untuk source_path: ambil dari href link lowongan\n6. Untuk employment_type: normalisasi ke: full-time, part-time, contract, freelance, internship\n7. Untuk tags: ambil skill, kategori, atau label yang terlihat\n\nJika konten tidak mengandung data lowongan, balas: []",
+          "systemMessage": "Kamu adalah web scraper AI. Ekstrak data lowongan kerja dari HTML.\n\nBALAS HANYA dengan JSON array:\n[{\"title\": \"...\", \"company\": \"...\", \"location\": \"...\", \"employment_type\": \"full-time/part-time/contract/internship\", \"salary_text\": \"...\", \"source_path\": \"/path/...\", \"tags\": [...]}]\n\nJika tidak ada: []",
           "maxIterations": 1
         }
       },
@@ -103,27 +86,18 @@
     {
       "parameters": {
         "model": "meta-llama/llama-3.1-8b-instruct:free",
-        "options": {
-          "baseURL": "https://openrouter.ai/api/v1",
-          "temperature": 0.1,
-          "maxTokens": 2048
-        }
+        "options": { "baseURL": "https://openrouter.ai/api/v1", "temperature": 0.1, "maxTokens": 2048 }
       },
       "id": "llm-extract",
       "name": "OpenRouter Model (Extract)",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
       "position": [1100, 470],
-      "credentials": {
-        "openAiApi": {
-          "id": "OPENROUTER_CREDENTIAL_ID",
-          "name": "OpenRouter API"
-        }
-      }
+      "credentials": { "openAiApi": { "id": "OPENROUTER_CREDENTIAL_ID", "name": "OpenRouter API" } }
     },
     {
       "parameters": {
-        "jsCode": "// ============================================\n// PARSE AI AGENT EXTRACTION → Normalize jobs\n// ============================================\n\nconst items = $input.all();\nconst sourceConfig = $('Daftar Sumber').first().json;\nconst baseUrl = sourceConfig.base_url || '';\nconst seen = new Set();\nconst jobs = [];\n\nfor (const item of items) {\n  try {\n    const content = item.json.output || '';\n    let parsed = null;\n    try {\n      parsed = JSON.parse(content);\n    } catch (e) {\n      const match = content.match(/\\[[\\s\\S]*\\]/);\n      if (match) try { parsed = JSON.parse(match[0]); } catch (e2) {}\n    }\n    if (!Array.isArray(parsed)) continue;\n\n    for (const job of parsed) {\n      if (!job.title || !job.source_path) continue;\n      const sourceUrl = job.source_path.startsWith('http')\n        ? job.source_path : baseUrl + job.source_path;\n      if (seen.has(sourceUrl)) continue;\n      seen.add(sourceUrl);\n\n      let salaryMin = null, salaryMax = null;\n      if (job.salary_text) {\n        const nums = job.salary_text.match(/([\\d.,]+)/g);\n        if (nums && nums.length >= 1) {\n          const parseNum = (s) => {\n            let n = parseFloat(s.replace(/\\./g, '').replace(',', '.'));\n            if (job.salary_text.toLowerCase().match(/jt|juta/)) n *= 1000000;\n            return Math.round(n);\n          };\n          salaryMin = parseNum(nums[0]);\n          if (nums.length >= 2) salaryMax = parseNum(nums[1]);\n        }\n      }\n\n      jobs.push({\n        title: job.title.trim(),\n        company: (job.company || 'Tidak diketahui').trim(),\n        location: job.location || null,\n        source_url: sourceUrl,\n        employment_type: job.employment_type || null,\n        salary_min: salaryMin,\n        salary_max: salaryMax,\n        tags: Array.isArray(job.tags) ? job.tags : [],\n        description_raw: null,\n        source_name: sourceConfig.name,\n      });\n    }\n  } catch (e) {}\n}\n\nif (jobs.length === 0) {\n  throw new Error(`AI tidak menemukan lowongan dari ${sourceConfig.name}`);\n}\nreturn jobs.map(j => ({ json: j }));"
+        "jsCode": "const items = $input.all();\nconst sourceConfig = $('Daftar Sumber').first().json;\nconst baseUrl = sourceConfig.base_url || '';\nconst seen = new Set();\nconst jobs = [];\n\nfor (const item of items) {\n  try {\n    const content = item.json.output || '';\n    let parsed = null;\n    try { parsed = JSON.parse(content); } catch (e) {\n      const match = content.match(/\\[[\\s\\S]*\\]/);\n      if (match) try { parsed = JSON.parse(match[0]); } catch (e2) {}\n    }\n    if (!Array.isArray(parsed)) continue;\n    for (const job of parsed) {\n      if (!job.title || !job.source_path) continue;\n      const sourceUrl = job.source_path.startsWith('http') ? job.source_path : baseUrl + job.source_path;\n      if (seen.has(sourceUrl)) continue;\n      seen.add(sourceUrl);\n      let salaryMin = null, salaryMax = null;\n      if (job.salary_text) {\n        const nums = job.salary_text.match(/([\\d.,]+)/g);\n        if (nums) { const p = (s) => { let n = parseFloat(s.replace(/\\./g, '').replace(',', '.')); if (job.salary_text.match(/jt|juta/i)) n *= 1e6; return Math.round(n); }; salaryMin = p(nums[0]); if (nums[1]) salaryMax = p(nums[1]); }\n      }\n      jobs.push({ title: job.title.trim(), company: (job.company||'?').trim(), location: job.location||null, source_url: sourceUrl, detail_url: sourceUrl, employment_type: job.employment_type||null, salary_min: salaryMin, salary_max: salaryMax, tags: Array.isArray(job.tags)?job.tags:[], description_raw: null, source_name: sourceConfig.name });\n    }\n  } catch (e) {}\n}\nif (jobs.length === 0) throw new Error('AI tidak menemukan lowongan');\nreturn jobs.map(j => ({ json: j }));"
       },
       "id": "parse-extract",
       "name": "Parse & Deduplicate",
@@ -133,23 +107,71 @@
     },
     {
       "parameters": {
-        "batchSize": 5,
-        "options": {
-          "reset": false
-        }
+        "batchSize": 1,
+        "options": { "reset": false }
       },
-      "id": "batch-splitter",
-      "name": "Batch per 5",
+      "id": "detail-batch",
+      "name": "Detail 1-by-1",
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [1540, 0]
     },
     {
       "parameters": {
-        "promptType": "define",
-        "text": "=Ringkas lowongan ini:\nJudul: {{ $json.title }}\nPerusahaan: {{ $json.company }}\nLokasi: {{ $json.location }}\nTipe: {{ $json.employment_type }}\nGaji: {{ $json.salary_min ? 'Rp ' + $json.salary_min : '-' }}",
+        "url": "={{ $json.detail_url || $json.source_url }}",
         "options": {
-          "systemMessage": "Kamu adalah asisten HR profesional Indonesia. Ringkas lowongan kerja ini.\n\nBALAS HANYA dengan JSON valid, tanpa markdown code block:\n{\"summary\": \"Ringkasan 2 kalimat dalam Bahasa Indonesia.\", \"tags\": [\"tag1\", \"tag2\", \"tag3\"]}\n\nContoh:\n{\"summary\": \"Dibutuhkan ahli gizi untuk rumah sakit di Batam dengan pengalaman minimal 1 tahun. Bertanggung jawab atas perencanaan menu dan edukasi nutrisi pasien.\", \"tags\": [\"batam\", \"kesehatan\", \"full-time\", \"gizi\"]}",
+          "response": { "response": { "responseFormat": "text" } },
+          "timeout": 15000
+        }
+      },
+      "id": "fetch-detail",
+      "name": "Fetch Detail Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1760, 0],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// EXTRACT DETAIL DATA from detail page HTML\n// Looks for JSON-LD JobPosting schema\n// Falls back gracefully if detail fetch failed\n// ============================================\n\nconst item = $input.first().json;\nconst original = $('Detail 1-by-1').first().json;\n\n// If fetch failed or no HTML, return original data unchanged\nconst html = item.data || '';\nif (!html || html.length < 100) {\n  return [{ json: original }];\n}\n\n// Try to extract JSON-LD JobPosting\nconst ldMatch = html.match(/<script[^>]*type=\"application\\/ld\\+json\"[^>]*>([\\s\\S]*?)<\\/script>/i);\nif (!ldMatch) {\n  return [{ json: original }];\n}\n\ntry {\n  const ld = JSON.parse(ldMatch[1]);\n\n  // Only process if it's a JobPosting\n  if (ld['@type'] !== 'JobPosting') {\n    return [{ json: original }];\n  }\n\n  // Extract description — strip HTML tags\n  let description = ld.description || '';\n  description = description\n    .replace(/<br\\s*\\/?>/gi, '\\n')\n    .replace(/<\\/p>/gi, '\\n')\n    .replace(/<\\/li>/gi, '\\n')\n    .replace(/<[^>]*>/g, '')\n    .replace(/&amp;/g, '&')\n    .replace(/&lt;/g, '<')\n    .replace(/&gt;/g, '>')\n    .replace(/&quot;/g, '\"')\n    .replace(/&#039;/g, \"'\")\n    .replace(/\\n{3,}/g, '\\n\\n')\n    .trim();\n\n  // Extract better location from JSON-LD\n  const ldLocation = ld.jobLocation?.address;\n  let location = original.location;\n  if (ldLocation) {\n    const parts = [\n      ldLocation.addressLocality,\n      ldLocation.addressRegion\n    ].filter(Boolean);\n    if (parts.length > 0) {\n      location = parts.join(', ');\n    }\n  }\n\n  // Extract salary from JSON-LD if missing\n  let salaryMin = original.salary_min;\n  let salaryMax = original.salary_max;\n  if (!salaryMin && !salaryMax && ld.baseSalary?.value) {\n    salaryMin = ld.baseSalary.value.minValue || ld.baseSalary.value.value || null;\n    salaryMax = ld.baseSalary.value.maxValue || null;\n  }\n\n  // Extract expires_at\n  const expiresAt = ld.validThrough || null;\n\n  // Extract benefits as tags\n  const benefits = ld.jobBenefits\n    ? ld.jobBenefits.split(',').map(b => b.trim()).filter(Boolean).slice(0, 3)\n    : [];\n\n  // Merge tags (original + benefits, deduplicated)\n  const allTags = [...new Set([...(original.tags || []), ...benefits])].slice(0, 6);\n\n  return [{ json: {\n    ...original,\n    description_raw: description || original.description_raw,\n    location: location,\n    salary_min: salaryMin,\n    salary_max: salaryMax,\n    tags: allTags,\n    expires_at: expiresAt,\n  }}];\n\n} catch (e) {\n  // JSON parse failed, return original\n  return [{ json: original }];\n}"
+      },
+      "id": "extract-detail",
+      "name": "Extract Detail Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1980, 0]
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "seconds"
+      },
+      "id": "wait-rate-limit",
+      "name": "Wait 1s",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [2200, 0]
+    },
+    {
+      "parameters": {
+        "batchSize": 5,
+        "options": { "reset": false }
+      },
+      "id": "batch-splitter",
+      "name": "Batch per 5",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [2420, 0]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Ringkas lowongan ini dalam Bahasa Indonesia kasual:\nJudul: {{ $json.title }}\nPerusahaan: {{ $json.company }}\nLokasi: {{ $json.location }}\nTipe: {{ $json.employment_type }}\nGaji: {{ $json.salary_min ? 'Rp ' + $json.salary_min : '-' }}\nDeskripsi: {{ $json.description_raw ? $json.description_raw.substring(0, 500) : 'Tidak tersedia' }}",
+        "options": {
+          "systemMessage": "Kamu adalah asisten pencari kerja Indonesia. Ringkas lowongan ini dengan bahasa santai untuk anak muda.\n\nBALAS HANYA dengan JSON valid:\n{\"summary\": \"Ringkasan 2-3 kalimat santai dalam Bahasa Indonesia.\", \"tags\": [\"tag1\", \"tag2\", \"tag3\"]}\n\nGunakan bahasa kasual (kamu, nggak, dll). Sebutkan info penting: posisi, perusahaan, lokasi, dan kualifikasi utama.",
           "maxIterations": 1
         }
       },
@@ -157,48 +179,39 @@
       "name": "AI Agent Enrich",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.7,
-      "position": [1760, 0]
+      "position": [2640, 0]
     },
     {
       "parameters": {
         "model": "meta-llama/llama-3.1-8b-instruct:free",
-        "options": {
-          "baseURL": "https://openrouter.ai/api/v1",
-          "temperature": 0.3,
-          "maxTokens": 256
-        }
+        "options": { "baseURL": "https://openrouter.ai/api/v1", "temperature": 0.3, "maxTokens": 512 }
       },
       "id": "llm-enrich",
       "name": "OpenRouter Model (Enrich)",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
-      "position": [1760, 220],
-      "credentials": {
-        "openAiApi": {
-          "id": "OPENROUTER_CREDENTIAL_ID",
-          "name": "OpenRouter API"
-        }
-      }
+      "position": [2640, 220],
+      "credentials": { "openAiApi": { "id": "OPENROUTER_CREDENTIAL_ID", "name": "OpenRouter API" } }
     },
     {
       "parameters": {
-        "jsCode": "// Gabungkan enrichment result dengan data loker asli\n\nconst items = $input.all();\nconst batchItems = $('Batch per 5').all();\nconst results = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const ai = items[i].json;\n  const original = batchItems[i]?.json || {};\n  let summary = '';\n  let enrichedTags = original.tags || [];\n\n  try {\n    const content = ai.output || '';\n    let parsed = null;\n    try { parsed = JSON.parse(content); } catch (e) {\n      const m = content.match(/\\{[\\s\\S]*\\}/);\n      if (m) try { parsed = JSON.parse(m[0]); } catch (e2) {}\n    }\n    if (parsed) {\n      summary = parsed.summary || '';\n      if (Array.isArray(parsed.tags)) {\n        const allTags = [...new Set([...enrichedTags, ...parsed.tags])];\n        enrichedTags = allTags.slice(0, 6);\n      }\n    }\n  } catch (e) {}\n\n  // Hapus field internal _structured sebelum kirim\n  const { _structured, ...jobData } = original;\n  results.push({ json: {\n    ...jobData,\n    summary_ai: summary,\n    tags: enrichedTags,\n  }});\n}\n\nreturn results;"
+        "jsCode": "const items = $input.all();\nconst batchItems = $('Batch per 5').all();\nconst results = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const ai = items[i].json;\n  const original = batchItems[i]?.json || {};\n  let summary = '';\n  let enrichedTags = original.tags || [];\n\n  try {\n    const content = ai.output || '';\n    let parsed = null;\n    try { parsed = JSON.parse(content); } catch (e) {\n      const m = content.match(/\\{[\\s\\S]*\\}/);\n      if (m) try { parsed = JSON.parse(m[0]); } catch (e2) {}\n    }\n    if (parsed) {\n      summary = parsed.summary || '';\n      if (Array.isArray(parsed.tags)) {\n        enrichedTags = [...new Set([...enrichedTags, ...parsed.tags])].slice(0, 6);\n      }\n    }\n  } catch (e) {}\n\n  const { _structured, detail_url, expires_at, ...jobData } = original;\n  results.push({ json: { ...jobData, summary_ai: summary, tags: enrichedTags }});\n}\n\nreturn results;"
       },
       "id": "merge-enrichment",
       "name": "Gabung Enrichment",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1980, 0]
+      "position": [2860, 0]
     },
     {
       "parameters": {
-        "jsCode": "// Bangun payload untuk Laravel API\n\nconst items = $input.all();\nconst sourceName = items[0]?.json?.source_name || 'unknown';\n\nreturn [{ json: {\n  source: sourceName,\n  scraped_at: new Date().toISOString(),\n  jobs: items.map(item => ({\n    title: item.json.title,\n    company: item.json.company,\n    location: item.json.location,\n    employment_type: item.json.employment_type,\n    salary_min: item.json.salary_min,\n    salary_max: item.json.salary_max,\n    description_raw: item.json.description_raw,\n    summary_ai: item.json.summary_ai,\n    tags: item.json.tags,\n    source_url: item.json.source_url,\n  }))\n}}];"
+        "jsCode": "const items = $input.all();\nconst sourceName = items[0]?.json?.source_name || 'unknown';\n\nreturn [{ json: {\n  source: sourceName,\n  scraped_at: new Date().toISOString(),\n  jobs: items.map(item => ({\n    title: item.json.title,\n    company: item.json.company,\n    location: item.json.location,\n    employment_type: item.json.employment_type,\n    salary_min: item.json.salary_min,\n    salary_max: item.json.salary_max,\n    description_raw: item.json.description_raw,\n    summary_ai: item.json.summary_ai,\n    tags: item.json.tags,\n    source_url: item.json.source_url,\n  }))\n}}];"
       },
       "id": "build-payload",
       "name": "Bangun Payload",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2200, 0]
+      "position": [3080, 0]
     },
     {
       "parameters": {
@@ -214,26 +227,21 @@
       "name": "POST ke Laravel",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [2420, 0],
+      "position": [3300, 0],
       "retryOnFail": true,
       "maxTries": 3,
       "waitBetweenTries": 5000,
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "LARAVEL_API_CREDENTIAL_ID",
-          "name": "Laravel Scraping API Key"
-        }
-      }
+      "credentials": { "httpHeaderAuth": { "id": "LARAVEL_API_CREDENTIAL_ID", "name": "Laravel Scraping API Key" } }
     },
     {
       "parameters": {
-        "jsCode": "const r = $input.first().json;\nreturn [{ json: {\n  status: 'OK',\n  source: r.source,\n  inserted: r.stats?.inserted || 0,\n  updated: r.stats?.updated || 0,\n  errors: r.stats?.errors?.length || 0,\n  timestamp: new Date().toISOString(),\n}}];"
+        "jsCode": "const r = $input.first().json;\nreturn [{ json: { status: 'OK', source: r.source, inserted: r.stats?.inserted || 0, updated: r.stats?.updated || 0, errors: r.stats?.errors?.length || 0, timestamp: new Date().toISOString() }}];"
       },
       "id": "log-result",
       "name": "Log Hasil",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2640, 0]
+      "position": [3520, 0]
     }
   ],
   "connections": {
@@ -241,9 +249,9 @@
       "main": [[{ "node": "Daftar Sumber", "type": "main", "index": 0 }]]
     },
     "Daftar Sumber": {
-      "main": [[{ "node": "Scrape HTML", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Scrape Listing", "type": "main", "index": 0 }]]
     },
-    "Scrape HTML": {
+    "Scrape Listing": {
       "main": [[{ "node": "Smart Parser", "type": "main", "index": 0 }]]
     },
     "Smart Parser": {
@@ -251,7 +259,7 @@
     },
     "Data Terstruktur?": {
       "main": [
-        [{ "node": "Batch per 5", "type": "main", "index": 0 }],
+        [{ "node": "Detail 1-by-1", "type": "main", "index": 0 }],
         [{ "node": "AI Agent Extract", "type": "main", "index": 0 }]
       ]
     },
@@ -262,6 +270,18 @@
       "main": [[{ "node": "Parse & Deduplicate", "type": "main", "index": 0 }]]
     },
     "Parse & Deduplicate": {
+      "main": [[{ "node": "Detail 1-by-1", "type": "main", "index": 0 }]]
+    },
+    "Detail 1-by-1": {
+      "main": [[{ "node": "Fetch Detail Page", "type": "main", "index": 0 }]]
+    },
+    "Fetch Detail Page": {
+      "main": [[{ "node": "Extract Detail Data", "type": "main", "index": 0 }]]
+    },
+    "Extract Detail Data": {
+      "main": [[{ "node": "Wait 1s", "type": "main", "index": 0 }]]
+    },
+    "Wait 1s": {
       "main": [[{ "node": "Batch per 5", "type": "main", "index": 0 }]]
     },
     "Batch per 5": {
@@ -289,7 +309,7 @@
     "callerPolicy": "workflowsFromSameOwner"
   },
   "tags": [
-    { "name": "portal-loker" },
+    { "name": "lamaraja" },
     { "name": "ai-scraping" },
     { "name": "production" }
   ]

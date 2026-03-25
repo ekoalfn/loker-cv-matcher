@@ -15,25 +15,25 @@
     $isNew         = $job->created_at->isToday() || $job->created_at->isYesterday();
 @endphp
 
-<article class="surface rounded-2xl card-hover glass-shimmer reveal group">
+<article class="surface rounded-xl card-hover reveal group">
     <a href="{{ route('jobs.show', $job) }}" class="flex items-start gap-4 p-4 md:p-5 interactive-focus rounded-2xl">
 
         {{-- Company avatar --}}
         <div class="w-11 h-11 rounded-xl bg-gradient-to-br {{ $gradient }} flex items-center justify-center shrink-0"
-             style="box-shadow: 0 4px 12px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.20);">
+             style="box-shadow: 0 2px 6px rgba(0,0,0,0.10);">
             <span class="text-white font-bold text-sm">{{ $companyInitial }}</span>
         </div>
 
         <div class="flex-1 min-w-0">
             <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
-                    <h3 class="text-[0.9375rem] font-semibold text-white leading-snug group-hover:text-teal-300 transition-colors truncate">
+                    <h3 class="text-[0.9375rem] font-semibold text-slate-800 leading-snug group-hover:text-teal-700 transition-colors truncate">
                         {{ $job->title }}
                     </h3>
-                    <p class="text-sm text-white/55 mt-0.5">
+                    <p class="text-sm text-stone-500 mt-0.5">
                         {{ $job->company }}
                         @if($job->location)
-                            <span class="text-white/20 mx-1">&middot;</span>
+                            <span class="text-stone-300 mx-1">&middot;</span>
                             {{ $job->location }}
                         @endif
                     </p>
@@ -73,7 +73,7 @@
                     @endforeach
                 @endif
 
-                <time class="text-xs text-white/35 ml-auto" datetime="{{ $job->created_at->toISOString() }}">
+                <time class="text-xs text-stone-400 ml-auto" datetime="{{ $job->created_at->toISOString() }}">
                     {{ $job->created_at->diffForHumans() }}
                 </time>
             </div>

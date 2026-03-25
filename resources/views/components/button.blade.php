@@ -9,8 +9,8 @@
 
     $variants = [
         'primary'   => 'btn-primary focus-visible:ring-teal-400',
-        'secondary' => 'text-white/80 hover:text-white focus-visible:ring-teal-400',
-        'ghost'     => 'text-white/60 hover:text-white hover:bg-white/07 focus-visible:ring-teal-400',
+        'secondary' => 'text-slate-700 hover:text-slate-900 focus-visible:ring-teal-400',
+        'ghost'     => 'text-stone-600 hover:text-slate-900 hover:bg-slate-50 focus-visible:ring-teal-400',
         'accent'    => 'focus-visible:ring-amber-400',
     ];
 
@@ -19,7 +19,7 @@
     // Build inline style for glass buttons
     $styles = [
         'primary'   => '',
-        'secondary' => 'background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);',
+        'secondary' => 'background: #f5f3f0; border: 1px solid #e0ddd9; box-shadow: 0 1px 2px rgba(0,0,0,0.04);',
         'ghost'     => '',
         'accent'    => 'background: rgba(245,158,11,0.85); color: white; border: 1px solid rgba(251,191,36,0.40); box-shadow: 0 2px 12px rgba(245,158,11,0.30), inset 0 1px 0 rgba(255,255,255,0.20);',
     ];
