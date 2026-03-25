@@ -1,53 +1,87 @@
 @import "tailwindcss";
 
-/* ============================================
-   Lamaraja — Design System v3
-   Stripped, intentional, no AI slop
-   ============================================ */
+/* ============================================================
+   Lamaraja — Liquid Glass Design System
+   Apple-inspired frosted glass aesthetic
+   ============================================================ */
 
 @theme {
     --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
     --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
     --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
     --font-display: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
 }
 
-/* ============================================
-   Animations — only purposeful ones
-   ============================================ */
+/* ============================================================
+   Base — Dark mesh gradient background
+   ============================================================ */
 
-@keyframes fade-up {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #07071a;
+    background-image:
+        radial-gradient(ellipse 900px 700px at 5% 15%,  rgba(20, 184, 166, 0.20) 0%, transparent 65%),
+        radial-gradient(ellipse 700px 900px at 95% 5%,  rgba(139, 92, 246, 0.18) 0%, transparent 65%),
+        radial-gradient(ellipse 800px 600px at 60% 100%, rgba(99, 102, 241, 0.16) 0%, transparent 65%),
+        radial-gradient(ellipse 600px 500px at 35% 65%, rgba(45, 212, 191, 0.08) 0%, transparent 65%);
+    background-attachment: fixed;
+    color: white;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
+/* ============================================================
+   Animations
+   ============================================================ */
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
 @keyframes gauge-fill {
     from { stroke-dashoffset: 339.292; }
 }
-
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
-    20%, 60% { transform: translateX(-4px); }
-    40%, 80% { transform: translateX(4px); }
+    20%, 60%  { transform: translateX(-4px); }
+    40%, 80%  { transform: translateX(4px); }
 }
-
 @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
+    0%   { background-position: -200% 0; }
+    100% { background-position:  200% 0; }
+}
+@keyframes orb-drift {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%       { transform: translate(40px, -25px) scale(1.06); }
+    66%       { transform: translate(-25px, 40px) scale(0.97); }
+}
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(45, 212, 191, 0.15); }
+    50%       { box-shadow: 0 0 40px rgba(45, 212, 191, 0.30); }
 }
 
-.animate-fade-up { animation: fade-up 0.5s var(--ease-out-expo) both; }
-.animate-shake { animation: shake 0.4s var(--ease-out-quart); }
+.animate-fade-up  { animation: fade-up 0.65s var(--ease-out-expo) both; }
+.animate-fade-in  { animation: fade-in 0.5s var(--ease-out-quart) both; }
+.animate-shake    { animation: shake 0.4s var(--ease-out-quart); }
+.animate-orb      { animation: orb-drift 18s ease-in-out infinite; }
 
 .delay-100 { animation-delay: 80ms; }
 .delay-200 { animation-delay: 160ms; }
 .delay-300 { animation-delay: 240ms; }
+.delay-400 { animation-delay: 320ms; }
 
 /* Scroll reveal */
 .reveal {
     opacity: 0;
-    transform: translateY(12px);
-    transition: opacity 0.5s var(--ease-out-expo), transform 0.5s var(--ease-out-expo);
+    transform: translateY(16px);
+    transition: opacity 0.6s var(--ease-out-expo), transform 0.6s var(--ease-out-expo);
 }
 .reveal.revealed { opacity: 1; transform: translateY(0); }
 
@@ -55,155 +89,311 @@
 .gauge-circle { transition: stroke-dashoffset 1.2s var(--ease-out-expo); }
 .gauge-animate { animation: gauge-fill 1.2s var(--ease-out-expo) both; }
 
-/* ============================================
-   Surfaces — solid, not glass
-   ============================================ */
+/* ============================================================
+   Glass Surfaces — Core System
+   ============================================================ */
 
-/* Cards and panels — solid white, subtle border, real shadow */
+/* Standard glass card */
 .surface {
-    background: white;
-    border: 1px solid rgb(226 232 240 / 0.8);
-    box-shadow: 0 1px 3px rgb(0 0 0 / 0.04), 0 1px 2px rgb(0 0 0 / 0.02);
+    background: rgba(255, 255, 255, 0.055);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow:
+        0 4px 24px rgba(0, 0, 0, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 
-/* Recessed panel (filter sidebar) */
+/* Recessed panel — filter sidebar, inset elements */
 .surface-recessed {
-    background: rgb(248 250 252);
-    border: 1px solid rgb(226 232 240 / 0.6);
+    background: rgba(0, 0, 0, 0.22);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.25);
 }
 
-/* Header — only element that keeps blur (functional: content scrolls behind) */
+/* Elevated glass — hero elements, modals */
+.glass-elevated {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(32px) saturate(200%);
+    -webkit-backdrop-filter: blur(32px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    box-shadow:
+        0 12px 48px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.10);
+}
+
+/* Header glass */
 .glass-header {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(20px) saturate(150%);
-    -webkit-backdrop-filter: blur(20px) saturate(150%);
-    border-bottom: 1px solid rgb(226 232 240 / 0.5);
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.03);
+    background: rgba(7, 7, 26, 0.72);
+    backdrop-filter: blur(40px) saturate(200%);
+    -webkit-backdrop-filter: blur(40px) saturate(200%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.04),
+        0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
-/* Search bar — slightly elevated */
+/* Search bar surface */
 .surface-search {
-    background: white;
-    border: 1px solid rgb(226 232 240 / 0.8);
-    box-shadow: 0 2px 8px rgb(0 0 0 / 0.04), 0 1px 2px rgb(0 0 0 / 0.02);
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow:
+        0 6px 28px rgba(0, 0, 0, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
+/* Mobile menu glass */
+.glass-mobile-menu {
+    background: rgba(7, 7, 26, 0.90);
+    backdrop-filter: blur(32px) saturate(180%);
+    -webkit-backdrop-filter: blur(32px) saturate(180%);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Fallback for unsupported browsers */
 @supports not (backdrop-filter: blur(1px)) {
-    .glass-header { background: rgba(255, 255, 255, 0.97); }
+    .surface, .glass-elevated { background: rgba(20, 20, 45, 0.92); }
+    .surface-recessed          { background: rgba(5, 5, 18, 0.95); }
+    .glass-header              { background: rgba(7, 7, 26, 0.98); }
+    .surface-search            { background: rgba(25, 25, 55, 0.95); }
+    .glass-mobile-menu         { background: rgba(7, 7, 26, 0.99); }
 }
 
-/* ============================================
-   Interactive States — subtle, one signal
-   ============================================ */
+/* ============================================================
+   Interactive States
+   ============================================================ */
 
-/* Card hover: shadow increase only, no translate */
 .card-hover {
-    transition: box-shadow 0.2s var(--ease-out-quart), border-color 0.2s var(--ease-out-quart);
+    transition:
+        background     0.28s var(--ease-out-quart),
+        border-color   0.28s var(--ease-out-quart),
+        box-shadow     0.28s var(--ease-out-quart),
+        transform      0.28s var(--ease-out-quart);
 }
 .card-hover:hover {
-    box-shadow: 0 4px 16px rgb(0 0 0 / 0.08), 0 2px 4px rgb(0 0 0 / 0.03);
-    border-color: rgb(203 213 225 / 0.8);
+    background: rgba(255, 255, 255, 0.10);
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow:
+        0 16px 48px rgba(0, 0, 0, 0.38),
+        0 0 32px rgba(45, 212, 191, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.13);
+    transform: translateY(-2px);
 }
 
-/* Button press */
-.btn-press {
-    transition: transform 0.15s var(--ease-out-quart);
-}
+.btn-press { transition: transform 0.15s var(--ease-out-quart); }
 .btn-press:active { transform: scale(0.97); }
 
-/* Focus-visible */
-.interactive-focus {
-    transition: box-shadow 0.15s var(--ease-out-quart);
-}
+.interactive-focus { transition: box-shadow 0.15s var(--ease-out-quart); }
 .interactive-focus:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px white, 0 0 0 4px rgb(13 148 136 / 0.5);
+    box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.35), 0 0 0 5px rgba(45, 212, 191, 0.12);
 }
 
-/* Search focus */
 .focus-glow:focus-within {
-    border-color: rgb(13 148 136 / 0.4);
-    box-shadow: 0 0 0 3px rgb(13 148 136 / 0.08);
-    transition: box-shadow 0.15s var(--ease-out-quart), border-color 0.15s var(--ease-out-quart);
+    border-color: rgba(45, 212, 191, 0.40) !important;
+    box-shadow:
+        0 0 0 3px rgba(45, 212, 191, 0.10),
+        0 6px 28px rgba(0, 0, 0, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
 }
 
-/* Drag state */
+/* ============================================================
+   Buttons
+   ============================================================ */
+
+.btn-primary {
+    background: rgba(20, 184, 166, 0.90);
+    color: white;
+    border: 1px solid rgba(45, 212, 191, 0.45);
+    box-shadow:
+        0 2px 12px rgba(20, 184, 166, 0.30),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(8px);
+    transition: background 0.2s, box-shadow 0.2s, transform 0.15s var(--ease-out-quart);
+}
+.btn-primary:hover {
+    background: rgba(20, 184, 166, 1);
+    box-shadow:
+        0 6px 24px rgba(20, 184, 166, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+.btn-primary:active {
+    background: rgb(13, 148, 136);
+    transform: scale(0.97);
+}
+
+/* ============================================================
+   Inputs
+   ============================================================ */
+
+.input-glass {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    color: white;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.input-glass::placeholder { color: rgba(255, 255, 255, 0.35); }
+.input-glass:focus {
+    border-color: rgba(45, 212, 191, 0.40);
+    box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.08);
+    outline: none;
+}
+.input-glass option { background: #1a1a3e; color: white; }
+
+/* Checkbox */
+input[type="checkbox"].glass-check {
+    appearance: none;
+    width: 1rem; height: 1rem;
+    border-radius: 4px;
+    border: 1.5px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.06);
+    cursor: pointer;
+    position: relative;
+    transition: border-color 0.15s, background 0.15s;
+}
+input[type="checkbox"].glass-check:checked {
+    background: rgba(20, 184, 166, 0.85);
+    border-color: rgba(45, 212, 191, 0.60);
+}
+input[type="checkbox"].glass-check:checked::after {
+    content: '';
+    position: absolute;
+    left: 3px; top: 1px;
+    width: 6px; height: 9px;
+    border: 2px solid white;
+    border-top: none; border-left: none;
+    transform: rotate(45deg);
+}
+
+/* ============================================================
+   Navigation
+   ============================================================ */
+
+.nav-pill {
+    color: rgba(255, 255, 255, 0.60);
+    transition: background 0.18s, color 0.18s;
+    border-radius: 8px;
+}
+.nav-pill:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+}
+.nav-pill.active {
+    background: rgba(45, 212, 191, 0.14);
+    color: rgb(45, 212, 191);
+}
+
+/* ============================================================
+   Badges — Glass variants
+   ============================================================ */
+
+.badge-teal  { background: rgba(45, 212, 191, 0.14); border: 1px solid rgba(45, 212, 191, 0.22); color: rgb(94, 234, 212); }
+.badge-blue  { background: rgba(99, 102, 241, 0.14); border: 1px solid rgba(99, 102, 241, 0.22); color: rgb(165, 180, 252); }
+.badge-green { background: rgba(52, 211, 153, 0.14); border: 1px solid rgba(52, 211, 153, 0.22); color: rgb(110, 231, 183); }
+.badge-amber { background: rgba(251, 191, 36, 0.14); border: 1px solid rgba(251, 191, 36, 0.22); color: rgb(252, 211, 77); }
+.badge-red   { background: rgba(248, 113, 113, 0.14); border: 1px solid rgba(248, 113, 113, 0.22); color: rgb(252, 165, 165); }
+.badge-gray  { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.11); color: rgba(255, 255, 255, 0.68); }
+.badge-new   { background: rgba(45, 212, 191, 0.22); border: 1px solid rgba(45, 212, 191, 0.35); color: white; }
+
+/* ============================================================
+   Drag & Scanning states
+   ============================================================ */
+
 .drag-active {
-    border-color: rgb(13 148 136 / 0.5) !important;
-    background: rgb(240 253 250) !important;
+    border-color: rgba(45, 212, 191, 0.55) !important;
+    background: rgba(45, 212, 191, 0.07) !important;
 }
 
-/* Scanning shimmer */
 .scanning-shimmer {
-    background: linear-gradient(90deg, transparent 25%, rgb(13 148 136 / 0.04) 50%, transparent 75%);
+    background: linear-gradient(90deg, transparent 25%, rgba(45, 212, 191, 0.06) 50%, transparent 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
 }
 
-/* ============================================
-   Buttons
-   ============================================ */
+/* ============================================================
+   Hero Orbs
+   ============================================================ */
 
-.btn-primary {
-    background: rgb(13 148 136);
-    color: white;
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.1);
-    transition: background 0.15s, box-shadow 0.15s;
-}
-.btn-primary:hover {
-    background: rgb(15 118 110);
-    box-shadow: 0 2px 8px rgb(13 148 136 / 0.2);
-}
-.btn-primary:active { background: rgb(17 94 89); }
-
-/* Glass input */
-.input-glass {
-    background: white;
-    border: 1px solid rgb(226 232 240 / 0.8);
-    transition: border-color 0.15s, box-shadow 0.15s;
-}
-.input-glass:focus {
-    border-color: rgb(13 148 136 / 0.4);
-    box-shadow: 0 0 0 3px rgb(13 148 136 / 0.08);
+.hero-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    pointer-events: none;
+    will-change: transform;
 }
 
-/* ============================================
-   Nav
-   ============================================ */
+/* ============================================================
+   Glass gradient shimmer on cards (subtle top highlight)
+   ============================================================ */
 
-.nav-pill {
-    transition: background 0.15s, color 0.15s;
-}
-.nav-pill:hover { background: rgb(240 253 250); }
-.nav-pill.active { background: rgb(240 253 250); color: rgb(13 148 136); }
-
-/* ============================================
-   Utilities
-   ============================================ */
-
-.truncate-safe {
+.glass-shimmer {
+    position: relative;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    min-width: 0;
+}
+.glass-shimmer::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.18) 40%,
+        rgba(255, 255, 255, 0.10) 60%,
+        transparent 100%);
+    pointer-events: none;
 }
 
-.stat-label {
-    font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: rgb(100 116 139);
+/* ============================================================
+   Teal glow utility
+   ============================================================ */
+
+.glow-teal {
+    box-shadow: 0 0 30px rgba(45, 212, 191, 0.18), 0 0 60px rgba(45, 212, 191, 0.06);
 }
+.text-glow-teal {
+    text-shadow: 0 0 30px rgba(45, 212, 191, 0.50);
+}
+
+/* ============================================================
+   Pagination — glass override
+   ============================================================ */
+
+nav[aria-label="Pagination Navigation"] span span,
+nav[aria-label="Pagination Navigation"] a {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    color: rgba(255, 255, 255, 0.70) !important;
+    backdrop-filter: blur(12px);
+}
+nav[aria-label="Pagination Navigation"] a:hover {
+    background: rgba(255, 255, 255, 0.10) !important;
+    color: white !important;
+}
+nav[aria-label="Pagination Navigation"] span[aria-current="page"] span {
+    background: rgba(20, 184, 166, 0.80) !important;
+    border-color: rgba(45, 212, 191, 0.50) !important;
+    color: white !important;
+}
+
+/* ============================================================
+   Utilities
+   ============================================================ */
+
+.truncate-safe { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.stat-label { font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255, 255, 255, 0.42); }
 
 [x-cloak] { display: none !important; }
-
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* ============================================
-   Forced colors & reduced motion
-   ============================================ */
+/* ============================================================
+   Reduced motion
+   ============================================================ */
 
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
@@ -212,4 +402,5 @@
         transition-duration: 0.01ms !important;
     }
     .reveal { opacity: 1; transform: none; }
+    .hero-orb { display: none; }
 }
