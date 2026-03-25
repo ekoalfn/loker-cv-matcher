@@ -141,6 +141,42 @@ class JobRepository implements JobRepositoryInterface
     }
 
     /**
+     * Get related jobs by same company or same location.
+     *
+     * Prioritizes same-company matches, then fills remaining slots
+     * with same-location matches. Excludes the current job.
+     */
+    public function getRelatedJobs(Job $job, int $limit = 3): Collection
+    {
+        // First, try same company
+        $related = $this->model
+            ->active()
+            ->where('id', '!=', $job->id)
+            ->where('company', $job->company)
+            ->orderByDesc('created_at')
+            ->limit($limit)
+            ->get();
+
+        // If not enough, fill with same location
+        if ($related->count() < $limit && $job->location) {
+            $remaining = $limit - $related->count();
+            $excludeIds = $related->pluck('id')->push($job->id)->toArray();
+
+            $locationJobs = $this->model
+                ->active()
+                ->whereNotIn('id', $excludeIds)
+                ->where('location', $job->location)
+                ->orderByDesc('created_at')
+                ->limit($remaining)
+                ->get();
+
+            $related = $related->merge($locationJobs);
+        }
+
+        return $related;
+    }
+
+    /**
      * Map raw job data from the ingest payload to model attributes.
      *
      * @param  array<string, mixed>  $jobData

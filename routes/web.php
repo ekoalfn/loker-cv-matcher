@@ -2,7 +2,11 @@
 
 use App\Http\Controllers\CvScanController;
 use App\Http\Controllers\JobController;
+use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
+
+// SEO
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 // Home
 Route::get('/', [JobController::class, 'index'])->name('home');

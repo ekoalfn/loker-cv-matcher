@@ -176,7 +176,7 @@
                         :aria-expanded="openFaq === {{ $index }}"
                     >
                         <span class="text-sm font-semibold text-slate-700 pr-4">{{ $faq['q'] }}</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-stone-400 shrink-0 transition-transform duration-200" :class="{ 'rotate-180': openFaq === {{ $index }} }" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-stone-400 shrink-0 transition-transform duration-200" :class="{ 'rotate-180': openFaq === {{ $index }} }" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
                     </button>
                     <div x-show="openFaq === {{ $index }}" x-cloak x-collapse>
                         <div class="px-4 pb-4">

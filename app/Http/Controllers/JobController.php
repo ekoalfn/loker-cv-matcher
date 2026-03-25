@@ -83,7 +83,9 @@ class JobController extends Controller
             abort(404);
         }
 
-        return view('pages.jobs.show', compact('job'));
+        $relatedJobs = $this->jobRepository->getRelatedJobs($job, 3);
+
+        return view('pages.jobs.show', compact('job', 'relatedJobs'));
     }
 
     /**

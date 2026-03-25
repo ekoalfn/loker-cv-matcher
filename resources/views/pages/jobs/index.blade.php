@@ -1,4 +1,14 @@
-<x-layout title="Cari Lowongan Kerja - Lamaraja">
+@php
+    $pageTitle = 'Cari Lowongan Kerja Terbaru';
+    if ($filters->keyword ?? false) {
+        $pageTitle = 'Lowongan ' . ucfirst($filters->keyword);
+    }
+    if ($filters->location ?? false) {
+        $pageTitle .= ' di ' . $filters->location;
+    }
+    $pageTitle .= ' - Lamaraja';
+@endphp
+<x-layout :title="$pageTitle">
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10" x-data="{ showFilters: false }">
 
@@ -9,8 +19,20 @@
             <x-search-bar :keyword="$filters->keyword ?? ''" :action="route('jobs.index')" />
         </div>
 
+        {{-- Page heading (H1 for SEO) --}}
+        <h1 class="font-[family-name:var(--font-display)] text-xl md:text-2xl font-bold text-slate-800 tracking-tight mt-3 mb-4 md:mt-0">
+            @if($filters->keyword)
+                Lowongan &ldquo;{{ $filters->keyword }}&rdquo;
+                @if($filters->location) di {{ $filters->location }} @endif
+            @elseif($filters->location)
+                Lowongan Kerja di {{ $filters->location }}
+            @else
+                Cari Lowongan Kerja Terbaru
+            @endif
+        </h1>
+
         {{-- Results header --}}
-        <div class="flex items-center justify-between mt-3 mb-5 md:mt-0">
+        <div class="flex items-center justify-between mb-5">
             <p class="text-sm text-stone-500">
                 <span class="font-semibold text-slate-700">{{ $jobs->total() }}</span> lowongan ditemukan
             </p>
@@ -19,7 +41,7 @@
                 class="md:hidden inline-flex items-center gap-2 min-h-[2.5rem] px-3.5 py-2 text-sm font-medium text-stone-600 rounded-xl transition-colors cursor-pointer interactive-focus"
                 style="background: #f5f3f0; border: 1px solid #eae7e3;"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                 </svg>
                 Filter
@@ -42,7 +64,7 @@
                         <input type="hidden" name="keyword" value="{{ $filters->keyword }}">
                     @endif
 
-                    <h3 class="font-semibold text-slate-700 text-sm">Filter</h3>
+                    <h2 class="font-semibold text-slate-700 text-sm">Filter</h2>
 
                     {{-- Lokasi --}}
                     <div>
@@ -95,10 +117,10 @@
                     </div>
                 @else
                     <div class="surface rounded-2xl text-center py-16 px-6 ">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-stone-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-stone-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
-                        <h3 class="font-[family-name:var(--font-display)] text-lg font-bold text-slate-700 mb-1">Tidak ada hasil ditemukan</h3>
+                        <h2 class="font-[family-name:var(--font-display)] text-lg font-bold text-slate-700 mb-1">Tidak ada hasil ditemukan</h2>
                         <p class="text-sm text-stone-400 mb-5">Coba ubah kata kunci atau hapus beberapa filter.</p>
                         <x-button variant="secondary" :href="route('jobs.index')">Hapus Filter</x-button>
                     </div>
