@@ -3,7 +3,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10" x-data="{ showFilters: false }">
 
         {{-- Search Bar --}}
-        <div class="sticky top-14 z-40 py-3 -mx-4 px-4 sm:mx-0 sm:px-0 md:relative md:top-auto md:z-auto md:py-0 md:mb-6 bg-white/95 backdrop-blur-sm md:bg-transparent md:backdrop-blur-none">
+        <div class="sticky top-14 md:top-16 z-40 py-3 -mx-4 px-4 sm:mx-0 sm:px-0 md:relative md:top-auto md:z-auto md:py-0 md:mb-6 bg-white/95 backdrop-blur-sm md:bg-transparent md:backdrop-blur-none">
             <x-search-bar :keyword="$filters->keyword ?? ''" :action="route('jobs.index')" />
         </div>
 
@@ -96,11 +96,11 @@
                         {{ $jobs->withQueryString()->links() }}
                     </div>
                 @else
-                    <div class="surface rounded-2xl text-center py-16 px-6">
+                    <div class="surface rounded-xl text-center py-16 px-6">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-slate-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
-                        <h3 class="text-lg font-semibold text-slate-700 mb-1">Tidak ada hasil</h3>
+                        <h3 class="font-[family-name:var(--font-display)] text-lg font-bold text-slate-700 mb-1">Tidak ada hasil ditemukan</h3>
                         <p class="text-sm text-slate-500 mb-5">Coba ubah kata kunci atau hapus beberapa filter.</p>
                         <x-button variant="secondary" :href="route('jobs.index')">
                             Hapus Filter

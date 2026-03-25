@@ -76,10 +76,10 @@
             class="md:hidden border-t border-slate-100 bg-white"
         >
             <nav class="px-4 py-2 space-y-1" aria-label="Navigasi mobile">
-                <a href="{{ route('home') }}" class="block px-3 py-2.5 rounded-lg text-sm font-medium {{ request()->routeIs('home') ? 'text-teal-600 bg-teal-50' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50' }} transition-colors">
+                <a href="{{ route('home') }}" class="block px-3 py-3 rounded-lg text-sm font-medium min-h-[2.75rem] {{ request()->routeIs('home') ? 'text-teal-600 bg-teal-50' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50' }} transition-colors">
                     Beranda
                 </a>
-                <a href="{{ route('jobs.index') }}" class="block px-3 py-2.5 rounded-lg text-sm font-medium {{ request()->routeIs('jobs.*') ? 'text-teal-600 bg-teal-50' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50' }} transition-colors">
+                <a href="{{ route('jobs.index') }}" class="block px-3 py-3 rounded-lg text-sm font-medium min-h-[2.75rem] {{ request()->routeIs('jobs.*') ? 'text-teal-600 bg-teal-50' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50' }} transition-colors">
                     Cari Loker
                 </a>
             </nav>

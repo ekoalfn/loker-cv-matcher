@@ -7,7 +7,7 @@
                 <h1 class="font-[family-name:var(--font-display)] text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-[1.12] tracking-tight animate-fade-up">
                     Temukan {{ number_format($totalJobs) }}+ lowongan kerja di Indonesia
                 </h1>
-                <p class="mt-4 text-lg text-teal-100/80 leading-relaxed animate-fade-up delay-100">
+                <p class="mt-4 text-lg text-teal-100 leading-relaxed animate-fade-up delay-100">
                     Dirangkum dari berbagai sumber, diperkaya AI agar Anda bisa fokus melamar.
                 </p>
 
@@ -16,7 +16,7 @@
                 </div>
 
                 <div class="mt-6 flex flex-wrap gap-2 animate-fade-up delay-300">
-                    <span class="text-sm text-teal-200/70">Populer:</span>
+                    <span class="text-sm text-teal-200">Populer:</span>
                     <a href="{{ route('jobs.index', ['keyword' => 'developer']) }}" class="text-sm text-teal-100 hover:text-white transition-colors font-medium">Developer</a>
                     <span class="text-teal-400/40">&middot;</span>
                     <a href="{{ route('jobs.index', ['keyword' => 'marketing']) }}" class="text-sm text-teal-100 hover:text-white transition-colors font-medium">Marketing</a>
@@ -53,9 +53,9 @@
                 </x-button>
             </div>
         @else
-            <div class="surface rounded-2xl text-center py-16 px-6">
-                <p class="text-lg font-semibold text-slate-700">Belum ada lowongan tersedia</p>
-                <p class="mt-2 text-slate-500 text-sm">Silakan kembali lagi nanti.</p>
+            <div class="surface rounded-xl text-center py-16 px-6">
+                <p class="font-[family-name:var(--font-display)] text-lg font-bold text-slate-700">Belum ada lowongan</p>
+                <p class="mt-1.5 text-sm text-slate-500">Lowongan baru akan muncul setelah proses scraping berjalan.</p>
             </div>
         @endif
     </section>
