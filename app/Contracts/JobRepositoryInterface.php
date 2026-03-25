@@ -18,4 +18,12 @@ interface JobRepositoryInterface
     public function getActiveCount(): int;
 
     public function getRecentJobs(int $limit = 10): Collection;
+
+    /**
+     * Get related jobs based on the same company or location.
+     *
+     * Prioritizes: same company first, then same location.
+     * Excludes the current job from results.
+     */
+    public function getRelatedJobs(Job $job, int $limit = 3): Collection;
 }
