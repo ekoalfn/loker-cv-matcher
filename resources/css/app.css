@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
-/* ============================================
-   Lamaraja — Design System v3
-   Stripped, intentional, no AI slop
-   ============================================ */
+/* ============================================================
+   Lamaraja — Design System v4
+   Warm light theme, easy on eyes
+   ============================================================ */
 
 @theme {
     --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
@@ -12,198 +12,264 @@
     --font-display: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
 }
 
-/* ============================================
-   Animations — only purposeful ones
-   ============================================ */
+/* ============================================================
+   Base — Warm off-white background (putih tulang)
+   Not pure white (#fff) — slight warm tint reduces eye strain
+   ============================================================ */
+
+body {
+    background-color: #faf8f6;
+    color: #2d2d3a;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================
+   Animations
+   ============================================================ */
 
 @keyframes fade-up {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
-
-@keyframes gauge-fill {
-    from { stroke-dashoffset: 339.292; }
-}
-
+@keyframes gauge-fill { from { stroke-dashoffset: 339.292; } }
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
-    20%, 60% { transform: translateX(-4px); }
-    40%, 80% { transform: translateX(4px); }
+    20%, 60%  { transform: translateX(-4px); }
+    40%, 80%  { transform: translateX(4px); }
 }
-
 @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
+    0%   { background-position: -200% 0; }
+    100% { background-position:  200% 0; }
 }
 
-.animate-fade-up { animation: fade-up 0.5s var(--ease-out-expo) both; }
-.animate-shake { animation: shake 0.4s var(--ease-out-quart); }
+.animate-fade-up { animation: fade-up 0.55s var(--ease-out-expo) both; }
+.animate-shake   { animation: shake 0.4s var(--ease-out-quart); }
 
 .delay-100 { animation-delay: 80ms; }
 .delay-200 { animation-delay: 160ms; }
 .delay-300 { animation-delay: 240ms; }
+.delay-400 { animation-delay: 320ms; }
 
-/* Scroll reveal */
 .reveal {
     opacity: 0;
-    transform: translateY(12px);
-    transition: opacity 0.5s var(--ease-out-expo), transform 0.5s var(--ease-out-expo);
+    transform: translateY(14px);
+    transition: opacity 0.55s var(--ease-out-expo), transform 0.55s var(--ease-out-expo);
 }
 .reveal.revealed { opacity: 1; transform: translateY(0); }
 
-/* Score gauge */
-.gauge-circle { transition: stroke-dashoffset 1.2s var(--ease-out-expo); }
+.gauge-circle  { transition: stroke-dashoffset 1.2s var(--ease-out-expo); }
 .gauge-animate { animation: gauge-fill 1.2s var(--ease-out-expo) both; }
 
-/* ============================================
-   Surfaces — solid, not glass
-   ============================================ */
+/* ============================================================
+   Surfaces — Solid, warm, easy on eyes
+   ============================================================ */
 
-/* Cards and panels — solid white, subtle border, real shadow */
 .surface {
     background: white;
-    border: 1px solid rgb(226 232 240 / 0.8);
-    box-shadow: 0 1px 3px rgb(0 0 0 / 0.04), 0 1px 2px rgb(0 0 0 / 0.02);
+    border: 1px solid #eae7e3;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 }
 
-/* Recessed panel (filter sidebar) */
 .surface-recessed {
-    background: rgb(248 250 252);
-    border: 1px solid rgb(226 232 240 / 0.6);
+    background: #f5f3f0;
+    border: 1px solid #e8e5e1;
 }
 
-/* Header — only element that keeps blur (functional: content scrolls behind) */
 .glass-header {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(20px) saturate(150%);
-    -webkit-backdrop-filter: blur(20px) saturate(150%);
-    border-bottom: 1px solid rgb(226 232 240 / 0.5);
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.03);
+    background: rgba(250, 248, 246, 0.88);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border-bottom: 1px solid #eae7e3;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
-/* Search bar — slightly elevated */
 .surface-search {
     background: white;
-    border: 1px solid rgb(226 232 240 / 0.8);
-    box-shadow: 0 2px 8px rgb(0 0 0 / 0.04), 0 1px 2px rgb(0 0 0 / 0.02);
+    border: 1px solid #e0ddd9;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.glass-mobile-menu {
+    background: #faf8f6;
+    border-top: 1px solid #eae7e3;
 }
 
 @supports not (backdrop-filter: blur(1px)) {
-    .glass-header { background: rgba(255, 255, 255, 0.97); }
+    .glass-header { background: rgba(250, 248, 246, 0.98); }
 }
 
-/* ============================================
-   Interactive States — subtle, one signal
-   ============================================ */
+/* ============================================================
+   Interactive States
+   ============================================================ */
 
-/* Card hover: shadow increase only, no translate */
 .card-hover {
-    transition: box-shadow 0.2s var(--ease-out-quart), border-color 0.2s var(--ease-out-quart);
+    transition:
+        box-shadow   0.2s var(--ease-out-quart),
+        border-color 0.2s var(--ease-out-quart),
+        transform    0.2s var(--ease-out-quart);
 }
 .card-hover:hover {
-    box-shadow: 0 4px 16px rgb(0 0 0 / 0.08), 0 2px 4px rgb(0 0 0 / 0.03);
-    border-color: rgb(203 213 225 / 0.8);
+    border-color: #d5d1cc;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+    transform: translateY(-1px);
 }
 
-/* Button press */
-.btn-press {
-    transition: transform 0.15s var(--ease-out-quart);
-}
+.btn-press { transition: transform 0.15s var(--ease-out-quart); }
 .btn-press:active { transform: scale(0.97); }
 
-/* Focus-visible */
-.interactive-focus {
-    transition: box-shadow 0.15s var(--ease-out-quart);
-}
+.interactive-focus { transition: box-shadow 0.15s var(--ease-out-quart); }
 .interactive-focus:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px white, 0 0 0 4px rgb(13 148 136 / 0.5);
+    box-shadow: 0 0 0 2px #faf8f6, 0 0 0 4px rgba(13, 148, 136, 0.45);
 }
 
-/* Search focus */
 .focus-glow:focus-within {
-    border-color: rgb(13 148 136 / 0.4);
-    box-shadow: 0 0 0 3px rgb(13 148 136 / 0.08);
-    transition: box-shadow 0.15s var(--ease-out-quart), border-color 0.15s var(--ease-out-quart);
+    border-color: rgba(13, 148, 136, 0.35) !important;
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.08) !important;
 }
 
-/* Drag state */
+/* ============================================================
+   Buttons
+   ============================================================ */
+
+.btn-primary {
+    background: rgb(13, 148, 136);
+    color: white;
+    box-shadow: 0 1px 3px rgba(13, 148, 136, 0.20);
+    transition: background 0.15s, box-shadow 0.15s, transform 0.15s var(--ease-out-quart);
+}
+.btn-primary:hover {
+    background: rgb(15, 118, 110);
+    box-shadow: 0 3px 10px rgba(13, 148, 136, 0.25);
+}
+.btn-primary:active {
+    background: rgb(17, 94, 89);
+    transform: scale(0.97);
+}
+
+/* ============================================================
+   Inputs
+   ============================================================ */
+
+.input-glass {
+    background: white;
+    border: 1px solid #e0ddd9;
+    color: #2d2d3a;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.input-glass::placeholder { color: #a8a29e; }
+.input-glass:focus {
+    border-color: rgba(13, 148, 136, 0.40);
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.06);
+    outline: none;
+}
+.input-glass option { background: white; color: #2d2d3a; }
+
+/* Checkbox */
+input[type="checkbox"].glass-check {
+    appearance: none;
+    width: 1rem; height: 1rem;
+    border-radius: 4px;
+    border: 1.5px solid #c8c4bf;
+    background: white;
+    cursor: pointer;
+    position: relative;
+    transition: border-color 0.15s, background 0.15s;
+}
+input[type="checkbox"].glass-check:checked {
+    background: rgb(13, 148, 136);
+    border-color: rgb(13, 148, 136);
+}
+input[type="checkbox"].glass-check:checked::after {
+    content: '';
+    position: absolute;
+    left: 3px; top: 1px;
+    width: 6px; height: 9px;
+    border: 2px solid white;
+    border-top: none; border-left: none;
+    transform: rotate(45deg);
+}
+
+/* ============================================================
+   Navigation
+   ============================================================ */
+
+.nav-pill {
+    color: #78716c;
+    transition: background 0.15s, color 0.15s;
+    border-radius: 8px;
+}
+.nav-pill:hover {
+    background: rgba(0, 0, 0, 0.04);
+    color: #2d2d3a;
+}
+.nav-pill.active {
+    background: rgba(13, 148, 136, 0.08);
+    color: rgb(13, 148, 136);
+}
+
+/* ============================================================
+   Badges
+   ============================================================ */
+
+.badge-teal  { background: #f0fdfa; border: 1px solid #ccfbf1; color: #0f766e; }
+.badge-blue  { background: #eef2ff; border: 1px solid #e0e7ff; color: #4338ca; }
+.badge-green { background: #ecfdf5; border: 1px solid #d1fae5; color: #047857; }
+.badge-amber { background: #fffbeb; border: 1px solid #fef3c7; color: #92400e; }
+.badge-red   { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; }
+.badge-gray  { background: #f5f3f0; border: 1px solid #eae7e3; color: #78716c; }
+.badge-new   { background: rgb(13, 148, 136); border: 1px solid rgb(13, 148, 136); color: white; }
+
+/* ============================================================
+   Drag & Scanning states
+   ============================================================ */
+
 .drag-active {
-    border-color: rgb(13 148 136 / 0.5) !important;
-    background: rgb(240 253 250) !important;
+    border-color: rgba(13, 148, 136, 0.50) !important;
+    background: #f0fdfa !important;
 }
 
-/* Scanning shimmer */
 .scanning-shimmer {
-    background: linear-gradient(90deg, transparent 25%, rgb(13 148 136 / 0.04) 50%, transparent 75%);
+    background: linear-gradient(90deg, transparent 25%, rgba(13, 148, 136, 0.04) 50%, transparent 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
 }
 
-/* ============================================
-   Buttons
-   ============================================ */
+/* ============================================================
+   Pagination
+   ============================================================ */
 
-.btn-primary {
-    background: rgb(13 148 136);
-    color: white;
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.1);
-    transition: background 0.15s, box-shadow 0.15s;
+nav[aria-label="Pagination Navigation"] span span,
+nav[aria-label="Pagination Navigation"] a {
+    background: white !important;
+    border-color: #eae7e3 !important;
+    color: #78716c !important;
 }
-.btn-primary:hover {
-    background: rgb(15 118 110);
-    box-shadow: 0 2px 8px rgb(13 148 136 / 0.2);
+nav[aria-label="Pagination Navigation"] a:hover {
+    background: #f5f3f0 !important;
+    color: #2d2d3a !important;
 }
-.btn-primary:active { background: rgb(17 94 89); }
-
-/* Glass input */
-.input-glass {
-    background: white;
-    border: 1px solid rgb(226 232 240 / 0.8);
-    transition: border-color 0.15s, box-shadow 0.15s;
-}
-.input-glass:focus {
-    border-color: rgb(13 148 136 / 0.4);
-    box-shadow: 0 0 0 3px rgb(13 148 136 / 0.08);
+nav[aria-label="Pagination Navigation"] span[aria-current="page"] span {
+    background: rgb(13, 148, 136) !important;
+    border-color: rgb(13, 148, 136) !important;
+    color: white !important;
 }
 
-/* ============================================
-   Nav
-   ============================================ */
-
-.nav-pill {
-    transition: background 0.15s, color 0.15s;
-}
-.nav-pill:hover { background: rgb(240 253 250); }
-.nav-pill.active { background: rgb(240 253 250); color: rgb(13 148 136); }
-
-/* ============================================
+/* ============================================================
    Utilities
-   ============================================ */
+   ============================================================ */
 
-.truncate-safe {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    min-width: 0;
-}
-
-.stat-label {
-    font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: rgb(100 116 139);
-}
+.truncate-safe { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.stat-label { font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #a8a29e; }
 
 [x-cloak] { display: none !important; }
-
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* ============================================
-   Forced colors & reduced motion
-   ============================================ */
+/* ============================================================
+   Reduced motion
+   ============================================================ */
 
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {

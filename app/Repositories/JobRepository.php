@@ -98,7 +98,7 @@ class JobRepository implements JobRepositoryInterface
         }
 
         if ($filters->employmentType) {
-            $query->where('employment_type', $filters->employmentType);
+            $query->whereIn('employment_type', $filters->employmentType);
         }
 
         return $query
