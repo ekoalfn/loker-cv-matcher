@@ -10,17 +10,16 @@
     $colorIndex = crc32($job->company ?? '') % count($avatarColors);
     $avatarBg = $avatarColors[$colorIndex];
     $companyInitial = strtoupper(mb_substr($job->company ?? '?', 0, 1));
+    $isNew = $job->created_at->isToday() || $job->created_at->isYesterday();
 @endphp
 
 <article class="surface rounded-xl card-hover reveal group">
     <a href="{{ route('jobs.show', $job) }}" class="flex items-start gap-4 p-4 md:p-5 interactive-focus rounded-xl">
 
-        {{-- Company Avatar --}}
         <div class="w-10 h-10 rounded-lg {{ $avatarBg }} flex items-center justify-center shrink-0">
             <span class="text-white font-bold text-sm">{{ $companyInitial }}</span>
         </div>
 
-        {{-- Content --}}
         <div class="flex-1 min-w-0">
             <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
@@ -36,9 +35,8 @@
                     </p>
                 </div>
 
-                {{-- Salary (right-aligned) --}}
                 @if($job->salary_min || $job->salary_max)
-                    <span class="text-sm font-semibold text-emerald-600 whitespace-nowrap shrink-0">
+                    <span class="text-sm font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-md px-2 py-0.5 whitespace-nowrap shrink-0">
                         @if($job->salary_min && $job->salary_max)
                             @if($job->salary_min >= 1000000)
                                 {{ number_format($job->salary_min / 1000000, 1) }}-{{ number_format($job->salary_max / 1000000, 1) }} jt
@@ -54,8 +52,11 @@
                 @endif
             </div>
 
-            {{-- Meta row --}}
             <div class="mt-2 flex flex-wrap items-center gap-2">
+                @if($isNew)
+                    <span class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold bg-teal-600 text-white">Baru</span>
+                @endif
+
                 @if($job->employment_type)
                     <span class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium bg-teal-50 text-teal-700 border border-teal-100">
                         {{ employment_label($job->employment_type) }}

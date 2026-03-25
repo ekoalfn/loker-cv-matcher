@@ -1,4 +1,8 @@
-<x-layout :title="$job->title . ' di ' . $job->company . ' - Portal Loker'">
+<x-layout
+    :title="$job->title . ' di ' . $job->company . ' - Portal Loker'"
+    :description="Str::limit($job->summary_ai ?? $job->title . ' di ' . $job->company, 160)"
+    ogType="article"
+>
 
     @php
         $avatarColors = [
@@ -75,6 +79,16 @@
                     @endforeach
                 </div>
             @endif
+
+            {{-- Share buttons --}}
+            <div class="mt-5 pt-4 border-t border-slate-100">
+                <x-share-buttons
+                    :url="route('jobs.show', $job)"
+                    :title="$job->title"
+                    :company="$job->company"
+                    :location="$job->location"
+                />
+            </div>
         </header>
 
         <hr class="border-slate-100 mb-8">
@@ -334,5 +348,30 @@
             };
         }
     </script>
+
+    @php
+        $jobLd = json_encode([
+            '@context' => 'https://schema.org',
+            '@type' => 'JobPosting',
+            'title' => $job->title,
+            'description' => Str::limit($job->description_raw ?? $job->summary_ai ?? $job->title, 5000),
+            'datePosted' => $job->created_at->toIso8601String(),
+            'hiringOrganization' => ['@type' => 'Organization', 'name' => $job->company],
+            'jobLocation' => ['@type' => 'Place', 'address' => ['@type' => 'PostalAddress', 'addressLocality' => $job->location ?? 'Indonesia', 'addressCountry' => 'ID']],
+            'employmentType' => strtoupper(str_replace('-', '_', is_object($job->employment_type) ? $job->employment_type->value : ($job->employment_type ?? 'FULL_TIME'))),
+            'directApply' => false,
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $breadcrumbLd = json_encode([
+            '@context' => 'https://schema.org',
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => [
+                ['@type' => 'ListItem', 'position' => 1, 'name' => 'Beranda', 'item' => url('/')],
+                ['@type' => 'ListItem', 'position' => 2, 'name' => 'Lowongan', 'item' => route('jobs.index')],
+                ['@type' => 'ListItem', 'position' => 3, 'name' => $job->title],
+            ],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    @endphp
+    {!! '<script type="application/ld+json">' . $jobLd . '</script>' !!}
+    {!! '<script type="application/ld+json">' . $breadcrumbLd . '</script>' !!}
 
 </x-layout>

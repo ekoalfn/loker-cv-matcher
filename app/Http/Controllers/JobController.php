@@ -7,6 +7,7 @@ use App\DTOs\JobFilterDTO;
 use App\Models\Job;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class JobController extends Controller
@@ -23,7 +24,33 @@ class JobController extends Controller
         $recentJobs = $this->jobRepository->getRecentJobs(12);
         $totalJobs = $this->jobRepository->getActiveCount();
 
-        return view('pages.home', compact('recentJobs', 'totalJobs'));
+        $topLocations = Job::query()
+            ->active()
+            ->whereNotNull('location')
+            ->where('location', '!=', '')
+            ->select('location', DB::raw('COUNT(*) as job_count'))
+            ->groupBy('location')
+            ->orderByDesc('job_count')
+            ->limit(12)
+            ->get();
+
+        $employmentTypeCounts = Job::query()
+            ->active()
+            ->whereNotNull('employment_type')
+            ->select('employment_type', DB::raw('COUNT(*) as job_count'))
+            ->groupBy('employment_type')
+            ->orderByDesc('job_count')
+            ->get();
+
+        $jobsAddedToday = Job::query()
+            ->active()
+            ->whereDate('created_at', today())
+            ->count();
+
+        return view('pages.home', compact(
+            'recentJobs', 'totalJobs', 'topLocations',
+            'employmentTypeCounts', 'jobsAddedToday'
+        ));
     }
 
     /**

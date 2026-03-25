@@ -11,7 +11,10 @@
       "mcp__linear-server__save_issue",
       "mcp__linear-server__list_issues",
       "mcp__linear-server__get_issue",
-      "Bash(composer require:*)"
+      "Bash(composer require:*)",
+      "Bash(npx vite:*)",
+      "WebFetch(domain:schema.org)",
+      "Bash(npm install:*)"
     ]
   }
 }
