@@ -5,7 +5,6 @@ window.Alpine = Alpine;
 Alpine.start();
 
 // --- Scroll Reveal Observer ---
-// Elements with class "reveal" will fade-up when entering viewport
 const revealObserver = new IntersectionObserver(
     (entries) => {
         entries.forEach((entry) => {
@@ -15,16 +14,21 @@ const revealObserver = new IntersectionObserver(
             }
         });
     },
-    { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+    { threshold: 0.08, rootMargin: '0px 0px -60px 0px' }
 );
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.reveal').forEach((el, i) => {
-        // Stagger delay for grouped reveals
+    // Stagger reveals within groups
+    document.querySelectorAll('[data-reveal-stagger]').forEach((container) => {
+        container.querySelectorAll('.reveal').forEach((el, i) => {
+            el.style.transitionDelay = `${i * 100}ms`;
+        });
+    });
+
+    // Individual reveals
+    document.querySelectorAll('.reveal').forEach((el) => {
         if (el.dataset.revealDelay) {
             el.style.transitionDelay = el.dataset.revealDelay;
-        } else if (el.closest('[data-reveal-stagger]')) {
-            el.style.transitionDelay = `${i * 80}ms`;
         }
         revealObserver.observe(el);
     });

@@ -16,6 +16,6 @@
     };
 @endphp
 
-<span {{ $attributes->merge(['class' => "inline-flex items-center rounded-full px-3 py-1 text-xs font-medium border backdrop-blur-sm transition-all duration-200 {$colorClasses}"]) }}>
+<span {{ $attributes->merge(['class' => "inline-flex items-center rounded-full px-3 py-1 text-[0.6875rem] font-semibold border backdrop-blur-sm transition-all duration-200 hover:scale-[1.03] {$colorClasses}"]) }}>
     {{ $text ?: $slot }}
 </span>
