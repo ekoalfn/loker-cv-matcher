@@ -1,7 +1,7 @@
 @props(['url', 'title', 'company', 'location' => null])
 
 @php
-    $text = "Lowongan: {$title} di {$company}" . ($location ? " ({$location})" : '') . "\n\nvia Portal Loker";
+    $text = "Lowongan: {$title} di {$company}" . ($location ? " ({$location})" : '') . "\n\nvia Lamaraja";
     $waUrl = 'https://wa.me/?text=' . urlencode($text . "\n" . $url);
     $liUrl = 'https://www.linkedin.com/sharing/share-offsite/?url=' . urlencode($url);
     $twUrl = 'https://twitter.com/intent/tweet?text=' . urlencode("Lowongan: {$title} di {$company}") . '&url=' . urlencode($url);

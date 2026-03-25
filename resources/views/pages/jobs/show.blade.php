@@ -1,5 +1,5 @@
 <x-layout
-    :title="$job->title . ' di ' . $job->company . ' - Portal Loker'"
+    :title="$job->title . ' di ' . $job->company . ' - Lamaraja'"
     :description="Str::limit($job->summary_ai ?? $job->title . ' di ' . $job->company, 160)"
     ogType="article"
 >

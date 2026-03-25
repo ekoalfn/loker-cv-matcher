@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="{{ $description ?? 'Cari lowongan kerja terbaru di Indonesia dari berbagai sumber terpercaya. Portal Loker mengumpulkan loker dan menyediakan AI CV Matcher gratis.' }}">
+    <meta name="description" content="{{ $description ?? 'Cari lowongan kerja terbaru di Indonesia dari berbagai sumber terpercaya. Lamaraja mengumpulkan loker dan menyediakan AI CV Matcher gratis.' }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#0d9488">
 
-    <title>{{ $title ?? 'Lowongan Kerja Terbaru di Indonesia - Cari Loker | Portal Loker' }}</title>
+    <title>{{ $title ?? 'Lowongan Kerja Terbaru di Indonesia - Cari Loker | Lamaraja' }}</title>
 
     {{-- Canonical --}}
     <link rel="canonical" href="{{ $canonical ?? url()->current() }}">
 
     {{-- Open Graph --}}
     <meta property="og:type" content="{{ $ogType ?? 'website' }}">
-    <meta property="og:title" content="{{ $title ?? 'Lowongan Kerja Terbaru di Indonesia | Portal Loker' }}">
+    <meta property="og:title" content="{{ $title ?? 'Lowongan Kerja Terbaru di Indonesia | Lamaraja' }}">
     <meta property="og:description" content="{{ $description ?? 'Cari lowongan kerja terbaru di Indonesia. Diperkaya AI CV Matcher gratis.' }}">
     <meta property="og:url" content="{{ $canonical ?? url()->current() }}">
-    <meta property="og:site_name" content="Portal Loker">
+    <meta property="og:site_name" content="Lamaraja">
     <meta property="og:locale" content="id_ID">
 
     {{-- Twitter Card --}}
@@ -45,7 +45,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
                     </div>
-                    <span class="text-slate-900 font-[family-name:var(--font-display)]">Portal Loker</span>
+                    <span class="text-slate-900 font-[family-name:var(--font-display)]">Lamaraja</span>
                 </a>
 
                 <nav class="hidden md:flex items-center gap-1" aria-label="Navigasi utama">
@@ -77,7 +77,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
                 <div>
-                    <h3 class="text-sm font-semibold text-slate-900 mb-3">Portal Loker</h3>
+                    <h3 class="text-sm font-semibold text-slate-900 mb-3">Lamaraja</h3>
                     <ul class="space-y-2 text-sm text-slate-500">
                         <li><a href="{{ route('home') }}" class="hover:text-teal-600 transition-colors">Beranda</a></li>
                         <li><a href="{{ route('jobs.index') }}" class="hover:text-teal-600 transition-colors">Semua Lowongan</a></li>
@@ -110,7 +110,7 @@
                 </div>
             </div>
             <div class="border-t border-slate-100 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <span class="text-sm text-slate-400">&copy; {{ date('Y') }} Portal Loker</span>
+                <span class="text-sm text-slate-400">&copy; {{ date('Y') }} Lamaraja</span>
                 <p class="text-xs text-slate-400 flex items-center gap-1.5">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
                     CV dihapus otomatis setelah analisis
