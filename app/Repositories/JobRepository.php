@@ -156,7 +156,7 @@ class JobRepository implements JobRepositoryInterface
             'employment_type' => $jobData['employment_type'] ?? null,
             'salary_min' => $jobData['salary_min'] ?? null,
             'salary_max' => $jobData['salary_max'] ?? null,
-            'salary_currency' => $jobData['salary_currency'] ?? null,
+            'salary_currency' => $jobData['salary_currency'] ?? 'IDR',
             'description_raw' => $jobData['description_raw'] ?? null,
             'summary_ai' => $jobData['summary_ai'] ?? null,
             'tags' => $jobData['tags'] ?? null,
