@@ -22,6 +22,11 @@ class Job extends Model
      */
     protected $table = 'jobs';
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     /**
      * The attributes that are mass assignable.
      *

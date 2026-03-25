@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('job_sources', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('base_url');
+            $table->string('base_url')->nullable();
             $table->jsonb('scrape_config')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamp('last_scraped_at')->nullable();
