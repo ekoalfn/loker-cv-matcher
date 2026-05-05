@@ -7,8 +7,16 @@
         $pageTitle .= ' di ' . $filters->location;
     }
     $pageTitle .= ' - Lamaraja';
+
+    // Prevent Google from indexing filtered/paginated pages to save crawl budget
+    $hasFilters = ($filters->keyword ?? false) || ($filters->location ?? false) || !empty($filters->employmentType ?? []);
+    $isPaginated = request()->has('page') && request()->get('page') > 1;
+    $shouldNoindex = $hasFilters || $isPaginated;
+    $robotsMeta = $shouldNoindex ? 'noindex, follow' : 'index, follow';
+    $canonicalUrl = route('jobs.index');
 @endphp
-<x-layout :title="$pageTitle">
+<x-layout :title="$pageTitle" :robots="$robotsMeta" :canonical="$canonicalUrl">
+
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10" x-data="{ showFilters: false }">
 

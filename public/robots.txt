@@ -1,5 +1,5 @@
 # Lamaraja - Portal Lowongan Kerja Indonesia
-# https://lamaraja.com
+# https://lamaraja.web.id
 
 User-agent: *
 Allow: /
@@ -7,4 +7,4 @@ Disallow: /cv-scan
 Disallow: /api/
 Disallow: /storage/
 
-Sitemap: https://lamaraja.com/sitemap.xml
+Sitemap: https://lamaraja.web.id/sitemap.xml

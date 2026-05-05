@@ -11,6 +11,8 @@
     <title>{{ $title ?? 'Lowongan Kerja Terbaru di Indonesia - Cari Loker | Lamaraja' }}</title>
 
     <link rel="canonical" href="{{ $canonical ?? url()->current() }}">
+    <link rel="alternate" hreflang="id" href="{{ $canonical ?? url()->current() }}">
+    <link rel="alternate" hreflang="x-default" href="{{ $canonical ?? url()->current() }}">
 
     <meta property="og:type"        content="{{ $ogType ?? 'website' }}">
     <meta property="og:title"       content="{{ $title ?? 'Lowongan Kerja Terbaru di Indonesia | Lamaraja' }}">
