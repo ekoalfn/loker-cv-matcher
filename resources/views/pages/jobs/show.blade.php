@@ -112,18 +112,71 @@
                         </div>
                         <div class="flex-1">
                             <p class="text-xs font-semibold text-amber-700 mb-1.5">Ringkasan AI</p>
-                            <p class="text-sm text-stone-600 leading-relaxed">{{ $job->summary_ai }}</p>
+                            <div class="text-sm text-stone-600 leading-relaxed markdown-content">
+                                {!! Str::markdown($job->summary_ai ?? '') !!}
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
         @endif
 
+        {{-- Quick Info Grid --}}
+        <section class="mb-8 animate-fade-up delay-150">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {{-- Employment Type --}}
+                <div class="surface rounded-2xl p-4 text-center">
+                    <div class="w-9 h-9 mx-auto mb-2 rounded-xl flex items-center justify-center" style="background: #eef2ff; border: 1px solid #e0e7ff;">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                    </div>
+                    <p class="text-[11px] text-stone-400 font-medium uppercase tracking-wider mb-0.5">Tipe</p>
+                    <p class="text-sm font-semibold text-slate-700">{{ employment_label($job->employment_type) ?: 'Full Time' }}</p>
+                </div>
+
+                {{-- Location --}}
+                <div class="surface rounded-2xl p-4 text-center">
+                    <div class="w-9 h-9 mx-auto mb-2 rounded-xl flex items-center justify-center" style="background: #ecfdf5; border: 1px solid #d1fae5;">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    </div>
+                    <p class="text-[11px] text-stone-400 font-medium uppercase tracking-wider mb-0.5">Lokasi</p>
+                    <p class="text-sm font-semibold text-slate-700 truncate">{{ $job->location ?: 'Indonesia' }}</p>
+                </div>
+
+                {{-- Company --}}
+                <div class="surface rounded-2xl p-4 text-center">
+                    <div class="w-9 h-9 mx-auto mb-2 rounded-xl flex items-center justify-center" style="background: #f0fdfa; border: 1px solid #ccfbf1;">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                    </div>
+                    <p class="text-[11px] text-stone-400 font-medium uppercase tracking-wider mb-0.5">Perusahaan</p>
+                    <p class="text-sm font-semibold text-slate-700 truncate">{{ $job->company }}</p>
+                </div>
+
+                {{-- Posted --}}
+                <div class="surface rounded-2xl p-4 text-center">
+                    <div class="w-9 h-9 mx-auto mb-2 rounded-xl flex items-center justify-center" style="background: #fffbeb; border: 1px solid #fef3c7;">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    </div>
+                    <p class="text-[11px] text-stone-400 font-medium uppercase tracking-wider mb-0.5">Diposting</p>
+                    <p class="text-sm font-semibold text-slate-700">{{ $job->created_at->diffForHumans() }}</p>
+                </div>
+            </div>
+        </section>
+
         {{-- Description --}}
         @if($job->description_raw)
-            <section class="mb-8 animate-fade-up delay-200">
-                <h2 class="text-lg font-bold text-slate-800 mb-3">Deskripsi Pekerjaan</h2>
-                <div class="text-sm text-stone-600 leading-relaxed whitespace-pre-line">{{ $job->description_raw }}</div>
+            <section class="mb-12 animate-fade-up delay-200">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="h-8 w-1.5 bg-teal-600 rounded-full"></div>
+                        <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight">Detail Lowongan</h2>
+                    </div>
+                </div>
+
+                <div class="job-description-wrapper">
+                    <div class="job-description-content text-sm md:text-[15px] text-slate-600">
+                        {!! Str::markdown($job->description_raw) !!}
+                    </div>
+                </div>
             </section>
         @endif
 
@@ -380,6 +433,69 @@
                 },
             };
         }
+
+        // Enhance description headers
+        document.addEventListener('DOMContentLoaded', () => {
+            const descContainer = document.querySelector('.job-description-content');
+            if (!descContainer) return;
+
+            const config = [
+                { header: 'Tentang Pekerjaan', class: 'section-teal' },
+                { header: 'Tanggung Jawab',    class: 'section-blue' },
+                { header: 'Tugas',             class: 'section-blue' },
+                { header: 'Kualifikasi',       class: 'section-amber' },
+                { header: 'Requirement',       class: 'section-amber' },
+                { header: 'Persyaratan',       class: 'section-amber' },
+                { header: 'Keuntungan',        class: 'section-green' },
+                { header: 'Benefit',           class: 'section-green' }
+            ];
+            
+            // 1. First, handle plain text if needed (no H3s yet)
+            const hasH3 = descContainer.querySelector('h3');
+            if (!hasH3) {
+                let html = descContainer.innerHTML;
+                config.forEach(item => {
+                    const regex = new RegExp(`(^|<br>|<p>|\\n)(${item.header})(:)?(\\s|\\n|<|$)`, 'gi');
+                    html = html.replace(regex, (match, p1, p2) => `${p1}<h3>${p2}</h3>`);
+                });
+                descContainer.innerHTML = html;
+            }
+
+            // 2. Wrap each H3 and its following content into a section card
+            const children = Array.from(descContainer.children);
+            let currentCard = null;
+
+            children.forEach(child => {
+                if (child.tagName === 'H3') {
+                    // Create new card
+                    currentCard = document.createElement('div');
+                    currentCard.className = 'surface rounded-3xl p-6 md:p-8 mb-6 animate-fade-up';
+                    currentCard.style.boxShadow = '0 4px 20px rgba(0,0,0,0.03)';
+                    
+                    // Assign section class to H3
+                    const text = child.textContent.toLowerCase();
+                    const match = config.find(item => text.includes(item.header.toLowerCase()));
+                    child.classList.add(match ? match.class : 'section-teal');
+                    
+                    // Insert card before the H3 and move H3 into it
+                    descContainer.insertBefore(currentCard, child);
+                    currentCard.appendChild(child);
+                } else if (currentCard) {
+                    // Move sibling into the current card
+                    currentCard.appendChild(child);
+                }
+            });
+
+            // If there were no H3s, wrap everything in one card
+            if (!descContainer.querySelector('.surface')) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'surface rounded-3xl p-6 md:p-8 mb-6';
+                while (descContainer.firstChild) {
+                    wrapper.appendChild(descContainer.firstChild);
+                }
+                descContainer.appendChild(wrapper);
+            }
+        });
     </script>
 
     @php

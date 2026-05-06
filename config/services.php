@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'scraper' => [
+        'admin_password' => env('SCRAPER_ADMIN_PASSWORD', 'changeme'),
+    ],
+
 ];

@@ -59,9 +59,11 @@ class JobRepository implements JobRepositoryInterface
 
                         $existing->update($attributes);
                         $stats['updated']++;
+                        \App\Jobs\ScrapeJobDetailJob::dispatch($existing);
                     } else {
-                        $this->model->create($attributes);
+                        $newJob = $this->model->create($attributes);
                         $stats['inserted']++;
+                        \App\Jobs\ScrapeJobDetailJob::dispatch($newJob);
                     }
                 } catch (\Throwable $e) {
                     Log::warning('Job upsert failed', [

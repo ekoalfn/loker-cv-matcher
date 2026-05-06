@@ -139,9 +139,11 @@ class OpenRouterService implements AiServiceInterface
             $tokensUsed = $data['usage']['total_tokens'] ?? 0;
 
             if (empty(trim($content))) {
-                Log::warning('OpenRouter empty content', [
+                Log::error('OpenRouter empty content', [
                     'model' => $usedModel,
-                    'tokens' => $tokensUsed,
+                    'tokens_used' => $tokensUsed,
+                    'finish_reason' => $data['choices'][0]['finish_reason'] ?? 'unknown',
+                    'reasoning_length' => isset($data['choices'][0]['message']['reasoning']) ? strlen($data['choices'][0]['message']['reasoning']) : 0,
                     'raw_choices' => json_encode($data['choices'] ?? []),
                 ]);
                 return null;
