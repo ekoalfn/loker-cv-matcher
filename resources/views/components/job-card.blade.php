@@ -13,6 +13,22 @@
     $gradient      = $gradients[$colorIndex];
     $companyInitial = strtoupper(mb_substr($job->company ?? '?', 0, 1));
     $isNew         = $job->created_at->isToday() || $job->created_at->isYesterday();
+    
+    // Format salary
+    $salaryText = null;
+    if ($job->salary_min || $job->salary_max) {
+        if ($job->salary_min && $job->salary_max) {
+            if ($job->salary_min >= 1000000) {
+                $salaryText = number_format($job->salary_min / 1000000, 0) . '–' . number_format($job->salary_max / 1000000, 0) . 'M IDR';
+            } else {
+                $salaryText = 'Rp ' . number_format($job->salary_min, 0, ',', '.') . ' - ' . number_format($job->salary_max, 0, ',', '.');
+            }
+        } elseif ($job->salary_min) {
+            $salaryText = number_format($job->salary_min / 1000000, 0) . 'M+ IDR';
+        } else {
+            $salaryText = 'Up to ' . number_format($job->salary_max / 1000000, 0) . 'M IDR';
+        }
+    }
 @endphp
 
 <article class="bg-white rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all duration-200 group">
@@ -25,10 +41,17 @@
 
             {{-- Job Info --}}
             <div class="flex-1 min-w-0">
-                {{-- Title --}}
-                <h3 class="text-lg font-bold text-slate-900 group-hover:text-emerald-600 transition-colors mb-1">
-                    {{ $job->title }}
-                </h3>
+                {{-- Title & Salary --}}
+                <div class="flex items-start justify-between gap-3 mb-1">
+                    <h3 class="text-lg font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">
+                        {{ $job->title }}
+                    </h3>
+                    @if($salaryText)
+                        <span class="inline-flex items-center px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-semibold border border-emerald-200 whitespace-nowrap shrink-0">
+                            {{ $salaryText }}
+                        </span>
+                    @endif
+                </div>
 
                 {{-- Company & Location --}}
                 <div class="flex items-center gap-3 text-sm text-slate-600 mb-3">
