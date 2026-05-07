@@ -66,8 +66,8 @@
 
                 {{-- Right: AI Summary Card --}}
                 <div class="animate-fade-up delay-300 hidden lg:block">
-                    <div class="ai-summary-card relative">
-                        <div class="absolute -top-3 left-6 flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-md border border-emerald-100">
+                    <div class="ai-summary-card group relative">
+                        <div class="absolute -top-3 left-6 flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-md border border-emerald-100 z-9999">
                             <svg class="w-5 h-5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M13 7H7v6h6V7z"/>
                                 <path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clip-rule="evenodd"/>
@@ -75,60 +75,52 @@
                             <span class="text-sm font-bold text-emerald-600">AI Job Summary</span>
                         </div>
                         
-                        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 mt-4">
+                        <div class="ai-card-inner bg-white rounded-2xl shadow-xl border border-slate-200 p-6 mt-4 transition-all duration-300">
                             <div class="grid grid-cols-2 gap-4">
                                 {{-- Original Job Description --}}
                                 <div>
                                     <div class="text-xs font-semibold text-slate-500 mb-3">Original Job Description</div>
                                     <div class="space-y-2">
-                                        <div class="h-2 bg-slate-100 rounded w-full"></div>
-                                        <div class="h-2 bg-slate-100 rounded w-5/6"></div>
-                                        <div class="h-2 bg-slate-100 rounded w-full"></div>
-                                        <div class="h-2 bg-slate-100 rounded w-4/6"></div>
-                                        <div class="h-2 bg-slate-100 rounded w-full"></div>
-                                        <div class="h-2 bg-slate-100 rounded w-3/6"></div>
-                                        <div class="h-2 bg-slate-100 rounded w-5/6"></div>
-                                        <div class="h-2 bg-slate-100 rounded w-full"></div>
+                                        <div class="h-2 skeleton-shimmer rounded w-full" style="animation-delay: 0s"></div>
+                                        <div class="h-2 skeleton-shimmer rounded w-5/6" style="animation-delay: 0.15s"></div>
+                                        <div class="h-2 skeleton-shimmer rounded w-full" style="animation-delay: 0.3s"></div>
+                                        <div class="h-2 skeleton-shimmer rounded w-4/6" style="animation-delay: 0.45s"></div>
+                                        <div class="h-2 skeleton-shimmer rounded w-full" style="animation-delay: 0.6s"></div>
+                                        <div class="h-2 skeleton-shimmer rounded w-3/6" style="animation-delay: 0.75s"></div>
+                                        <div class="h-2 skeleton-shimmer rounded w-5/6" style="animation-delay: 0.9s"></div>
+                                        <div class="h-2 skeleton-shimmer rounded w-full" style="animation-delay: 1.05s"></div>
                                     </div>
                                 </div>
 
                                 {{-- AI Summary --}}
                                 <div class="relative">
-                                    <div class="absolute -left-4 top-0 bottom-0 w-12 flex items-center justify-center">
-                                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg">
-                                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M13 7H7v6h6V7z"/>
-                                                <path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clip-rule="evenodd"/>
-                                            </svg>
-                                        </div>
-                                    </div>
                                     <div class="text-xs font-semibold text-slate-500 mb-3">AI Summary</div>
                                     <div class="space-y-3">
-                                        <div class="flex items-start gap-2">
+                                        <div class="flex items-start gap-2 ai-summary-item">
                                             <svg class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                             </svg>
                                             <span class="text-xs text-slate-600">Key responsibilities</span>
                                         </div>
-                                        <div class="flex items-start gap-2">
+                                        <div class="flex items-start gap-2 ai-summary-item">
                                             <svg class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                             </svg>
                                             <span class="text-xs text-slate-600">Required skills</span>
                                         </div>
-                                        <div class="flex items-start gap-2">
+                                        <div class="flex items-start gap-2 ai-summary-item">
                                             <svg class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                             </svg>
                                             <span class="text-xs text-slate-600">Experience</span>
                                         </div>
-                                        <div class="flex items-start gap-2">
+                                        <div class="flex items-start gap-2 ai-summary-item">
                                             <svg class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                             </svg>
                                             <span class="text-xs text-slate-600">Nice to have</span>
                                         </div>
-                                        <div class="flex items-start gap-2">
+                                        <div class="flex items-start gap-2 ai-summary-item">
                                             <svg class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                             </svg>
@@ -146,8 +138,10 @@
                                         <svg class="w-16 h-16" viewBox="0 0 64 64" fill="none">
                                             <circle cx="32" cy="32" r="28" fill="#10B981" opacity="0.1"/>
                                             <rect x="20" y="24" width="24" height="20" rx="4" fill="#10B981"/>
-                                            <circle cx="26" cy="32" r="3" fill="#000"/>
-                                            <circle cx="38" cy="32" r="3" fill="#000"/>
+                                            <g class="robot-eye">
+                                                <circle cx="26" cy="32" r="3" fill="#000"/>
+                                                <circle cx="38" cy="32" r="3" fill="#000"/>
+                                            </g>
                                             <path d="M26 38h12" stroke="#000" stroke-width="2" stroke-linecap="round"/>
                                             <circle cx="32" cy="44" r="2" fill="#10B981"/>
                                             <rect x="16" y="28" width="4" height="8" rx="2" fill="#10B981"/>

@@ -79,7 +79,12 @@
                             <span class="absolute -bottom-[1.125rem] left-0 right-0 h-0.5 bg-emerald-600"></span>
                         @endif
                     </a>
-                    <a href="#" class="text-sm font-semibold text-slate-700 hover:text-slate-900 transition-colors">CV Matcher</a>
+                    <a href="{{ route('cv-matcher.index') }}" class="relative text-sm font-semibold {{ request()->routeIs('cv-matcher.*') ? 'text-emerald-600' : 'text-slate-700 hover:text-slate-900' }} transition-colors py-1">
+                        CV Matcher
+                        @if(request()->routeIs('cv-matcher.*'))
+                            <span class="absolute -bottom-[1.125rem] left-0 right-0 h-0.5 bg-emerald-600"></span>
+                        @endif
+                    </a>
                     <a href="#" class="text-sm font-semibold text-slate-700 hover:text-slate-900 transition-colors">About</a>
                 </nav>
 
@@ -118,7 +123,7 @@
             <nav class="px-4 py-3 space-y-1" aria-label="Navigasi mobile">
                 <a href="{{ route('home') }}" class="block px-4 py-3 rounded-lg text-sm font-semibold transition-colors {{ request()->routeIs('home') ? 'text-emerald-600 bg-emerald-50' : 'text-slate-700 hover:bg-slate-50' }}">Home</a>
                 <a href="{{ route('jobs.index') }}" class="block px-4 py-3 rounded-lg text-sm font-semibold transition-colors {{ request()->routeIs('jobs.*') ? 'text-emerald-600 bg-emerald-50' : 'text-slate-700 hover:bg-slate-50' }}">Jobs</a>
-                <a href="#" class="block px-4 py-3 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">CV Matcher</a>
+                <a href="{{ route('cv-matcher.index') }}" class="block px-4 py-3 rounded-lg text-sm font-semibold transition-colors {{ request()->routeIs('cv-matcher.*') ? 'text-emerald-600 bg-emerald-50' : 'text-slate-700 hover:bg-slate-50' }}">CV Matcher</a>
                 <a href="#" class="block px-4 py-3 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">About</a>
                 <div class="pt-3 space-y-2">
                     <button class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-slate-50 rounded-lg">
