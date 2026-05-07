@@ -136,12 +136,22 @@ class Job extends Model
 
     /**
      * Scope to filter jobs by location (case-insensitive partial match).
+     * Supports both string and array of locations.
      *
      * @param  Builder<Job>  $query
+     * @param  string|array<string>  $location
      * @return Builder<Job>
      */
-    public function scopeInLocation(Builder $query, string $location): Builder
+    public function scopeInLocation(Builder $query, string|array $location): Builder
     {
+        if (is_array($location)) {
+            return $query->where(function (Builder $q) use ($location): void {
+                foreach ($location as $loc) {
+                    $q->orWhere('location', 'ILIKE', '%' . $loc . '%');
+                }
+            });
+        }
+
         return $query->where('location', 'ILIKE', '%' . $location . '%');
     }
 }
