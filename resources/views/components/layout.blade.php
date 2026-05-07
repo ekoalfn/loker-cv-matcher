@@ -18,9 +18,13 @@
     <meta property="og:title"       content="{{ $title ?? 'Lowongan Kerja Terbaru di Indonesia | Lamaraja' }}">
     <meta property="og:description" content="{{ $description ?? 'Cari lowongan kerja terbaru di Indonesia. Diperkaya AI CV Matcher gratis.' }}">
     <meta property="og:url"         content="{{ $canonical ?? url()->current() }}">
+    <meta property="og:image"       content="{{ $ogImage ?? url('/images/og-image.jpg') }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <meta property="og:site_name"   content="Lamaraja">
     <meta property="og:locale"      content="id_ID">
     <meta name="twitter:card"       content="summary_large_image">
+    <meta name="twitter:image"      content="{{ $twitterImage ?? $ogImage ?? url('/images/og-image.jpg') }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,6 +44,24 @@
                 'urlTemplate' => url('/jobs') . '?keyword={search_term_string}'
             ],
             'query-input' => 'required name=search_term_string'
+        ]
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+    </script>
+
+    {{-- Organization Schema --}}
+    <script type="application/ld+json">
+    {!! json_encode([
+        '@context' => 'https://schema.org',
+        '@type' => 'Organization',
+        'name' => 'Lamaraja',
+        'url' => url('/'),
+        'logo' => url('/images/crown-logo.svg'),
+        'description' => 'AI-powered job search portal in Indonesia. Find jobs faster with AI summaries and CV matching.',
+        'sameAs' => [
+            'https://www.linkedin.com/company/lamaraja',
+            'https://twitter.com/lamaraja',
+            'https://www.facebook.com/lamaraja',
+            'https://www.instagram.com/lamaraja'
         ]
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
     </script>
@@ -79,8 +101,8 @@
                             <span class="absolute -bottom-[1.125rem] left-0 right-0 h-0.5 bg-emerald-600"></span>
                         @endif
                     </a>
-                    <a href="#" class="text-sm font-semibold text-slate-700 hover:text-slate-900 transition-colors">CV Matcher</a>
-                    <a href="#" class="text-sm font-semibold text-slate-700 hover:text-slate-900 transition-colors">About</a>
+                    <a href="{{ route('cv-matcher') }}" class="text-sm font-semibold text-slate-700 hover:text-slate-900 transition-colors">CV Matcher</a>
+                    <a href="{{ route('about') }}" class="text-sm font-semibold text-slate-700 hover:text-slate-900 transition-colors">About</a>
                 </nav>
 
                 {{-- CTA Buttons --}}
@@ -161,9 +183,9 @@
                 <div>
                     <h3 class="text-white font-semibold text-sm mb-4">Company</h3>
                     <ul class="space-y-3">
-                        <li><a href="#" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">About Us</a></li>
-                        <li><a href="#" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">How It Works</a></li>
-                        <li><a href="#" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Careers</a></li>
+                        <li><a href="{{ route('about') }}" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">About Us</a></li>
+                        <li><span class="text-slate-500 text-sm">How It Works</span></li>
+                        <li><span class="text-slate-500 text-sm">Careers</span></li>
                     </ul>
                 </div>
 
@@ -171,9 +193,9 @@
                 <div>
                     <h3 class="text-white font-semibold text-sm mb-4">Resources</h3>
                     <ul class="space-y-3">
-                        <li><a href="#" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Blog</a></li>
-                        <li><a href="#" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Help Center</a></li>
-                        <li><a href="#" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Contact</a></li>
+                        <li><span class="text-slate-500 text-sm">Blog</span></li>
+                        <li><span class="text-slate-500 text-sm">Help Center</span></li>
+                        <li><a href="mailto:hello@lamaraja.web.id" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Contact</a></li>
                     </ul>
                 </div>
 
@@ -181,9 +203,9 @@
                 <div>
                     <h3 class="text-white font-semibold text-sm mb-4">Legal</h3>
                     <ul class="space-y-3">
-                        <li><a href="#" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Privacy Policy</a></li>
-                        <li><a href="#" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Terms of Service</a></li>
-                        <li><a href="#" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Cookie Policy</a></li>
+                        <li><span class="text-slate-500 text-sm">Privacy Policy</span></li>
+                        <li><span class="text-slate-500 text-sm">Terms of Service</span></li>
+                        <li><span class="text-slate-500 text-sm">Cookie Policy</span></li>
                     </ul>
                 </div>
             </div>

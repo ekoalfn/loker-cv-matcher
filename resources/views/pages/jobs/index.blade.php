@@ -16,7 +16,30 @@
     $robotsMeta = $shouldNoindex ? 'noindex, follow' : 'index, follow';
     $canonicalUrl = route('jobs.index');
 @endphp
+@php
+    $breadcrumbLd = json_encode([
+        '@context' => 'https://schema.org',
+        '@type' => 'BreadcrumbList',
+        'itemListElement' => [
+            [
+                '@type' => 'ListItem',
+                'position' => 1,
+                'name' => 'Beranda',
+                'item' => url('/')
+            ],
+            [
+                '@type' => 'ListItem',
+                'position' => 2,
+                'name' => 'Lowongan',
+                'item' => route('jobs.index')
+            ]
+        ]
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+@endphp
+
 <x-layout :title="$pageTitle" :robots="$robotsMeta" :canonical="$canonicalUrl">
+
+    {!! '<script type="application/ld+json">' . $breadcrumbLd . '</script>' !!}
 
     {{-- Hero Section --}}
     <section class="bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 py-12 md:py-16">

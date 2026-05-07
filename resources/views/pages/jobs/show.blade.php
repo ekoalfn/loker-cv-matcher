@@ -187,7 +187,7 @@
             <div class="surface rounded-2xl p-6 md:p-8 text-center  ">
                 <h2 class="text-lg font-bold text-slate-800 mb-1.5">Tertarik dengan posisi ini?</h2>
                 <p class="text-sm text-stone-500 mb-5">Lamar langsung di situs resmi perusahaan.</p>
-                <x-button variant="accent" :href="route('jobs.apply', $job)">
+                <x-button variant="accent" :href="route('jobs.apply', $job)" rel="nofollow noopener">
                     Lamar Sekarang
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
