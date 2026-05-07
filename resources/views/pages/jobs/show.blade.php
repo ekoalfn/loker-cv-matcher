@@ -35,10 +35,22 @@
         {{-- Job Header --}}
         <header class="mb-8 animate-fade-up">
             <div class="flex items-start gap-4">
-                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br {{ $gradient }} flex items-center justify-center shrink-0"
-                     style="box-shadow: 0 2px 8px rgba(0,0,0,0.10);">
-                    <span class="text-white font-bold text-xl">{{ $companyInitial }}</span>
-                </div>
+                @if($job->company_logo)
+                    <img src="{{ $job->company_logo }}"
+                         alt="{{ $job->company }}"
+                         class="w-14 h-14 rounded-2xl object-contain shrink-0 border border-slate-200 bg-white p-1"
+                         style="box-shadow: 0 2px 8px rgba(0,0,0,0.10);"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br {{ $gradient }} items-center justify-center shrink-0 hidden"
+                         style="box-shadow: 0 2px 8px rgba(0,0,0,0.10);">
+                        <span class="text-white font-bold text-xl">{{ $companyInitial }}</span>
+                    </div>
+                @else
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br {{ $gradient }} flex items-center justify-center shrink-0"
+                         style="box-shadow: 0 2px 8px rgba(0,0,0,0.10);">
+                        <span class="text-white font-bold text-xl">{{ $companyInitial }}</span>
+                    </div>
+                @endif
 
                 <div class="min-w-0 flex-1">
                     <h1 class="font-[family-name:var(--font-display)] text-xl md:text-2xl font-extrabold text-slate-800 leading-tight tracking-tight">
@@ -499,7 +511,7 @@
     </script>
 
     @php
-        $jobLd = json_encode(['@context'=>'https://schema.org','@type'=>'JobPosting','title'=>$job->title,'description'=>Str::limit($job->description_raw??$job->summary_ai??$job->title,5000),'datePosted'=>$job->created_at->toIso8601String(),'validThrough'=>($job->expires_at ?? $job->created_at->addDays(60))->toIso8601String(),'hiringOrganization'=>['@type'=>'Organization','name'=>$job->company],'jobLocation'=>['@type'=>'Place','address'=>['@type'=>'PostalAddress','addressLocality'=>$job->location??'Indonesia','addressCountry'=>'ID']],'employmentType'=>strtoupper(str_replace('-','_',is_object($job->employment_type)?$job->employment_type->value:($job->employment_type??'FULL_TIME'))),'directApply'=>false], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
+        $jobLd = json_encode(['@context'=>'https://schema.org','@type'=>'JobPosting','title'=>$job->title,'description'=>Str::limit($job->description_raw??$job->summary_ai??$job->title,5000),'datePosted'=>$job->created_at->toIso8601String(),'validThrough'=>($job->expires_at ?? $job->created_at->addDays(60))->toIso8601String(),'hiringOrganization'=>['@type'=>'Organization','name'=>$job->company,'logo'=>$job->company_logo ?? null],'jobLocation'=>['@type'=>'Place','address'=>['@type'=>'PostalAddress','addressLocality'=>$job->location??'Indonesia','addressCountry'=>'ID']],'employmentType'=>strtoupper(str_replace('-','_',is_object($job->employment_type)?$job->employment_type->value:($job->employment_type??'FULL_TIME'))),'directApply'=>false], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
         $breadcrumbLd = json_encode(['@context'=>'https://schema.org','@type'=>'BreadcrumbList','itemListElement'=>[['@type'=>'ListItem','position'=>1,'name'=>'Beranda','item'=>url('/')],['@type'=>'ListItem','position'=>2,'name'=>'Lowongan','item'=>route('jobs.index')],['@type'=>'ListItem','position'=>3,'name'=>$job->title]]], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
     @endphp
     {!! '<script type="application/ld+json">' . $jobLd . '</script>' !!}

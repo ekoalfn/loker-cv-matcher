@@ -49,6 +49,9 @@ class Job extends Model
         'is_active',
         'expires_at',
         'scraped_at',
+        'detail_fetched_at',
+        'detail_fetch_error',
+        'company_logo',
     ];
 
     /**
@@ -63,6 +66,7 @@ class Job extends Model
             'is_active' => 'boolean',
             'expires_at' => 'datetime',
             'scraped_at' => 'datetime',
+            'detail_fetched_at' => 'datetime',
             'employment_type' => EmploymentType::class,
         ];
     }

@@ -35,9 +35,19 @@
     <a href="{{ route('jobs.show', $job) }}" class="block p-6">
         <div class="flex items-start gap-4">
             {{-- Company Logo --}}
-            <div class="w-16 h-16 rounded-xl bg-gradient-to-br {{ $gradient }} flex items-center justify-center shrink-0 shadow-sm">
-                <span class="text-white font-bold text-xl">{{ $companyInitial }}</span>
-            </div>
+            @if($job->company_logo)
+                <img src="{{ $job->company_logo }}"
+                     alt="{{ $job->company }}"
+                     class="w-16 h-16 rounded-xl object-contain shrink-0 border border-slate-200 bg-white p-1"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="w-16 h-16 rounded-xl bg-gradient-to-br {{ $gradient }} items-center justify-center shrink-0 shadow-sm hidden">
+                    <span class="text-white font-bold text-xl">{{ $companyInitial }}</span>
+                </div>
+            @else
+                <div class="w-16 h-16 rounded-xl bg-gradient-to-br {{ $gradient }} flex items-center justify-center shrink-0 shadow-sm">
+                    <span class="text-white font-bold text-xl">{{ $companyInitial }}</span>
+                </div>
+            @endif
 
             {{-- Job Info --}}
             <div class="flex-1 min-w-0">

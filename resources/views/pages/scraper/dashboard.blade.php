@@ -195,9 +195,24 @@
                     @forelse($recentJobs as $job)
                         <tr class="hover:bg-slate-50/50 transition-colors">
                             <td class="py-3 pr-4">
-                                <a href="{{ route('jobs.show', $job->slug) }}" class="text-slate-700 font-medium hover:text-teal-600 transition-colors truncate-safe block max-w-[200px] lg:max-w-[280px]" target="_blank">
-                                    {{ $job->title }}
-                                </a>
+                                <div class="flex items-center gap-3">
+                                    @if($job->company_logo)
+                                        <img src="{{ $job->company_logo }}"
+                                             alt="{{ $job->company }}"
+                                             class="w-8 h-8 rounded-lg object-contain bg-white border border-slate-200 p-0.5 shrink-0"
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <div class="w-8 h-8 rounded-lg bg-slate-100 items-center justify-center shrink-0 hidden">
+                                            <span class="text-slate-500 font-bold text-xs">{{ strtoupper(mb_substr($job->company ?? '?', 0, 1)) }}</span>
+                                        </div>
+                                    @else
+                                        <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+                                            <span class="text-slate-500 font-bold text-xs">{{ strtoupper(mb_substr($job->company ?? '?', 0, 1)) }}</span>
+                                        </div>
+                                    @endif
+                                    <a href="{{ route('jobs.show', $job->slug) }}" class="text-slate-700 font-medium hover:text-teal-600 transition-colors truncate-safe block max-w-[160px] lg:max-w-[240px]" target="_blank">
+                                        {{ $job->title }}
+                                    </a>
+                                </div>
                             </td>
                             <td class="py-3 pr-4 text-stone-500 truncate-safe max-w-[140px]">{{ $job->company }}</td>
                             <td class="py-3 pr-4 text-stone-500 hidden md:table-cell truncate-safe max-w-[120px]">{{ $job->location ?? '-' }}</td>
