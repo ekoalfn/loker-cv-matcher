@@ -28,7 +28,7 @@ class WebScraperService
                 'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                 'Accept-Language' => 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
             ])
-                ->timeout(30)
+                ->timeout(60)
                 ->get($url);
 
             if ($response->failed()) {
@@ -36,7 +36,7 @@ class WebScraperService
             }
 
             $html = $response->body();
-            $text = $this->stripHtmlToText($html);
+            $text = $this->stripHtmlToText($html, $url);
 
             return ['success' => true, 'content' => $text];
         } catch (\Throwable $e) {
@@ -52,6 +52,9 @@ class WebScraperService
      */
     public function extractJobsFromText(string $text, string $sourceUrl): array
     {
+        // Extract logo URLs from text (they were appended in stripHtmlToText)
+        $logoUrls = $this->extractLogosFromText($text);
+
         $prompt = <<<PROMPT
 Kamu adalah ekstraktor data lowongan kerja. Dari teks halaman web berikut, ekstrak SEMUA lowongan kerja yang ditemukan.
 
@@ -61,6 +64,7 @@ Untuk setiap lowongan, ekstrak dalam format JSON array:
   {
     "title": "Judul posisi",
     "company": "Nama perusahaan",
+    "company_logo": "URL logo perusahaan (ambil URL gambar logo saja). Null jika tidak ditemukan.",
     "location": "Lokasi kerja (kota/provinsi)",
     "employment_type": "full-time|part-time|contract|internship|freelance",
     "salary_min": null,
@@ -81,6 +85,7 @@ ATURAN SANGAT PENTING (BACA DENGAN TELITI):
 6. Jika source_url spesifik (link ke detail loker) ditemukan, gabungkan dengan domain utama dari `{$sourceUrl}` agar menjadi Absolute URL (contoh: https://domain.com/loker/123). Jika benar-benar tidak ada link detail, gunakan `{$sourceUrl}`.
 7. tags: maksimal 5 tag relevan.
 8. Jika tidak ada lowongan ditemukan, kembalikan array kosong: []
+9. Untuk company_logo: WAJIB menggunakan URL dari bagian "## LOGO URLS DITEMUKAN:" di bagian akhir teks jika tersedia. Jika tidak ada di bagian tersebut, cari di teks halaman.
 
 TEKS HALAMAN:
 {$text}
@@ -90,6 +95,7 @@ PROMPT;
             Log::info('Sending prompt to AI for extraction', [
                 'text_length' => strlen($text),
                 'source_url' => $sourceUrl,
+                'logo_urls_extracted' => $logoUrls,
             ]);
 
             $result = $this->ai->chat($prompt);
@@ -110,6 +116,19 @@ PROMPT;
 
             $jobs = $this->parseJobsFromAiResponse($result['content']);
 
+            // Post-processing: if company_logo is null, use extracted logo URLs
+            if (!empty($logoUrls)) {
+                foreach ($jobs as &$job) {
+                    if (empty($job['company_logo'])) {
+                        $job['company_logo'] = $logoUrls[0];
+                        Log::info('Manual logo URL assigned', [
+                            'company' => $job['company'] ?? 'unknown',
+                            'logo_url' => $logoUrls[0]
+                        ]);
+                    }
+                }
+            }
+
             return [
                 'success' => true,
                 'jobs' => $jobs,
@@ -128,8 +147,11 @@ PROMPT;
     /**
      * Parse HTML string to plain text for AI.
      */
-    private function stripHtmlToText(string $html): string
+    private function stripHtmlToText(string $html, string $baseUrl = ''): string
     {
+        // Extract logo URLs before stripping tags
+        $logoUrls = $this->extractLogoUrls($html, $baseUrl);
+
         // Remove noise
         $text = preg_replace('/<script\b[^>]*>.*?<\/script>/is', '', $html);
         $text = preg_replace('/<style\b[^>]*>.*?<\/style>/is', '', $text);
@@ -158,12 +180,114 @@ PROMPT;
         $text = html_entity_decode($text);
 
         // Normalize whitespace but preserve newlines
-        $text = preg_replace('/[ \t]+/', ' ', $text); // multiple spaces/tabs to single space
-        $text = preg_replace('/\n\s*\n+/', "\n\n", $text); // multiple newlines to double newline
+        $text = preg_replace('/[ \t]+/', ' ', $text);
+        $text = preg_replace('/\n\s*\n+/', "\n\n", $text);
         $text = trim($text);
+
+        // Append extracted logo URLs for AI to use
+        if (!empty($logoUrls)) {
+            $text .= "\n\n## LOGO URLS DITEMUKAN:\n";
+            foreach ($logoUrls as $url) {
+                $text .= "- $url\n";
+            }
+        }
 
         // Limit to ~10000 chars
         return mb_substr($text, 0, 10000);
+    }
+
+    /**
+     * Extract logo URLs from text (from the "## LOGO URLS DITEMUKAN:" section).
+     *
+     * @return array<string>
+     */
+    private function extractLogosFromText(string $text): array
+    {
+        $urls = [];
+
+        if (preg_match('/## LOGO URLS DITEMUKAN:\n(.*?)(?:\n\n|\Z)/is', $text, $match)) {
+            $logoSection = $match[1];
+            preg_match_all('/- (.+)/', $logoSection, $urlMatches);
+            foreach ($urlMatches[1] as $url) {
+                $urls[] = trim($url);
+            }
+        }
+
+        return array_unique($urls);
+    }
+
+    /**
+     * Extract potential company logo URLs from HTML.
+     * Simple approach using regex to avoid DOMDocument issues.
+     *
+     * @param string $baseUrl Base URL to make relative URLs absolute
+     * @return array<string>
+     */
+    private function extractLogoUrls(string $html, string $baseUrl = ''): array
+    {
+        $urls = [];
+
+        Log::info('extractLogoUrls called', ['html_length' => strlen($html), 'base_url' => $baseUrl]);
+
+        try {
+            // Find all <img> tags (using regex that handles multi-line)
+            preg_match_all('/<img\b[^>]*>/is', $html, $imgTags, PREG_SET_ORDER);
+
+            foreach ($imgTags as $imgMatch) {
+                $imgTag = $imgMatch[0];
+
+                // Check if this img tag has "logo" in any attribute
+                if (stripos($imgTag, 'logo') === false) {
+                    continue;
+                }
+
+                // Extract src attribute
+                if (preg_match('/src=["\']([^"\']+)["\']/i', $imgTag, $srcMatch)) {
+                    $urls[] = $srcMatch[1];
+                }
+            }
+
+            // Also check for logo in CSS background-image
+            preg_match_all('/background-image:\s*url\(["\']?([^"\'\)]+)["\']?\)/is', $html, $matches, PREG_SET_ORDER);
+            foreach ($matches as $match) {
+                if (!empty($match[1]) && stripos($match[1], 'logo') !== false) {
+                    $urls[] = $match[1];
+                }
+            }
+
+            // Make URLs absolute using base URL
+            if ($baseUrl) {
+                $parsedBase = parse_url($baseUrl);
+                $baseSchemeHost = ($parsedBase['scheme'] ?? 'https') . '://' . ($parsedBase['host'] ?? '');
+            }
+
+            $urls = array_map(function ($url) use ($baseUrl, $baseSchemeHost) {
+                // If already absolute, return as-is
+                if (preg_match('/^https?:\/\//i', $url)) {
+                    return $url;
+                }
+                // If protocol-relative, prepend https:
+                if (str_starts_with($url, '//')) {
+                    return 'https:' . $url;
+                }
+                // If path-relative (starts with /), prepend scheme+host
+                if ($baseUrl && !empty($url) && $url[0] === '/') {
+                    return ($baseSchemeHost ?? '') . $url;
+                }
+                return $url;
+            }, $urls);
+
+            // Log for debugging
+            Log::info('Logo URLs extracted', [
+                'urls' => $urls,
+                'base_url' => $baseUrl,
+                'img_tags_found' => count($imgTags),
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Logo extraction error', ['error' => $e->getMessage()]);
+        }
+
+        return array_unique($urls);
     }
 
     public function scrapeUrl(string $url): array
@@ -193,6 +317,9 @@ PROMPT;
 
     public function extractJobDetailFromText(string $text, string $sourceUrl): array
     {
+        // Extract logo URLs from text
+        $logoUrls = $this->extractLogosFromText($text);
+
         $prompt = <<<PROMPT
 Kamu adalah AI spesialis HR yang bertugas merangkum lowongan kerja. Dari teks halaman web berikut (yang sudah disederhanakan dengan penanda struktur seperti # untuk header dan - untuk list), buatlah ringkasan yang SANGAT RAPI, PADAT, dan MUDAH DIBACA dalam BAHASA INDONESIA.
 
@@ -201,11 +328,12 @@ Kembalikan dalam format JSON object (BUKAN array):
 {
   "title": "Judul posisi dalam Bahasa Indonesia yang profesional",
   "company": "Nama perusahaan",
+  "company_logo": "URL logo perusahaan (ambil URL gambar logo saja, contoh: https://example.com/logo.png). Null jika tidak ditemukan.",
   "location": "Lokasi kerja (kota/provinsi)",
   "employment_type": "full-time|part-time|contract|internship|freelance",
   "salary_min": null,
   "salary_max": null,
-  "description_raw": "Gunakan Markdown yang sangat rapi. Fokus pada poin-poin penting saja. WAJIB menggunakan struktur berikut (jika ada informasinya):\\n\\n### Tentang Pekerjaan\\n(Penjelasan singkat 1-2 kalimat)\\n\\n### Tanggung Jawab\\n- (Poin utama 1)\\n- (Poin utama 2)\\n\\n### Kualifikasi\\n- (Kualifikasi utama 1)\\n- (Kualifikasi utama 2)\\n\\n### Keuntungan\\n- (Benefit 1)\\n- (Benefit 2)",
+  "description_raw": "Gunakan Markdown yang sangat rapi. Fokus pada poin-poin penting saja. WAJIB menggunakan struktur berikut (jika ada informasinya):\n\n### Tentang Pekerjaan\n(Penjelasan singkat 1-2 kalimat)\n\n### Tanggung Jawab\n- (Poin utama 1)\n- (Poin utama 2)\n\n### Kualifikasi\n- (Kualifikasi utama 1)\n- (Kualifikasi utama 2)\n\n### Keuntungan\n- (Benefit 1)\n- (Benefit 2)",
   "tags": ["tag1", "tag2"]
 }
 ```
@@ -216,13 +344,14 @@ ATURAN SANGAT PENTING:
 3. GUNAKAN EXACT HEADERS seperti di atas: `### Tentang Pekerjaan`, `### Tanggung Jawab`, `### Kualifikasi`, dan `### Keuntungan`. Jangan gunakan variasi lain agar sistem styling konsisten.
 4. HANYA kembalikan JSON object murni. TIDAK BOLEH ada teks lain.
 5. DILARANG KERAS menggunakan tag <think> atau reasoning! Langsung tulis `{` untuk memulai JSON.
+6. Untuk company_logo: WAJIB menggunakan URL dari bagian "## LOGO URLS DITEMUKAN:" di bagian akhir teks jika tersedia. Jika tidak ada, cari di teks halaman.
 
 TEKS HALAMAN:
 {$text}
 PROMPT;
 
         try {
-            Log::info('Sending detail prompt to AI', ['url' => $sourceUrl]);
+            Log::info('Sending detail prompt to AI', ['url' => $sourceUrl, 'logo_urls' => $logoUrls]);
             $result = $this->ai->chat($prompt);
 
             if (empty($result['content'])) {
@@ -233,11 +362,20 @@ PROMPT;
             if (preg_match('/```(?:json)?\s*\n?([\s\S]*?)\n?\s*```/', $content, $matches)) {
                 $content = trim($matches[1]);
             }
-            if (preg_match('/\{[\s\S]*\}/', $content, $matches)) {
+            if (preg_match('/\{\s*\S*\}/', $content, $matches)) {
                 $content = $matches[0];
             }
 
             $decoded = json_decode($content, true);
+
+            // Post-processing: if company_logo is null or missing, use extracted logo URLs
+            if (!empty($logoUrls) && (empty($decoded['company_logo']) || $decoded['company_logo'] === null)) {
+                $decoded['company_logo'] = $logoUrls[0];
+                Log::info('Manual logo URL assigned (detail)', [
+                    'url' => $sourceUrl,
+                    'logo_url' => $logoUrls[0]
+                ]);
+            }
 
             return [
                 'success' => true,
@@ -258,7 +396,7 @@ PROMPT;
             return ['success' => false, 'error' => 'HTML kosong.'];
         }
 
-        $text = $this->stripHtmlToText($html);
+        $text = $this->stripHtmlToText($html, $sourceUrl);
 
         return $this->extractJobsFromText($text, $sourceUrl);
     }
@@ -266,9 +404,8 @@ PROMPT;
     /**
      * Ingest extracted jobs into the database.
      *
-     * @param  array  $jobs  Array of job data
-     * @param  string  $sourceName  Source name
-     * @return array{created: int, updated: int, skipped: int}
+     * @param  array<int, array<string, mixed>>  $jobs
+     * @return array{total_received: int, inserted: int, updated: int, skipped: int, errors: array<int, array<string, mixed>>}
      */
     public function ingestJobs(array $jobs, string $sourceName): array
     {

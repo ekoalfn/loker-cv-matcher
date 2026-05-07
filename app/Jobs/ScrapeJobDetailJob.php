@@ -33,6 +33,13 @@ class ScrapeJobDetailJob implements ShouldQueue
             return;
         }
 
+        Log::info('Background Job: Starting detail scrape', [
+            'job_id' => $this->jobModel->id,
+            'title' => $this->jobModel->title,
+            'url' => $this->jobModel->source_url,
+            'current_logo' => $this->jobModel->company_logo,
+        ]);
+
         $result = $scraper->scrapeDetailUrl($this->jobModel->source_url);
 
         if (!$result['success']) {
@@ -49,10 +56,17 @@ class ScrapeJobDetailJob implements ShouldQueue
 
         $detail = $result['job'];
 
+        Log::info('Background Job: Detail extracted', [
+            'job_id' => $this->jobModel->id,
+            'detail_from_ai' => $detail['company_logo'] ?? 'NULL',
+            'current_logo' => $this->jobModel->company_logo,
+        ]);
+
         $this->jobModel->update([
             'description_raw' => $detail['description_raw'] ?? $this->jobModel->description_raw,
             'title' => $detail['title'] ?? $this->jobModel->title,
             'company' => $detail['company'] ?? $this->jobModel->company,
+            'company_logo' => $detail['company_logo'] ?? $this->jobModel->company_logo,
             'location' => $detail['location'] ?? $this->jobModel->location,
             'employment_type' => $detail['employment_type'] ?? $this->jobModel->employment_type,
             'salary_min' => $detail['salary_min'] ?? $this->jobModel->salary_min,
@@ -67,7 +81,8 @@ class ScrapeJobDetailJob implements ShouldQueue
 
         Log::info('Background Job: Berhasil memperbarui detail loker', [
             'job_id' => $this->jobModel->id,
-            'title' => $this->jobModel->title
+            'title' => $this->jobModel->title,
+            'company_logo' => $this->jobModel->company_logo,
         ]);
     }
 }

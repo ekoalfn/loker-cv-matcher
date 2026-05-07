@@ -198,6 +198,7 @@ class JobRepository implements JobRepositoryInterface
             'description_raw' => $jobData['description_raw'] ?? null,
             'summary_ai' => $jobData['summary_ai'] ?? null,
             'tags' => $jobData['tags'] ?? null,
+            'company_logo' => $jobData['company_logo'] ?? null,
             'source_url' => $jobData['source_url'],
             'is_active' => true,
             'expires_at' => $jobData['expires_at'] ?? null,
