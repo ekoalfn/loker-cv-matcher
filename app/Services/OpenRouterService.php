@@ -111,18 +111,27 @@ class OpenRouterService implements AiServiceInterface
     private function attempt(array $messages, string $model): ?array
     {
         try {
+            $payload = [
+                'model' => $model,
+                'messages' => $messages,
+                'temperature' => 0.3,
+                'max_tokens' => $this->maxTokens,
+            ];
+
+            Log::info('OpenRouter API request', [
+                'model' => $model,
+                'max_tokens' => $this->maxTokens,
+                'message_count' => count($messages),
+                'first_message_length' => isset($messages[0]['content']) ? strlen($messages[0]['content']) : 0,
+            ]);
+
             $response = Http::withHeaders([
                 'Authorization' => "Bearer {$this->apiKey}",
                 'HTTP-Referer' => config('app.url', 'http://localhost'),
                 'X-Title' => config('laravel-openrouter.title', 'Lamaraja'),
             ])
                 ->timeout($this->timeout)
-                ->post("{$this->baseUrl}/chat/completions", [
-                    'model' => $model,
-                    'messages' => $messages,
-                    'temperature' => 0.3,
-                    'max_tokens' => $this->maxTokens,
-                ]);
+                ->post("{$this->baseUrl}/chat/completions", $payload);
 
             if ($response->failed()) {
                 Log::warning('OpenRouter HTTP failed', [
@@ -145,6 +154,9 @@ class OpenRouterService implements AiServiceInterface
                     'finish_reason' => $data['choices'][0]['finish_reason'] ?? 'unknown',
                     'reasoning_length' => isset($data['choices'][0]['message']['reasoning']) ? strlen($data['choices'][0]['message']['reasoning']) : 0,
                     'raw_choices' => json_encode($data['choices'] ?? []),
+                    'full_response' => json_encode($data),
+                    'prompt_tokens' => $data['usage']['prompt_tokens'] ?? 0,
+                    'completion_tokens' => $data['usage']['completion_tokens'] ?? 0,
                 ]);
                 return null;
             }

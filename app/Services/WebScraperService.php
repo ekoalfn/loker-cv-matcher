@@ -55,6 +55,16 @@ class WebScraperService
         // Extract logo URLs from text (they were appended in stripHtmlToText)
         $logoUrls = $this->extractLogosFromText($text);
 
+        // Truncate text if too long (max ~8000 chars to leave room for prompt template)
+        $maxTextLength = 8000;
+        if (strlen($text) > $maxTextLength) {
+            Log::warning('Text too long, truncating', [
+                'original_length' => strlen($text),
+                'truncated_to' => $maxTextLength
+            ]);
+            $text = mb_substr($text, 0, $maxTextLength) . "\n\n[... teks dipotong karena terlalu panjang ...]";
+        }
+
         $prompt = <<<PROMPT
 Kamu adalah ekstraktor data lowongan kerja. Dari teks halaman web berikut, ekstrak SEMUA lowongan kerja yang ditemukan.
 
@@ -96,6 +106,7 @@ PROMPT;
                 'text_length' => strlen($text),
                 'source_url' => $sourceUrl,
                 'logo_urls_extracted' => $logoUrls,
+                'prompt_length' => strlen($prompt),
             ]);
 
             $result = $this->ai->chat($prompt);
@@ -104,14 +115,17 @@ PROMPT;
                 Log::error('AI extraction failed: Empty response from AI', [
                     'source_url' => $sourceUrl,
                     'result' => $result,
-                    'prompt_preview' => mb_substr($prompt, 0, 500)
+                    'prompt_preview' => mb_substr($prompt, 0, 500),
+                    'model_used' => $result['model'] ?? 'unknown',
+                    'tokens_used' => $result['tokens_used'] ?? 0,
                 ]);
                 return ['success' => false, 'error' => 'AI tidak memberikan response'];
             }
 
             Log::info('AI extraction successful', [
                 'tokens_used' => $result['tokens_used'] ?? 0,
-                'content_length' => strlen($result['content'])
+                'content_length' => strlen($result['content']),
+                'model_used' => $result['model'] ?? 'unknown',
             ]);
 
             $jobs = $this->parseJobsFromAiResponse($result['content']);
