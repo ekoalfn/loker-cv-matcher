@@ -19,12 +19,9 @@ Route::get('/jobs/{slug}/apply', [JobController::class, 'apply'])->name('jobs.ap
 
 // Static Pages
 Route::view('/about', 'pages.about')->name('about');
-Route::view('/cv-matcher', 'pages.cv-matcher')->name('cv-matcher');
 
 // CV Scan
-Route::get('/cv-matcher', function () {
-    return view('pages.cv-matcher');
-})->name('cv-matcher.index');
+Route::get('/cv-matcher', [CvScanController::class, 'index'])->name('cv-matcher.index');
 Route::post('/cv-scan', [CvScanController::class, 'store'])->name('cv-scan.store');
 Route::get('/cv-scan/{id}/status', [CvScanController::class, 'status'])->name('cv-scan.status');
 

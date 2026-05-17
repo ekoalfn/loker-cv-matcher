@@ -6,6 +6,8 @@ use App\Contracts\AiServiceInterface;
 use App\Enums\CvScanStatus;
 use App\Http\Requests\CvScanRequest;
 use App\Models\CvScan;
+use App\Models\Job;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -17,6 +19,20 @@ class CvScanController extends Controller
     public function __construct(
         private readonly AiServiceInterface $ai,
     ) {}
+
+    /**
+     * Show the CV Matcher page with live jobs to compare against.
+     */
+    public function index(): View
+    {
+        $jobs = Job::query()
+            ->active()
+            ->latest()
+            ->limit(50)
+            ->get(['id', 'title', 'company', 'location', 'employment_type', 'company_logo']);
+
+        return view('pages.cv-matcher', compact('jobs'));
+    }
 
     /**
      * POST /cv-scan — upload CV, proses langsung (synchronous).
