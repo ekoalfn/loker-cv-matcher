@@ -1,6 +1,14 @@
+@php
+    $bulanIndonesia = [
+        1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+        5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+        9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+    ][(int) date('n')];
+@endphp
+
 <x-layout
-    title="Lowongan Kerja Terbaru {{ date('F Y') }} - Cari Loker | Lamaraja"
-    description="Lamaraja bantu kamu cari lowongan kerja dari berbagai sumber. Dirangkum AI, gratis, dan update setiap hari."
+    title="Lowongan Kerja Terbaru {{ $bulanIndonesia }} {{ date('Y') }} - Cari Loker | Lamaraja"
+    description="Cari lowongan kerja terbaru di Indonesia dari berbagai sumber. Lamaraja merangkum loker dengan AI dan menyediakan CV Matcher gratis."
 >
 
     {{-- HERO --}}
@@ -9,17 +17,17 @@
             <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
                 {{-- Left: Heading & Search --}}
                 <div class="animate-fade-up">
-                    <h1 class="font-[family-name:var(--font-display)] text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-[1.1] tracking-tight">
-                        Find the right job,<br>
-                        <span class="text-emerald-600">smarter</span> with AI. <span class="inline-block">✨</span>
+                    <h1 class="font-[family-name:var(--font-display)] text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-[1.1] tracking-tight">
+                        Cari lowongan kerja,<br>
+                        <span class="text-emerald-600">lebih cepat</span> dengan AI. <span class="inline-block">✨</span>
                     </h1>
                     <p class="mt-6 text-base md:text-lg text-slate-600 leading-relaxed max-w-xl">
-                        We aggregate job listings from top sources and use AI to summarize job descriptions — so you can understand opportunities in seconds, not minutes.
+                        Lamaraja mengumpulkan loker dari berbagai sumber dan merangkumnya dengan AI, supaya kamu bisa memahami peluang kerja dalam hitungan detik.
                     </p>
 
                     {{-- Search Bar --}}
                     <div class="mt-8 animate-fade-up delay-100">
-                        <form action="{{ route('jobs.index') }}" method="GET" class="flex flex-col sm:flex-row gap-3">
+                        <form action="{{ route('jobs.index') }}" method="GET" class="flex flex-col md:flex-row gap-3">
                             <div class="flex-1 relative">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -27,7 +35,7 @@
                                 <input
                                     type="text"
                                     name="keyword"
-                                    placeholder="Job title, keyword or skill"
+                                    placeholder="Posisi, skill, atau kata kunci"
                                     class="w-full h-14 pl-12 pr-4 rounded-xl border-2 border-slate-200 bg-white text-slate-900 placeholder-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all outline-none"
                                 >
                             </div>
@@ -39,7 +47,7 @@
                                 <input
                                     type="text"
                                     name="location"
-                                    placeholder="Location"
+                                    placeholder="Lokasi"
                                     class="w-full h-14 pl-12 pr-4 rounded-xl border-2 border-slate-200 bg-white text-slate-900 placeholder-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all outline-none"
                                 >
                             </div>
@@ -47,7 +55,7 @@
                                 type="submit"
                                 class="h-14 px-8 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-emerald-600/25 hover:shadow-xl hover:shadow-emerald-600/30 active:scale-[0.98]"
                             >
-                                Search Jobs
+                                Cari Loker
                             </button>
                         </form>
                     </div>
@@ -55,7 +63,7 @@
                     {{-- Job Sources --}}
                     <div class="mt-8 flex flex-wrap items-center gap-4 animate-fade-up delay-200">
                         <span class="text-sm text-slate-500 font-medium">We aggregate jobs from</span>
-                        <div class="flex items-center gap-4">
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
                             <span class="text-[#0077B5] font-bold text-lg">Linked<span class="bg-[#0077B5] text-white px-1 rounded">in</span></span>
                             <span class="text-[#2164f3] font-bold text-lg">indeed</span>
                             <span class="text-[#0caa41] font-bold text-lg">glassdoor</span>
@@ -171,14 +179,14 @@
 
     {{-- RECENT JOBS --}}
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        <div class="flex items-center justify-between mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
             <div>
                 <h2 class="font-[family-name:var(--font-display)] text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
                     Latest Jobs <span class="text-emerald-600">for You</span>
                 </h2>
                 <p class="text-sm text-slate-500 mt-1">AI summarized. Personalized. Relevant.</p>
             </div>
-            <a href="{{ route('jobs.index') }}" class="flex items-center gap-2 text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition-colors">
+            <a href="{{ route('jobs.index') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition-colors">
                 View all jobs
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
@@ -337,8 +345,5 @@
             </div>
         </div>
     </section>
-
-    {{-- Structured Data --}}
-    {!! '<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Lamaraja","url":"' . url('/') . '","inLanguage":"id","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"' . url('/jobs') . '?keyword={search_term_string}"},"query-input":"required name=search_term_string"}}</script>' !!}
 
 </x-layout>

@@ -18,7 +18,7 @@
 @endphp
 @php
     $breadcrumbLd = json_encode([
-        '@context' => 'https://schema.org',
+        chr(64) . 'context' => 'https://schema.org',
         '@type' => 'BreadcrumbList',
         'itemListElement' => [
             [
@@ -35,23 +35,36 @@
             ]
         ]
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+    $itemListLd = json_encode([
+        chr(64) . 'context' => 'https://schema.org',
+        '@type' => 'ItemList',
+        'name' => 'Daftar lowongan kerja Lamaraja',
+        'itemListElement' => $jobs->getCollection()->values()->map(fn ($job, $index) => [
+            '@type' => 'ListItem',
+            'position' => $jobs->firstItem() ? $jobs->firstItem() + $index : $index + 1,
+            'url' => route('jobs.show', $job),
+            'name' => $job->title . ' di ' . $job->company,
+        ])->all(),
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 @endphp
 
 <x-layout :title="$pageTitle" :robots="$robotsMeta" :canonical="$canonicalUrl">
 
     {!! '<script type="application/ld+json">' . $breadcrumbLd . '</script>' !!}
+    {!! '<script type="application/ld+json">' . $itemListLd . '</script>' !!}
 
     {{-- Hero Section --}}
     <section class="bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 py-12 md:py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between mb-8">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
                 <div class="flex-1">
-                    <h1 class="font-[family-name:var(--font-display)] text-4xl md:text-5xl font-bold text-slate-900 mb-3">
-                        All <span class="text-emerald-600">Jobs</span>
+                    <h1 class="font-[family-name:var(--font-display)] text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-3">
+                        Semua <span class="text-emerald-600">Lowongan</span>
                     </h1>
                     <p class="text-slate-600 text-base md:text-lg max-w-2xl">
-                        Discover jobs from top companies and multiple sources.<br>
-                        AI summaries help you understand each opportunity in seconds.
+                        Temukan loker dari berbagai perusahaan dan sumber terpercaya.<br>
+                        Ringkasan AI membantu kamu memahami peluang kerja lebih cepat.
                     </p>
                 </div>
                 <div class="hidden lg:block">
@@ -72,7 +85,7 @@
             </div>
 
             {{-- Search Bar --}}
-            <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-4">
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-3 sm:p-4">
                 <form action="{{ route('jobs.index') }}" method="GET" class="flex flex-col md:flex-row gap-3">
                     <div class="flex-1 relative">
                         <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -82,7 +95,7 @@
                             type="text"
                             name="keyword"
                             value="{{ $filters->keyword ?? '' }}"
-                            placeholder="Job title, keyword or skill"
+                            placeholder="Posisi, skill, atau kata kunci"
                             class="w-full h-12 pl-12 pr-4 rounded-xl border-2 border-slate-200 bg-white text-slate-900 placeholder-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all outline-none"
                         >
                     </div>
@@ -95,7 +108,7 @@
                             type="text"
                             name="location"
                             value="{{ is_array($filters->location ?? null) ? implode(', ', $filters->location) : ($filters->location ?? '') }}"
-                            placeholder="Location"
+                            placeholder="Lokasi"
                             class="w-full h-12 pl-12 pr-4 rounded-xl border-2 border-slate-200 bg-white text-slate-900 placeholder-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all outline-none"
                         >
                     </div>
@@ -114,7 +127,7 @@
                         type="submit"
                         class="h-12 px-8 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-all shadow-md hover:shadow-lg active:scale-[0.98]"
                     >
-                        Search Jobs
+                        Cari Loker
                     </button>
                 </form>
             </div>
@@ -124,11 +137,11 @@
     {{-- Main Content --}}
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         {{-- Results header --}}
-        <div class="flex items-center justify-between mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
             <p class="text-sm text-slate-600">
                 Showing <span class="font-semibold text-slate-900">{{ $jobs->firstItem() ?? 0 }}–{{ $jobs->lastItem() ?? 0 }}</span> of <span class="font-semibold text-slate-900">{{ $jobs->total() }}</span> jobs
             </p>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 overflow-x-auto pb-1 sm:pb-0">
                 <span class="text-sm text-slate-600">Sort by:</span>
                 <select class="h-10 px-4 pr-10 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all outline-none">
                     <option>Newest</option>

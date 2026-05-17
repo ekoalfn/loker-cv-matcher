@@ -59,7 +59,6 @@ class SitemapController extends Controller
 
         return response($xml, 200, [
             'Content-Type' => 'application/xml; charset=UTF-8',
-            'X-Robots-Tag' => 'noindex',
             'Cache-Control' => 'public, max-age=3600, s-maxage=3600',
         ]);
     }
