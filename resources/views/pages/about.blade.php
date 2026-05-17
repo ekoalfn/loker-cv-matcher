@@ -9,11 +9,7 @@
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div>
-                    <div class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/80 px-4 py-2 text-sm font-semibold text-emerald-700 shadow-sm">
-                        <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-                        Dari ide sederhana: Lamar aja dulu
-                    </div>
-                    <h1 class="mt-6 font-[family-name:var(--font-display)] text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-950">
+                    <h1 class="font-[family-name:var(--font-display)] text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-950">
                         About <span class="text-emerald-600">Lamaraja</span>
                     </h1>
                     <p class="mt-5 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
