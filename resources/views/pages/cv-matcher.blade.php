@@ -1,6 +1,57 @@
 <x-layout>
-    <x-slot:title>CV Matcher - Cari Lowongan dari CV | Lamaraja</x-slot:title>
-    <x-slot:description>Upload CV PDF dan Lamaraja akan mencarikan lowongan aktif yang paling cocok berdasarkan skill, pengalaman, dan profilmu.</x-slot:description>
+    <x-slot:title>CV Matcher Gratis - Cek Kecocokan CV dengan Lowongan | Lamaraja</x-slot:title>
+    <x-slot:description>Upload CV PDF dan gunakan CV Matcher gratis Lamaraja untuk menemukan lowongan kerja yang paling cocok berdasarkan skill, pengalaman, dan profilmu.</x-slot:description>
+
+    @php
+        $faqLd = json_encode([
+            chr(64) . 'context' => 'https://schema.org',
+            '@type' => 'FAQPage',
+            'mainEntity' => [
+                [
+                    '@type' => 'Question',
+                    'name' => 'Apa itu CV Matcher Lamaraja?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'CV Matcher Lamaraja adalah alat gratis untuk mencocokkan CV PDF dengan lowongan kerja aktif di Lamaraja menggunakan AI.',
+                    ],
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Apakah saya harus memilih lowongan manual?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Tidak. Upload CV sekali dan Lamaraja akan otomatis mencari lowongan yang paling cocok berdasarkan skill, pengalaman, dan profil di CV.',
+                    ],
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Apakah CV saya aman?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'File CV dipakai untuk analisis kecocokan dan dihapus setelah proses scan selesai.',
+                    ],
+                ],
+            ],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        $softwareLd = json_encode([
+            chr(64) . 'context' => 'https://schema.org',
+            '@type' => 'SoftwareApplication',
+            'name' => 'CV Matcher Lamaraja',
+            'applicationCategory' => 'BusinessApplication',
+            'operatingSystem' => 'Web',
+            'url' => route('cv-matcher.index'),
+            'description' => 'Alat gratis untuk mencocokkan CV dengan lowongan kerja aktif menggunakan AI.',
+            'offers' => [
+                '@type' => 'Offer',
+                'price' => '0',
+                'priceCurrency' => 'IDR',
+            ],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    @endphp
+
+    <script type="application/ld+json">{!! $faqLd !!}</script>
+    <script type="application/ld+json">{!! $softwareLd !!}</script>
 
     <div class="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-teal-50" x-data="cvMatcher()">
         <div class="absolute -top-24 -right-24 h-80 w-80 rounded-full bg-emerald-200/50 blur-3xl"></div>
@@ -110,6 +161,56 @@
                     </div>
                 </article>
             </template>
+        </section>
+
+        <section class="relative bg-white/80 border-t border-emerald-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
+                <div class="grid grid-cols-1 lg:grid-cols-[0.85fr_1.15fr] gap-10 items-start">
+                    <div>
+                        <p class="text-sm font-bold uppercase tracking-wider text-emerald-600">CV Matcher SEO Guide</p>
+                        <h2 class="mt-3 font-[family-name:var(--font-display)] text-3xl sm:text-4xl font-extrabold text-slate-950">Cek kecocokan CV sebelum melamar kerja</h2>
+                        <p class="mt-4 text-slate-600 leading-8">
+                            Banyak perusahaan memakai proses screening awal untuk mencari kandidat yang paling relevan. CV Matcher Lamaraja membantu kamu melihat lowongan mana yang paling sesuai dengan pengalaman, skill, dan kata kunci di CV.
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                            <h3 class="font-bold text-slate-950">ATS & keyword fit</h3>
+                            <p class="mt-2 text-sm leading-6 text-slate-600">Analisis menyorot apakah CV kamu punya kata kunci dan pengalaman yang relevan dengan lowongan aktif.</p>
+                        </div>
+                        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                            <h3 class="font-bold text-slate-950">Rekomendasi job otomatis</h3>
+                            <p class="mt-2 text-sm leading-6 text-slate-600">Tidak perlu paste job description satu per satu. Lamaraja mencari kandidat lowongan dari database aktif.</p>
+                        </div>
+                        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                            <h3 class="font-bold text-slate-950">Saran yang actionable</h3>
+                            <p class="mt-2 text-sm leading-6 text-slate-600">Hasil scan berisi kekuatan, gap, dan saran agar CV lebih siap sebelum kamu melamar.</p>
+                        </div>
+                        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                            <h3 class="font-bold text-slate-950">Gratis dan privat</h3>
+                            <p class="mt-2 text-sm leading-6 text-slate-600">CV diproses untuk analisis kecocokan dan file upload dihapus setelah proses selesai.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-14 rounded-[2rem] border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+                    <h2 class="font-[family-name:var(--font-display)] text-2xl sm:text-3xl font-extrabold text-slate-950">FAQ CV Matcher</h2>
+                    <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div>
+                            <h3 class="font-bold text-slate-950">Apa itu CV Matcher?</h3>
+                            <p class="mt-2 text-sm leading-6 text-slate-600">CV Matcher adalah alat untuk mencocokkan CV dengan lowongan kerja aktif menggunakan AI.</p>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-950">Apakah perlu memilih lowongan?</h3>
+                            <p class="mt-2 text-sm leading-6 text-slate-600">Tidak. Upload CV dan Lamaraja akan otomatis mencarikan lowongan yang paling cocok.</p>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-950">Format CV apa yang didukung?</h3>
+                            <p class="mt-2 text-sm leading-6 text-slate-600">Saat ini mendukung CV PDF hingga 5MB agar teks dapat dibaca dan dianalisis.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
     </div>
 
