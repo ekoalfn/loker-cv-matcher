@@ -186,7 +186,7 @@
 
                 <div class="job-description-wrapper">
                     <div class="job-description-content text-sm md:text-[15px] text-slate-600">
-                        {!! Str::markdown($job->description_raw) !!}
+                        {!! \App\Support\JobDescriptionFormatter::toHtml($job->description_raw) !!}
                     </div>
                 </div>
             </section>
@@ -511,11 +511,13 @@
     </script>
 
     @php
+        $schemaDescription = trim(strip_tags(html_entity_decode($job->description_raw ?? $job->summary_ai ?? $job->title, ENT_QUOTES | ENT_HTML5)));
+
         $jobPosting = [
             chr(64) . 'context' => 'https://schema.org',
             '@type' => 'JobPosting',
             'title' => $job->title,
-            'description' => Str::limit($job->description_raw ?? $job->summary_ai ?? $job->title, 5000),
+            'description' => Str::limit($schemaDescription, 5000),
             'datePosted' => $job->created_at->toIso8601String(),
             'validThrough' => ($job->expires_at ?? $job->created_at->copy()->addDays(60))->toIso8601String(),
             'hiringOrganization' => array_filter([
