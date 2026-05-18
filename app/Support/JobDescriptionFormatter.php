@@ -17,7 +17,7 @@ class JobDescriptionFormatter
         $decoded = html_entity_decode($description, ENT_QUOTES | ENT_HTML5);
 
         if (! self::containsHtml($decoded)) {
-            return Str::markdown($decoded)->toHtml();
+            return (string) Str::markdown($decoded);
         }
 
         return self::sanitizeHtml($decoded);
