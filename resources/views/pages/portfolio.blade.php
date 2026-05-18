@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Portfolio Muhamad Eko Alfianto, junior web developer focused on PHP, JavaScript, Laravel, automation, AI workflow, SEO systems, and practical digital products.">
+    <meta name="description" content="Portfolio Muhamad Eko Alfianto, web developer untuk web application, automation, AI workflow, SEO systems, dan practical digital products.">
     <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#2563eb">
     <meta property="og:title" content="Muhamad Eko Alfianto - Web Developer Portfolio">
-    <meta property="og:description" content="Warm editorial portfolio for web applications, automation, AI-assisted workflows, SEO systems, and selected product work.">
+    <meta property="og:description" content="Clean modern portfolio inspired by Lamaraja, focused on web applications, automation, AI workflows, and SEO systems.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://promo.lamaraja.web.id/">
     <meta name="twitter:card" content="summary_large_image">
@@ -14,25 +15,27 @@
     <link rel="canonical" href="https://promo.lamaraja.web.id/">
     <style>
         :root {
-            --bg: #f4efe7;
-            --surface: #fffaf2;
-            --surface-muted: #e8ded0;
-            --text: #181612;
-            --text-muted: #6f675c;
-            --text-soft: #9a9083;
-            --line: #d6cab9;
-            --accent: #d94f2b;
-            --accent-deep: #9f321c;
-            --success: #3f6f52;
-            --font-display: Georgia, "Times New Roman", Times, serif;
-            --font-body: "Trebuchet MS", Verdana, Geneva, sans-serif;
-            --font-mono: "Courier New", Courier, monospace;
-            --page-max: 1440px;
-            --grid-margin: clamp(20px, 4vw, 72px);
-            --grid-gap: clamp(16px, 2vw, 32px);
-            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-            --duration-fast: 180ms;
-            --duration-slow: 800ms;
+            --blue-950: #0f172a;
+            --blue-900: #172554;
+            --blue-800: #1e40af;
+            --blue-700: #1d4ed8;
+            --blue-600: #2563eb;
+            --blue-500: #3b82f6;
+            --blue-100: #dbeafe;
+            --blue-50: #eff6ff;
+            --cyan-50: #ecfeff;
+            --slate-900: #0f172a;
+            --slate-700: #334155;
+            --slate-600: #475569;
+            --slate-500: #64748b;
+            --slate-200: #e2e8f0;
+            --slate-100: #f1f5f9;
+            --white: #ffffff;
+            --radius-xl: 1.5rem;
+            --radius-2xl: 2rem;
+            --shadow-soft: 0 24px 80px rgba(37, 99, 235, 0.12);
+            --font-display: "Plus Jakarta Sans", "Trebuchet MS", Verdana, sans-serif;
+            --font-body: Inter, "Trebuchet MS", Verdana, sans-serif;
         }
 
         * { box-sizing: border-box; }
@@ -40,120 +43,143 @@
         body {
             margin: 0;
             font-family: var(--font-body);
+            color: var(--slate-900);
             background:
-                radial-gradient(circle at 18% 6%, rgba(217, 79, 43, 0.10), transparent 26%),
-                radial-gradient(circle at 92% 22%, rgba(63, 111, 82, 0.10), transparent 24%),
-                linear-gradient(rgba(24, 22, 18, 0.026) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(24, 22, 18, 0.026) 1px, transparent 1px),
-                var(--bg);
-            background-size: auto, auto, 48px 48px, 48px 48px, auto;
-            color: var(--text);
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.16), transparent 28rem),
+                radial-gradient(circle at 88% 8%, rgba(14, 165, 233, 0.14), transparent 26rem),
+                linear-gradient(180deg, #f8fbff 0%, #ffffff 40%, #f8fbff 100%);
         }
         a { color: inherit; }
-        ::selection { background: var(--accent); color: var(--bg); }
-
-        .page { max-width: var(--page-max); margin: 0 auto; padding-inline: var(--grid-margin); }
-        .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: var(--grid-gap); }
-        .meta { font-family: var(--font-mono); font-size: 0.76rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-soft); }
+        .page { min-height: 100vh; overflow: hidden; }
+        .container { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
         .nav {
-            position: sticky; top: 0; z-index: 20;
-            display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 20px;
-            padding-block: 18px; border-bottom: 1px solid var(--line);
-            background: color-mix(in srgb, var(--bg) 86%, transparent); backdrop-filter: blur(16px);
+            position: sticky; top: 0; z-index: 40;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+            background: rgba(255, 255, 255, 0.84);
+            backdrop-filter: blur(18px);
         }
-        .brand { font-family: var(--font-mono); font-size: 0.86rem; text-decoration: none; letter-spacing: 0.08em; text-transform: uppercase; }
-        .nav-status { justify-self: center; display: inline-flex; align-items: center; gap: 8px; }
-        .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 5px rgba(63,111,82,.12); }
-        .nav-links { justify-self: end; display: flex; gap: clamp(14px, 2vw, 28px); font-family: var(--font-mono); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
-        .nav-links a { text-decoration: none; color: var(--text-muted); transition: color var(--duration-fast) ease; }
-        .nav-links a:hover { color: var(--accent-deep); }
+        .nav-inner { height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+        .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .brand-mark { width: 44px; height: 44px; border-radius: 16px; display: grid; place-items: center; color: white; font-weight: 900; background: linear-gradient(135deg, var(--blue-700), #06b6d4); box-shadow: 0 12px 32px rgba(37, 99, 235, 0.28); }
+        .brand-text strong { display: block; font-family: var(--font-display); font-size: 1rem; letter-spacing: -0.02em; }
+        .brand-text span { display: block; margin-top: 2px; color: var(--blue-600); font-size: 0.76rem; font-weight: 700; }
+        .nav-links { display: flex; align-items: center; gap: 28px; color: var(--slate-600); font-size: 0.92rem; font-weight: 700; }
+        .nav-links a { text-decoration: none; transition: color 180ms ease; }
+        .nav-links a:hover { color: var(--blue-700); }
+        .nav-cta { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0 16px; border-radius: 999px; background: var(--blue-600); color: white; text-decoration: none; font-weight: 800; box-shadow: 0 12px 30px rgba(37, 99, 235, 0.24); }
 
-        .hero { min-height: calc(100svh - 66px); display: grid; align-content: center; padding-block: clamp(64px, 10vw, 140px); }
-        .hero-title { grid-column: 1 / span 8; font-family: var(--font-display); font-size: clamp(3.7rem, 9vw, 9.2rem); line-height: 0.88; letter-spacing: -0.065em; font-weight: 400; margin: 18px 0 0; }
-        .hero-title em { color: var(--accent); font-style: italic; }
-        .hero-aside { grid-column: 10 / span 3; align-self: end; border-left: 1px solid var(--line); padding-left: clamp(18px, 2vw, 32px); }
-        .hero-aside p { margin: 14px 0 0; color: var(--text-muted); line-height: 1.7; }
-        .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
-        .button { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 18px; border: 1px solid var(--text); border-radius: 999px; background: transparent; color: var(--text); font-family: var(--font-mono); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; text-decoration: none; transition: background var(--duration-fast) ease, color var(--duration-fast) ease, border-color var(--duration-fast) ease; }
-        .button:hover { background: var(--text); color: var(--bg); }
-        .button-accent { background: var(--accent); border-color: var(--accent); color: var(--surface); }
-        .button-accent:hover { background: var(--accent-deep); border-color: var(--accent-deep); }
-        .hero-foot { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--grid-gap); margin-top: clamp(52px, 9vw, 112px); border-top: 1px solid var(--line); }
-        .fact { padding-top: 22px; color: var(--text-muted); line-height: 1.55; }
-        .fact strong { display: block; color: var(--text); margin-bottom: 8px; }
+        .hero { position: relative; padding: 86px 0 72px; }
+        .hero-grid { display: grid; grid-template-columns: 1.04fr 0.96fr; gap: 56px; align-items: center; }
+        .badge { display: inline-flex; align-items: center; gap: 9px; padding: 9px 12px; border: 1px solid #bfdbfe; border-radius: 999px; background: rgba(255, 255, 255, 0.78); color: var(--blue-800); font-size: 0.9rem; font-weight: 800; box-shadow: 0 12px 36px rgba(15, 23, 42, 0.06); }
+        .badge-dot { width: 8px; height: 8px; border-radius: 999px; background: #22c55e; box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.14); }
+        h1 { margin: 22px 0 0; font-family: var(--font-display); font-size: clamp(3.2rem, 7vw, 6.8rem); line-height: 0.94; letter-spacing: -0.07em; color: var(--blue-950); }
+        .hero-copy { margin: 24px 0 0; max-width: 680px; color: var(--slate-600); font-size: 1.12rem; line-height: 1.8; }
+        .hero-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 32px; }
+        .button { display: inline-flex; align-items: center; justify-content: center; min-height: 50px; padding: 0 20px; border-radius: 14px; border: 1px solid var(--slate-200); background: white; color: var(--slate-900); text-decoration: none; font-weight: 900; transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease; }
+        .button:hover { transform: translateY(-2px); box-shadow: 0 16px 36px rgba(15, 23, 42, 0.1); }
+        .button-primary { border-color: var(--blue-600); background: var(--blue-600); color: white; box-shadow: 0 16px 38px rgba(37, 99, 235, 0.24); }
+        .button-primary:hover { background: var(--blue-700); }
+        .hero-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 34px; }
+        .stat { padding: 18px; border: 1px solid var(--slate-200); border-radius: 22px; background: rgba(255,255,255,0.76); box-shadow: 0 16px 40px rgba(15, 23, 42, 0.05); }
+        .stat strong { display: block; color: var(--blue-700); font-size: 1.4rem; font-family: var(--font-display); }
+        .stat span { display: block; margin-top: 6px; color: var(--slate-500); font-size: 0.86rem; line-height: 1.5; }
 
-        section { padding-block: clamp(72px, 11vw, 160px); }
-        .section-kicker { grid-column: 1 / span 3; }
-        .section-title { grid-column: 4 / span 7; font-family: var(--font-display); font-size: clamp(2.45rem, 5.2vw, 6.5rem); line-height: 0.95; letter-spacing: -0.05em; font-weight: 400; margin: 0; }
-        .section-copy { grid-column: 9 / span 4; color: var(--text-muted); line-height: 1.7; margin: 0; }
+        .profile-card { position: relative; border: 1px solid #bfdbfe; border-radius: 34px; background: rgba(255, 255, 255, 0.82); box-shadow: var(--shadow-soft); padding: 18px; }
+        .profile-card::before { content: ""; position: absolute; inset: -42px -48px auto auto; width: 160px; height: 160px; border-radius: 999px; background: rgba(59, 130, 246, 0.16); filter: blur(8px); z-index: -1; }
+        .profile-screen { border-radius: 26px; overflow: hidden; background: var(--blue-950); color: white; }
+        .screen-top { display: flex; gap: 7px; padding: 16px 18px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .screen-dot { width: 10px; height: 10px; border-radius: 999px; background: #60a5fa; opacity: 0.9; }
+        .screen-body { padding: 28px; }
+        .screen-label { color: #93c5fd; font-weight: 900; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.14em; }
+        .screen-title { margin: 12px 0 0; font-family: var(--font-display); font-size: clamp(2rem, 4vw, 3.4rem); line-height: 1; letter-spacing: -0.05em; }
+        .skill-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 28px; }
+        .skill { min-height: 112px; border: 1px solid rgba(147, 197, 253, 0.2); border-radius: 22px; background: rgba(255,255,255,0.08); padding: 16px; }
+        .skill strong { display: block; font-size: 1.7rem; letter-spacing: -0.04em; }
+        .skill span { display: block; margin-top: 8px; color: #cbd5e1; font-size: 0.88rem; line-height: 1.5; }
+        .floating-card { position: absolute; left: -28px; bottom: 34px; max-width: 260px; border: 1px solid var(--slate-200); border-radius: 22px; background: white; padding: 16px; box-shadow: 0 18px 54px rgba(15, 23, 42, 0.12); }
+        .floating-card strong { display: block; color: var(--slate-900); }
+        .floating-card span { display: block; margin-top: 6px; color: var(--slate-500); font-size: 0.86rem; line-height: 1.5; }
 
-        .featured { grid-column: 1 / -1; display: grid; grid-template-columns: 7fr 5fr; gap: var(--grid-gap); padding-top: 48px; margin-top: 32px; border-top: 1px solid var(--line); }
-        .project-visual { min-height: clamp(300px, 44vw, 610px); border: 1px solid var(--line); background: linear-gradient(135deg, rgba(217,79,43,.16), transparent 42%), repeating-linear-gradient(90deg, rgba(24,22,18,.055) 0, rgba(24,22,18,.055) 1px, transparent 1px, transparent 32px), var(--surface); position: relative; overflow: hidden; }
-        .project-visual::before { content: "Lamaraja"; position: absolute; left: clamp(24px, 4vw, 64px); bottom: clamp(24px, 4vw, 64px); font-family: var(--font-display); font-size: clamp(3rem, 8vw, 9rem); letter-spacing: -0.07em; color: rgba(24,22,18,.12); }
-        .project-visual::after { content: "AI CV MATCHER / JOB INGEST / SEO"; position: absolute; right: 24px; top: 24px; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; color: var(--accent-deep); }
-        .project-detail { align-self: end; padding-bottom: clamp(8px, 2vw, 36px); }
-        .project-detail h3 { font-family: var(--font-display); font-size: clamp(2.4rem, 4.4vw, 5.8rem); line-height: 0.95; letter-spacing: -0.055em; margin: 14px 0 20px; font-weight: 400; }
-        .project-detail p { color: var(--text-muted); line-height: 1.72; font-size: clamp(1rem, 1.4vw, 1.18rem); }
-        .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
-        .tag { display: inline-block; padding: 6px 10px; border: 1px solid var(--line); border-radius: 999px; font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); background: rgba(255,250,242,.52); }
+        section { padding: 72px 0; }
+        .section-head { display: flex; align-items: end; justify-content: space-between; gap: 28px; margin-bottom: 30px; }
+        .kicker { color: var(--blue-700); font-size: 0.78rem; font-weight: 900; letter-spacing: 0.16em; text-transform: uppercase; }
+        h2 { margin: 10px 0 0; font-family: var(--font-display); color: var(--blue-950); font-size: clamp(2.2rem, 4.4vw, 4.4rem); line-height: 1; letter-spacing: -0.055em; }
+        .section-lead { max-width: 460px; color: var(--slate-600); line-height: 1.7; }
+        .work-feature { display: grid; grid-template-columns: 1.04fr 0.96fr; gap: 28px; align-items: stretch; }
+        .work-visual { min-height: 420px; border-radius: var(--radius-2xl); border: 1px solid #bfdbfe; background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 44%, #ffffff 100%); box-shadow: var(--shadow-soft); padding: 28px; position: relative; overflow: hidden; }
+        .work-visual::after { content: ""; position: absolute; right: -70px; bottom: -70px; width: 260px; height: 260px; border-radius: 999px; background: rgba(37,99,235,0.14); }
+        .mock-window { position: relative; z-index: 1; height: 100%; border-radius: 24px; background: white; border: 1px solid var(--slate-200); padding: 22px; box-shadow: 0 18px 48px rgba(37,99,235,0.12); }
+        .mock-row { height: 12px; border-radius: 999px; background: var(--slate-100); margin-bottom: 12px; }
+        .mock-row.blue { background: linear-gradient(90deg, var(--blue-600), #06b6d4); }
+        .match-card { margin-top: 24px; border-radius: 22px; border: 1px solid #bfdbfe; background: #f8fbff; padding: 18px; }
+        .match-card strong { display: block; font-size: 1.05rem; }
+        .bar { height: 9px; border-radius: 999px; background: var(--blue-100); margin-top: 12px; overflow: hidden; }
+        .bar span { display: block; height: 100%; width: 78%; background: linear-gradient(90deg, var(--blue-600), #06b6d4); border-radius: inherit; }
+        .work-copy { border-radius: var(--radius-2xl); border: 1px solid var(--slate-200); background: white; padding: 34px; box-shadow: 0 18px 50px rgba(15, 23, 42, 0.06); }
+        .work-copy h3 { margin: 12px 0 0; font-family: var(--font-display); font-size: 2.4rem; letter-spacing: -0.05em; }
+        .work-copy p { color: var(--slate-600); line-height: 1.75; }
+        .tags { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+        .tag { display: inline-flex; align-items: center; min-height: 34px; padding: 0 12px; border-radius: 999px; background: var(--blue-50); color: var(--blue-800); font-size: 0.82rem; font-weight: 800; }
+        .project-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 18px; }
+        .project-card { border: 1px solid var(--slate-200); border-radius: 26px; background: white; padding: 24px; text-decoration: none; transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease; }
+        .project-card:hover { transform: translateY(-4px); border-color: #93c5fd; box-shadow: 0 18px 52px rgba(37,99,235,0.12); }
+        .project-card .num { color: var(--blue-600); font-weight: 900; }
+        .project-card h3 { margin: 16px 0 10px; font-size: 1.22rem; }
+        .project-card p { margin: 0; color: var(--slate-600); line-height: 1.65; font-size: 0.94rem; }
 
-        .project-index { grid-column: 1 / -1; margin-top: 38px; }
-        .project-row { display: grid; grid-template-columns: 72px 1.5fr 1fr 92px; gap: 24px; align-items: baseline; padding-block: 24px; border-top: 1px solid var(--line); text-decoration: none; transition: background var(--duration-fast) ease, padding-inline var(--duration-fast) ease; }
-        .project-row:last-child { border-bottom: 1px solid var(--line); }
-        .project-row:hover { background: rgba(255,250,242,.68); padding-inline: 16px; }
-        .project-row:hover .project-number { color: var(--accent); }
-        .project-name { font-family: var(--font-display); font-size: clamp(1.55rem, 2.4vw, 2.8rem); letter-spacing: -0.04em; }
-        .project-type, .project-year { color: var(--text-muted); }
+        .capabilities { background: linear-gradient(180deg, transparent, var(--blue-50), transparent); }
+        .cap-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--slate-200); border-radius: var(--radius-2xl); overflow: hidden; background: white; box-shadow: 0 18px 50px rgba(15,23,42,0.05); }
+        .cap { padding: 28px; border-right: 1px solid var(--slate-200); }
+        .cap:last-child { border-right: 0; }
+        .icon { width: 48px; height: 48px; border-radius: 16px; display: grid; place-items: center; background: var(--blue-50); color: var(--blue-700); font-weight: 900; }
+        .cap h3 { margin: 20px 0 10px; }
+        .cap p { margin: 0; color: var(--slate-600); line-height: 1.65; font-size: 0.94rem; }
 
-        .about-title { grid-column: 1 / span 5; font-family: var(--font-display); font-size: clamp(2.8rem, 6vw, 7.5rem); line-height: 0.9; letter-spacing: -0.06em; margin: 0; font-weight: 400; }
-        .about-copy { grid-column: 7 / span 5; color: var(--text-muted); line-height: 1.75; font-size: clamp(1rem, 1.35vw, 1.16rem); }
-        .about-copy p { margin: 0 0 18px; }
-        .principles { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); margin-top: 64px; }
-        .principle { padding: 28px; border-right: 1px solid var(--line); background: rgba(255,250,242,.36); }
-        .principle:last-child { border-right: none; }
-        .principle h3 { margin: 16px 0 10px; font-size: 1.18rem; }
-        .principle p { margin: 0; color: var(--text-muted); line-height: 1.65; }
+        .about-card { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 36px; align-items: center; border: 1px solid var(--slate-200); border-radius: 34px; background: white; padding: clamp(24px, 4vw, 44px); box-shadow: 0 18px 58px rgba(15,23,42,0.06); }
+        .about-card p { color: var(--slate-600); line-height: 1.8; }
+        .principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 24px; }
+        .principle { border-radius: 20px; background: var(--blue-50); padding: 18px; }
+        .principle strong { display: block; color: var(--blue-800); }
+        .principle span { display: block; margin-top: 8px; color: var(--slate-600); font-size: 0.88rem; line-height: 1.55; }
 
-        .capability-card { grid-column: span 3; min-height: 210px; display: flex; flex-direction: column; justify-content: space-between; padding: 26px; border: 1px solid var(--line); background: var(--surface); }
-        .capability-card h3 { margin: 20px 0 10px; font-size: 1.28rem; }
-        .capability-card p { margin: 0; color: var(--text-muted); line-height: 1.65; }
+        .contact-card { position: relative; overflow: hidden; border-radius: 36px; background: linear-gradient(135deg, var(--blue-950), var(--blue-800)); color: white; padding: clamp(28px, 5vw, 56px); box-shadow: 0 24px 80px rgba(29,78,216,0.26); }
+        .contact-card::after { content: ""; position: absolute; right: -90px; top: -90px; width: 300px; height: 300px; border-radius: 999px; background: rgba(255,255,255,0.12); }
+        .contact-card h2 { color: white; max-width: 760px; }
+        .contact-card p { max-width: 680px; color: #dbeafe; line-height: 1.75; }
+        .contact-links { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+        .contact-links .button { border-color: rgba(255,255,255,0.26); background: white; color: var(--blue-900); }
+        .contact-links .button.secondary { background: transparent; color: white; }
+        .footer { padding: 28px 0 40px; color: var(--slate-500); font-size: 0.9rem; }
+        .footer-inner { display: flex; justify-content: space-between; gap: 18px; border-top: 1px solid var(--slate-200); padding-top: 24px; }
 
-        .contact { padding-bottom: 52px; }
-        .contact-title { grid-column: 1 / span 9; font-family: var(--font-display); font-size: clamp(3.4rem, 10vw, 12rem); line-height: 0.84; letter-spacing: -0.075em; margin: 0; font-weight: 400; }
-        .contact-panel { grid-column: 9 / span 4; align-self: end; border-top: 1px solid var(--line); padding-top: 24px; }
-        .contact-panel p { color: var(--text-muted); line-height: 1.75; }
-        .contact-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
-        .footer { display: grid; grid-template-columns: 1fr auto; gap: 24px; padding-block: 28px; border-top: 1px solid var(--line); font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-soft); }
-
-        .reveal { animation: riseFade var(--duration-slow) var(--ease-out) both; }
+        .reveal { animation: riseFade 720ms cubic-bezier(0.16, 1, 0.3, 1) both; }
         .delay-1 { animation-delay: 120ms; }
         .delay-2 { animation-delay: 240ms; }
-        .delay-3 { animation-delay: 360ms; }
-        @keyframes riseFade { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes riseFade { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
 
-        @media (max-width: 1023px) {
-            .grid { grid-template-columns: repeat(6, 1fr); }
-            .hero-title, .hero-aside, .section-kicker, .section-title, .section-copy, .featured, .about-title, .about-copy, .contact-title, .contact-panel { grid-column: 1 / -1; }
-            .hero-aside { border-left: 0; border-top: 1px solid var(--line); padding: 22px 0 0; }
-            .featured { grid-template-columns: 1fr; }
-            .capability-card { grid-column: span 3; }
-            .contact-panel { max-width: 560px; }
+        @media (max-width: 960px) {
+            .hero-grid, .work-feature, .about-card { grid-template-columns: 1fr; }
+            .floating-card { position: static; margin: -18px 18px 0; max-width: none; }
+            .project-grid { grid-template-columns: 1fr; }
+            .cap-grid { grid-template-columns: repeat(2, 1fr); }
+            .cap:nth-child(2) { border-right: 0; }
+            .cap { border-bottom: 1px solid var(--slate-200); }
+            .cap:nth-child(n+3) { border-bottom: 0; }
+            .section-head { align-items: start; flex-direction: column; }
         }
-        @media (max-width: 767px) {
-            .nav { grid-template-columns: 1fr auto; }
-            .nav-status { display: none; }
-            .nav-links { gap: 12px; font-size: 0.72rem; }
-            .nav-links a:nth-child(2) { display: none; }
-            .hero { min-height: auto; padding-top: 70px; }
-            .hero-title { font-size: clamp(3.2rem, 16vw, 5.2rem); }
-            .hero-foot { grid-template-columns: 1fr; }
-            section { padding-block: 72px; }
-            .section-title { font-size: clamp(2.65rem, 12vw, 4.4rem); }
-            .project-row { grid-template-columns: 1fr; gap: 8px; }
-            .principles { grid-template-columns: 1fr; }
-            .principle { border-right: none; border-bottom: 1px solid var(--line); }
-            .capability-card { grid-column: 1 / -1; min-height: 170px; }
-            .footer { grid-template-columns: 1fr; }
+        @media (max-width: 640px) {
+            .container { width: min(100% - 32px, 1120px); }
+            .nav-inner { height: 64px; }
+            .brand-text span, .nav-links a:nth-child(2) { display: none; }
+            .nav-links { gap: 14px; font-size: 0.82rem; }
+            .nav-cta { display: none; }
+            .hero { padding-top: 56px; }
+            .hero-stats { grid-template-columns: 1fr; }
+            .skill-grid, .cap-grid, .principles { grid-template-columns: 1fr; }
+            .cap, .cap:nth-child(2), .cap:nth-child(n+3) { border-right: 0; border-bottom: 1px solid var(--slate-200); }
+            .cap:last-child { border-bottom: 0; }
+            .work-visual { min-height: 320px; padding: 18px; }
+            .footer-inner { flex-direction: column; }
         }
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
@@ -175,149 +201,179 @@
 </head>
 <body>
     <div class="page">
-        <nav class="nav" aria-label="Main navigation">
-            <a class="brand" href="#top">Eko / Portfolio</a>
-            <div class="nav-status meta"><span class="dot"></span> Open for selected work</div>
-            <div class="nav-links">
-                <a href="#work">Work</a>
-                <a href="#about">About</a>
-                <a href="#contact">Contact</a>
+        <header class="nav">
+            <div class="container nav-inner">
+                <a class="brand" href="#top" aria-label="Muhamad Eko Alfianto portfolio">
+                    <span class="brand-mark">EA</span>
+                    <span class="brand-text"><strong>Muhamad Eko Alfianto</strong><span>Web Developer Portfolio</span></span>
+                </a>
+                <nav class="nav-links" aria-label="Main navigation">
+                    <a href="#work">Work</a>
+                    <a href="#about">About</a>
+                    <a href="#contact">Contact</a>
+                </nav>
+                <a class="nav-cta" href="https://www.linkedin.com/in/muhamad-eko-alfianto-5805201a1/">LinkedIn</a>
             </div>
-        </nav>
+        </header>
 
         <main id="top">
-            <section class="hero grid" aria-label="Portfolio introduction">
-                <div class="hero-title reveal">
-                    I build <em>quietly useful</em> web systems.
-                </div>
-                <aside class="hero-aside reveal delay-1">
-                    <div class="meta">Personal index / 2026</div>
-                    <p>Muhamad Eko Alfianto is a web developer focused on practical digital products, PHP and JavaScript projects, automation, AI-assisted workflows, and discoverable web experiences.</p>
-                    <div class="hero-actions">
-                        <a class="button button-accent" href="#work">View work</a>
-                        <a class="button" href="https://www.linkedin.com/in/muhamad-eko-alfianto-5805201a1/">LinkedIn</a>
-                    </div>
-                </aside>
-                <div class="hero-foot reveal delay-2">
-                    <div class="fact"><strong>Current focus</strong>Laravel products, landing pages, data workflows, and lightweight AI features that solve real tasks.</div>
-                    <div class="fact"><strong>Public footprint</strong>GitHub projects show PHP, JavaScript, EJS, CMS experiments, and decision support work using Fuzzy Tsukamoto.</div>
-                    <div class="fact"><strong>Selected build</strong>Lamaraja: an Indonesian job platform with CV Matcher, trusted job ingest, SEO pages, and operational automation.</div>
-                </div>
-            </section>
-
-            <section id="work" class="grid" aria-label="Selected work">
-                <div class="section-kicker meta">01 / Selected work</div>
-                <h1 class="section-title">Projects shaped around clarity, utility, and shipping.</h1>
-                <p class="section-copy">The portfolio starts with verified and in-progress work: real product systems, public code signals, and honest space for future case studies.</p>
-
-                <article class="featured">
-                    <div class="project-visual" aria-hidden="true"></div>
-                    <div class="project-detail">
-                        <div class="meta">Featured product</div>
-                        <h3>Lamaraja</h3>
-                        <p>AI-powered job portal for Indonesia with CV matching, trusted-source job ingestion, logo quality gates, SEO improvements, sitemap coverage, and performance work for mobile users.</p>
-                        <div class="tags">
-                            <span class="tag">Laravel</span>
-                            <span class="tag">AI workflow</span>
-                            <span class="tag">Job ingest</span>
-                            <span class="tag">Technical SEO</span>
+            <section class="hero">
+                <div class="container hero-grid">
+                    <div class="reveal">
+                        <div class="badge"><span class="badge-dot"></span> Available for selected web projects</div>
+                        <h1>Build clean products, automate the busy work.</h1>
+                        <p class="hero-copy">Portfolio Muhamad Eko Alfianto, web developer yang fokus pada web application, workflow automation, AI-assisted features, dan landing page yang mudah dipahami. Visual dibuat clean modern dengan referensi clarity Lamaraja.</p>
+                        <div class="hero-actions">
+                            <a class="button button-primary" href="#work">See selected work</a>
+                            <a class="button" href="https://github.com/ekoalfianto">View GitHub</a>
+                        </div>
+                        <div class="hero-stats">
+                            <div class="stat"><strong>10</strong><span>public GitHub repositories sebagai sinyal teknis publik.</span></div>
+                            <div class="stat"><strong>PHP</strong><span>CMS, web app, Laravel direction, dan backend flow.</span></div>
+                            <div class="stat"><strong>AI</strong><span>CV matching, summaries, and focused automation.</span></div>
                         </div>
                     </div>
-                </article>
 
-                <div class="project-index" aria-label="Project index">
-                    <a class="project-row" href="https://lamaraja.web.id/" target="_blank" rel="noopener">
-                        <span class="project-number meta">02</span>
-                        <span class="project-name">Lamaraja public site</span>
-                        <span class="project-type">Job portal / CV Matcher</span>
-                        <span class="project-year">Live</span>
-                    </a>
-                    <a class="project-row" href="https://github.com/ekoalfianto" target="_blank" rel="noopener">
-                        <span class="project-number meta">03</span>
-                        <span class="project-name">SPK Fuzzy Tsukamoto</span>
-                        <span class="project-type">Decision support / JavaScript</span>
-                        <span class="project-year">GitHub</span>
-                    </a>
-                    <a class="project-row" href="https://github.com/ekoalfianto" target="_blank" rel="noopener">
-                        <span class="project-number meta">04</span>
-                        <span class="project-name">CMS and web experiments</span>
-                        <span class="project-type">PHP / EJS / learning archive</span>
-                        <span class="project-year">Public</span>
-                    </a>
-                    <a class="project-row" href="#contact">
-                        <span class="project-number meta">05</span>
-                        <span class="project-name">Freelance delivery</span>
-                        <span class="project-type">Practical web builds / client work</span>
-                        <span class="project-year">On request</span>
-                    </a>
-                </div>
-            </section>
-
-            <section id="about" class="grid" aria-label="About Muhamad Eko Alfianto">
-                <h2 class="about-title">About the way I work.</h2>
-                <div class="about-copy">
-                    <p>I work between web development, product clarity, and operational problem solving. The goal is simple: turn rough ideas into digital surfaces that people can understand, use, and improve.</p>
-                    <p>LinkedIn public data is limited without login, so this page avoids unsupported claims. It uses verified public signals from GitHub, known Lamaraja work, and clear positioning that can grow as more projects are documented.</p>
-                    <p>Former freelance marketplace experience is treated as delivery background, not the whole story. The focus here is the next version: stronger proof, better case studies, and cleaner communication.</p>
-                </div>
-                <div class="principles">
-                    <div class="principle">
-                        <div class="meta">01</div>
-                        <h3>Reduce before adding</h3>
-                        <p>Start with the message, remove noise, then add interface details that make the work easier to trust.</p>
-                    </div>
-                    <div class="principle">
-                        <div class="meta">02</div>
-                        <h3>Ship practical systems</h3>
-                        <p>Favor useful flows: upload, match, ingest, validate, publish, measure, and improve.</p>
-                    </div>
-                    <div class="principle">
-                        <div class="meta">03</div>
-                        <h3>Make progress visible</h3>
-                        <p>Document changes, validations, and decisions so collaborators can see what moved forward.</p>
+                    <div class="profile-card reveal delay-1">
+                        <div class="profile-screen">
+                            <div class="screen-top"><span class="screen-dot"></span><span class="screen-dot"></span><span class="screen-dot"></span></div>
+                            <div class="screen-body">
+                                <div class="screen-label">Profile Snapshot</div>
+                                <div class="screen-title">Product-minded builder for practical web systems.</div>
+                                <div class="skill-grid">
+                                    <div class="skill"><strong>Web</strong><span>Laravel, PHP, JavaScript, EJS, landing pages.</span></div>
+                                    <div class="skill"><strong>Ops</strong><span>Data ingest, validation, scheduled refreshes.</span></div>
+                                    <div class="skill"><strong>AI</strong><span>Matching, summaries, assisted decisions.</span></div>
+                                    <div class="skill"><strong>SEO</strong><span>Structured data, sitemap, performance basics.</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="floating-card">
+                            <strong>Inspired by Lamaraja</strong>
+                            <span>Clean cards, soft gradients, blue accent, and clear CTA patterns adapted from the job platform UI.</span>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <section id="capabilities" class="grid" aria-label="Capabilities">
-                <div class="section-kicker meta">02 / Capabilities</div>
-                <h2 class="section-title">Clear support for digital products and presentation.</h2>
-                <p class="section-copy">Capabilities are intentionally framed around what can be supported by current work and public traces.</p>
-                <article class="capability-card">
-                    <div class="meta">PHP / Laravel</div>
-                    <div><h3>Web application builds</h3><p>Product pages, dashboards, forms, data views, and internal tools with pragmatic implementation.</p></div>
-                </article>
-                <article class="capability-card">
-                    <div class="meta">Automation</div>
-                    <div><h3>Data and workflow systems</h3><p>Scheduled refreshes, quality gates, scraping-aware ingestion, and repeatable operational checks.</p></div>
-                </article>
-                <article class="capability-card">
-                    <div class="meta">AI workflow</div>
-                    <div><h3>AI-assisted features</h3><p>Matching, summaries, recommendations, and decision support flows where AI has a focused role.</p></div>
-                </article>
-                <article class="capability-card">
-                    <div class="meta">SEO / Content</div>
-                    <div><h3>Discoverable pages</h3><p>Metadata, structured data, sitemap coverage, performance basics, and landing page clarity.</p></div>
-                </article>
+            <section id="work">
+                <div class="container">
+                    <div class="section-head">
+                        <div>
+                            <div class="kicker">Selected Work</div>
+                            <h2>Projects with product intent.</h2>
+                        </div>
+                        <p class="section-lead">Fokus pada karya yang bisa diverifikasi atau dijelaskan secara jujur: Lamaraja, public GitHub projects, dan delivery background.</p>
+                    </div>
+
+                    <div class="work-feature">
+                        <div class="work-visual" aria-hidden="true">
+                            <div class="mock-window">
+                                <div class="mock-row blue" style="width: 58%"></div>
+                                <div class="mock-row" style="width: 92%"></div>
+                                <div class="mock-row" style="width: 76%"></div>
+                                <div class="match-card">
+                                    <strong>Lamaraja CV Matcher</strong>
+                                    <div class="bar"><span></span></div>
+                                </div>
+                                <div class="match-card">
+                                    <strong>Trusted Job Refresh</strong>
+                                    <div class="bar"><span style="width: 88%"></span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <article class="work-copy">
+                            <div class="kicker">Featured Product</div>
+                            <h3>Lamaraja</h3>
+                            <p>AI-powered job portal for Indonesia dengan CV Matcher, job aggregation, trusted-source ingest, logo quality gates, SEO content, sitemap coverage, dan performance improvement untuk mobile users.</p>
+                            <div class="tags">
+                                <span class="tag">Laravel</span>
+                                <span class="tag">AI Workflow</span>
+                                <span class="tag">Automation</span>
+                                <span class="tag">Technical SEO</span>
+                            </div>
+                            <div class="hero-actions">
+                                <a class="button button-primary" href="https://lamaraja.web.id/">Open Lamaraja</a>
+                                <a class="button" href="#contact">Discuss Project</a>
+                            </div>
+                        </article>
+                    </div>
+
+                    <div class="project-grid">
+                        <a class="project-card" href="https://github.com/ekoalfianto" target="_blank" rel="noopener">
+                            <span class="num">01</span>
+                            <h3>SPK Fuzzy Tsukamoto</h3>
+                            <p>Decision support system project with JavaScript-based public repository footprint.</p>
+                        </a>
+                        <a class="project-card" href="https://github.com/ekoalfianto" target="_blank" rel="noopener">
+                            <span class="num">02</span>
+                            <h3>CMS and Web Experiments</h3>
+                            <p>PHP and EJS projects that show practical learning, simple systems, and web implementation history.</p>
+                        </a>
+                        <a class="project-card" href="#contact">
+                            <span class="num">03</span>
+                            <h3>Freelance Delivery</h3>
+                            <p>Marketplace delivery background reframed as practical web build experience, with details available on request.</p>
+                        </a>
+                    </div>
+                </div>
             </section>
 
-            <section id="contact" class="contact grid" aria-label="Contact">
-                <h2 class="contact-title">Have something complex that needs to feel simple?</h2>
-                <div class="contact-panel">
-                    <div class="meta">Contact / Collaboration</div>
-                    <p>Open to selected opportunities, collaborations, and practical web projects. Reach out through LinkedIn while this temporary portfolio lives on promo.lamaraja.web.id.</p>
+            <section class="capabilities" id="capabilities">
+                <div class="container">
+                    <div class="section-head">
+                        <div>
+                            <div class="kicker">Capabilities</div>
+                            <h2>What I can help with.</h2>
+                        </div>
+                        <p class="section-lead">Dibuat seperti Lamaraja: clear sections, benefit-first copy, cards yang ringan, dan CTA yang langsung.</p>
+                    </div>
+                    <div class="cap-grid">
+                        <article class="cap"><div class="icon">01</div><h3>Web Application</h3><p>Landing page, dashboard, forms, product pages, and Laravel-oriented product flows.</p></article>
+                        <article class="cap"><div class="icon">02</div><h3>Automation</h3><p>Scheduled jobs, data validation, scraping-aware workflows, and repeatable operations.</p></article>
+                        <article class="cap"><div class="icon">03</div><h3>AI Workflow</h3><p>CV matching, summarization, recommendations, and focused AI-assisted features.</p></article>
+                        <article class="cap"><div class="icon">04</div><h3>SEO Systems</h3><p>Metadata, structured data, sitemap, page clarity, and mobile performance basics.</p></article>
+                    </div>
+                </div>
+            </section>
+
+            <section id="about">
+                <div class="container about-card">
+                    <div>
+                        <div class="kicker">About</div>
+                        <h2>Clean work, clear progress.</h2>
+                    </div>
+                    <div>
+                        <p>Muhamad Eko Alfianto works between web development, product clarity, and operational problem solving. Public LinkedIn data could not be fully verified without login, so this page avoids unsupported claims and uses known work plus public GitHub signals.</p>
+                        <p>Former freelance marketplace experience is treated as delivery background, while the portfolio focuses on stronger proof: documented products, public repositories, and practical systems that keep improving.</p>
+                        <div class="principles">
+                            <div class="principle"><strong>01. Clear first</strong><span>Make the message easy to understand before adding complexity.</span></div>
+                            <div class="principle"><strong>02. Ship useful</strong><span>Build flows that solve actual work: upload, match, ingest, validate, publish.</span></div>
+                            <div class="principle"><strong>03. Improve openly</strong><span>Report changes, validation, and decisions so progress is visible.</span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="contact">
+                <div class="container contact-card">
+                    <div class="kicker" style="color:#bfdbfe">Contact</div>
+                    <h2>Need a clean web product or automation flow?</h2>
+                    <p>Open to selected opportunities, collaborations, and practical web projects. Reach out through LinkedIn while this temporary portfolio is hosted on promo.lamaraja.web.id.</p>
                     <div class="contact-links">
-                        <a class="button button-accent" href="https://www.linkedin.com/in/muhamad-eko-alfianto-5805201a1/">Message on LinkedIn</a>
-                        <a class="button" href="https://github.com/ekoalfianto">View GitHub</a>
-                        <a class="button" href="https://lamaraja.web.id/">See Lamaraja</a>
+                        <a class="button" href="https://www.linkedin.com/in/muhamad-eko-alfianto-5805201a1/">Message on LinkedIn</a>
+                        <a class="button secondary" href="https://github.com/ekoalfianto">View GitHub</a>
+                        <a class="button secondary" href="https://lamaraja.web.id/">See Lamaraja</a>
                     </div>
                 </div>
             </section>
         </main>
 
         <footer class="footer">
-            <span>&copy; 2026 Muhamad Eko Alfianto. Portfolio in progress.</span>
-            <span>Built lightweight / GMT+7</span>
+            <div class="container footer-inner">
+                <span>&copy; 2026 Muhamad Eko Alfianto. Portfolio in progress.</span>
+                <span>Clean modern blue UI inspired by Lamaraja.</span>
+            </div>
         </footer>
     </div>
 </body>
