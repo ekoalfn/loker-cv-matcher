@@ -45,6 +45,20 @@ class SitemapController extends Controller
         $xml .= '<priority>0.8</priority>';
         $xml .= '</url>';
 
+        $staticPages = [
+            ['url' => route('cv-matcher.index'), 'changefreq' => 'weekly', 'priority' => '0.7'],
+            ['url' => route('about'), 'changefreq' => 'monthly', 'priority' => '0.5'],
+        ];
+
+        foreach ($staticPages as $page) {
+            $xml .= '<url>';
+            $xml .= '<loc>' . $page['url'] . '</loc>';
+            $xml .= '<lastmod>' . now()->toW3cString() . '</lastmod>';
+            $xml .= '<changefreq>' . $page['changefreq'] . '</changefreq>';
+            $xml .= '<priority>' . $page['priority'] . '</priority>';
+            $xml .= '</url>';
+        }
+
         // Individual job detail pages
         foreach ($jobs as $job) {
             $xml .= '<url>';
