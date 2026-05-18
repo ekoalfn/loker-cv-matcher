@@ -38,6 +38,7 @@ class DailyJobRefreshService
             try {
                 $jobs = match ($sourceConfig['type'] ?? null) {
                     'greenhouse' => $this->fetchGreenhouseJobs($sourceConfig),
+                    'dealls' => $this->fetchDeallsJobs($sourceConfig),
                     default => [],
                 };
 
@@ -138,6 +139,151 @@ class DailyJobRefreshService
         return $jobs;
     }
 
+
+    /**
+     * @param array<string, mixed> $sourceConfig
+     * @return array<int, array<string, mixed>>
+     */
+    private function fetchDeallsJobs(array $sourceConfig): array
+    {
+        $response = Http::timeout(45)
+            ->withHeaders(['User-Agent' => 'Mozilla/5.0 LamarajaBot/1.0'])
+            ->get($sourceConfig['list_url']);
+
+        if ($response->failed()) {
+            throw new \RuntimeException("Dealls returned HTTP {$response->status()}");
+        }
+
+        $docs = $this->extractDeallsDocs($response->body());
+        $jobs = [];
+
+        foreach ($docs as $doc) {
+            $company = $doc['company'] ?? [];
+            $logo = $company['logoUrl'] ?? $company['headerLogoUrl'] ?? $company['faviconUrl'] ?? null;
+            $companyName = $company['name'] ?? null;
+            $companySlug = $company['slug'] ?? null;
+            $roleSlug = $doc['slug'] ?? null;
+            $detailSlug = $roleSlug && $companySlug ? "{$roleSlug}~{$companySlug}" : $roleSlug;
+            $sourceUrl = $detailSlug ? 'https://dealls.com/loker/' . $detailSlug : null;
+            $location = $doc['city']['name'] ?? $doc['location']['city']['name'] ?? $doc['country']['name'] ?? 'Indonesia';
+            $salaryRange = $doc['salaryRange'] ?? null;
+
+            if ($sourceUrl && $this->deallsDescription($doc) === '') {
+                $doc = array_replace_recursive($doc, $this->fetchDeallsJobDetail($sourceUrl));
+                $company = $doc['company'] ?? $company;
+                $logo = $logo ?: ($company['logoUrl'] ?? $company['headerLogoUrl'] ?? $company['faviconUrl'] ?? null);
+                $location = $doc['city']['name'] ?? $doc['location']['city']['name'] ?? $location;
+                $salaryRange = $doc['salaryRange'] ?? $salaryRange;
+            }
+
+            $skills = collect($doc['skills'] ?? [])->pluck('name')->filter()->take(3)->values()->all();
+            $description = $this->deallsDescription($doc);
+            $tags = array_values(array_unique(array_filter(array_merge(
+                $sourceConfig['default_tags'] ?? [],
+                [$doc['workplaceType'] ?? null],
+                $skills
+            ))));
+
+            $jobs[] = [
+                'title' => trim((string) ($doc['role'] ?? '')),
+                'company' => trim((string) $companyName),
+                'company_logo' => $logo,
+                'location' => $location,
+                'employment_type' => $this->mapEmploymentType($doc['employmentTypes'][0] ?? null),
+                'salary_min' => is_array($salaryRange) ? ($salaryRange['start'] ?? null) : null,
+                'salary_max' => is_array($salaryRange) ? ($salaryRange['end'] ?? null) : null,
+                'salary_currency' => 'IDR',
+                'description_raw' => $description,
+                'summary_ai' => null,
+                'tags' => array_slice($tags, 0, 5),
+                'source_url' => $sourceUrl,
+            ];
+        }
+
+        return $jobs;
+    }
+
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function fetchDeallsJobDetail(string $url): array
+    {
+        try {
+            $response = Http::timeout(30)
+                ->withHeaders(['User-Agent' => 'Mozilla/5.0 LamarajaBot/1.0'])
+                ->get($url);
+
+            if ($response->failed()) {
+                return [];
+            }
+
+            if (! preg_match('/<script[^>]+id=["\']__NEXT_DATA__["\'][^>]*>(.*?)<\/script>/s', $response->body(), $match)) {
+                return [];
+            }
+
+            $payload = json_decode($match[1], true);
+            if (! is_array($payload)) {
+                return [];
+            }
+
+            return $payload['props']['pageProps']['dehydratedState']['queries'][0]['state']['data'] ?? [];
+        } catch (\Throwable $e) {
+            Log::warning('Dealls detail fetch failed', ['url' => $url, 'error' => $e->getMessage()]);
+            return [];
+        }
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function extractDeallsDocs(string $html): array
+    {
+        if (! preg_match('/<script[^>]+id=["\']__NEXT_DATA__["\'][^>]*>(.*?)<\/script>/s', $html, $match)) {
+            throw new \RuntimeException('Dealls Next.js data not found');
+        }
+
+        $payload = json_decode($match[1], true);
+        if (! is_array($payload)) {
+            throw new \RuntimeException('Dealls Next.js data is invalid JSON');
+        }
+
+        return $payload['props']['pageProps']['dehydratedState']['queries'][0]['state']['data']['pages'][0]['docs'] ?? [];
+    }
+
+    /**
+     * @param array<string, mixed> $doc
+     */
+    private function deallsDescription(array $doc): string
+    {
+        $parts = [];
+        if (! empty($doc['description'])) {
+            $parts[] = '<h3>Tentang Pekerjaan</h3>' . $doc['description'];
+        }
+        if (! empty($doc['responsibilities'])) {
+            $parts[] = '<h3>Tanggung Jawab</h3>' . $doc['responsibilities'];
+        }
+        if (! empty($doc['requirements'])) {
+            $parts[] = '<h3>Kualifikasi</h3>' . $doc['requirements'];
+        }
+        if (! empty($doc['company']['description'])) {
+            $parts[] = '<h3>Tentang Perusahaan</h3>' . $doc['company']['description'];
+        }
+
+        return trim(implode("\n", $parts));
+    }
+
+    private function mapEmploymentType(?string $type): string
+    {
+        return match ($type) {
+            'partTime' => 'part-time',
+            'contract' => 'contract',
+            'internship' => 'internship',
+            'freelance' => 'freelance',
+            default => 'full-time',
+        };
+    }
+
     /**
      * @param array<int, array<string, mixed>> $jobs
      * @param array<string, mixed> $sourceConfig
@@ -146,14 +292,10 @@ class DailyJobRefreshService
     private function completeJobsOnly(array $jobs, array $sourceConfig): array
     {
         $valid = [];
-        $logo = $sourceConfig['company_logo'] ?? null;
-
-        if (!$this->logoLooksValid($logo)) {
-            throw new \RuntimeException("Invalid or missing logo for {$sourceConfig['name']}");
-        }
+        $defaultLogo = $sourceConfig['company_logo'] ?? null;
 
         foreach ($jobs as $job) {
-            $job['company_logo'] = $job['company_logo'] ?: $logo;
+            $job['company_logo'] = $job['company_logo'] ?: $defaultLogo;
 
             if (!$this->isComplete($job)) {
                 continue;
