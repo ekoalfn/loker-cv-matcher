@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Portfolio Muhamad Eko Alfianto, web developer untuk web application, automation, AI workflow, SEO systems, dan practical digital products.">
+    <meta name="description" content="Portfolio Muhamad Eko Alfianto, Senior Full Stack Developer dengan pengalaman Laravel, Next.js, WordPress, Restful API, dan 200+ project delivery.">
     <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#2563eb">
     <meta property="og:title" content="Muhamad Eko Alfianto - Web Developer Portfolio">
-    <meta property="og:description" content="Clean modern portfolio inspired by Lamaraja, focused on web applications, automation, AI workflows, and SEO systems.">
+    <meta property="og:description" content="Clean modern portfolio inspired by Lamaraja, featuring 200+ projects, Laravel, Next.js, WordPress, API development, and selected client work.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://promo.lamaraja.web.id/">
     <meta name="twitter:card" content="summary_large_image">
@@ -220,17 +220,17 @@
             <section class="hero">
                 <div class="container hero-grid">
                     <div class="reveal">
-                        <div class="badge"><span class="badge-dot"></span> Available for selected web projects</div>
-                        <h1>Build clean products, automate the busy work.</h1>
-                        <p class="hero-copy">Portfolio Muhamad Eko Alfianto, web developer yang fokus pada web application, workflow automation, AI-assisted features, dan landing page yang mudah dipahami. Visual dibuat clean modern dengan referensi clarity Lamaraja.</p>
+                        <div class="badge"><span class="badge-dot"></span> Senior Full Stack Developer / 200+ projects delivered</div>
+                        <h1>Build clean products, scalable apps, and reliable APIs.</h1>
+                        <p class="hero-copy">Portfolio Muhamad Eko Alfianto, Senior Full Stack Developer dengan 7+ tahun pengalaman dan 200+ project delivery. Fokus pada Laravel, Next.js, WordPress, Restful API, automation, dan web application yang scalable.</p>
                         <div class="hero-actions">
                             <a class="button button-primary" href="#work">See selected work</a>
                             <a class="button" href="https://github.com/ekoalfianto">View GitHub</a>
                         </div>
                         <div class="hero-stats">
-                            <div class="stat"><strong>10</strong><span>public GitHub repositories sebagai sinyal teknis publik.</span></div>
-                            <div class="stat"><strong>PHP</strong><span>CMS, web app, Laravel direction, dan backend flow.</span></div>
-                            <div class="stat"><strong>AI</strong><span>CV matching, summaries, and focused automation.</span></div>
+                            <div class="stat"><strong>200+</strong><span>projects done independently and with teams.</span></div>
+                            <div class="stat"><strong>7+</strong><span>years building Laravel, web apps, and APIs.</span></div>
+                            <div class="stat"><strong>5+</strong><span>countries served through development teams and clients.</span></div>
                         </div>
                     </div>
 
@@ -239,18 +239,18 @@
                             <div class="screen-top"><span class="screen-dot"></span><span class="screen-dot"></span><span class="screen-dot"></span></div>
                             <div class="screen-body">
                                 <div class="screen-label">Profile Snapshot</div>
-                                <div class="screen-title">Product-minded builder for practical web systems.</div>
+                                <div class="screen-title">Senior developer for web, mobile-ready products, and API systems.</div>
                                 <div class="skill-grid">
-                                    <div class="skill"><strong>Web</strong><span>Laravel, PHP, JavaScript, EJS, landing pages.</span></div>
-                                    <div class="skill"><strong>Ops</strong><span>Data ingest, validation, scheduled refreshes.</span></div>
-                                    <div class="skill"><strong>AI</strong><span>Matching, summaries, assisted decisions.</span></div>
-                                    <div class="skill"><strong>SEO</strong><span>Structured data, sitemap, performance basics.</span></div>
+                                    <div class="skill"><strong>Laravel</strong><span>Responsive web apps, dashboards, and backend systems.</span></div>
+                                    <div class="skill"><strong>Next.js</strong><span>React, Node.js, Express.js, and modern frontend stacks.</span></div>
+                                    <div class="skill"><strong>WordPress</strong><span>Elementor, custom templates, conversion, and plugins.</span></div>
+                                    <div class="skill"><strong>API</strong><span>Restful APIs, third-party integrations, and custom apps.</span></div>
                                 </div>
                             </div>
                         </div>
                         <div class="floating-card">
-                            <strong>Inspired by Lamaraja</strong>
-                            <span>Clean cards, soft gradients, blue accent, and clear CTA patterns adapted from the job platform UI.</span>
+                            <strong>From old portfolio data</strong>
+                            <span>Core details were migrated from ekoalfianto.my.id and refreshed into a cleaner Lamaraja-inspired interface.</span>
                         </div>
                     </div>
                 </div>
@@ -302,18 +302,35 @@
                     <div class="project-grid">
                         <a class="project-card" href="https://github.com/ekoalfianto" target="_blank" rel="noopener">
                             <span class="num">01</span>
-                            <h3>SPK Fuzzy Tsukamoto</h3>
-                            <p>Decision support system project with JavaScript-based public repository footprint.</p>
+                            <h3>Simtaka Apps</h3>
+                            <p>Laravel and Vue.js application listed in the previous portfolio as selected work.</p>
                         </a>
-                        <a class="project-card" href="https://github.com/ekoalfianto" target="_blank" rel="noopener">
+                        <a class="project-card" href="#contact">
                             <span class="num">02</span>
-                            <h3>CMS and Web Experiments</h3>
-                            <p>PHP and EJS projects that show practical learning, simple systems, and web implementation history.</p>
+                            <h3>Inilah News Portal</h3>
+                            <p>Laravel, Next.js, and Restful API work from the legacy portfolio project list.</p>
                         </a>
                         <a class="project-card" href="#contact">
                             <span class="num">03</span>
-                            <h3>Freelance Delivery</h3>
-                            <p>Marketplace delivery background reframed as practical web build experience, with details available on request.</p>
+                            <h3>Javabica Online Shop</h3>
+                            <p>Laravel, Nuxt, and Restful API online shop implementation from earlier selected work.</p>
+                        </a>
+                    </div>
+                    <div class="project-grid">
+                        <a class="project-card" href="#contact">
+                            <span class="num">04</span>
+                            <h3>Nifty Educate Blockchain</h3>
+                            <p>Laravel, Web3, and React.js blockchain application from the old portfolio archive.</p>
+                        </a>
+                        <a class="project-card" href="#contact">
+                            <span class="num">05</span>
+                            <h3>E-BPN</h3>
+                            <p>PHP, CodeIgniter, and Bootstrap project listed as selected work.</p>
+                        </a>
+                        <a class="project-card" href="#contact">
+                            <span class="num">06</span>
+                            <h3>Sidokoe</h3>
+                            <p>Laravel, Tailwind, and PHP project from the previous portfolio.</p>
                         </a>
                     </div>
                 </div>
@@ -329,10 +346,56 @@
                         <p class="section-lead">Dibuat seperti Lamaraja: clear sections, benefit-first copy, cards yang ringan, dan CTA yang langsung.</p>
                     </div>
                     <div class="cap-grid">
-                        <article class="cap"><div class="icon">01</div><h3>Web Application</h3><p>Landing page, dashboard, forms, product pages, and Laravel-oriented product flows.</p></article>
-                        <article class="cap"><div class="icon">02</div><h3>Automation</h3><p>Scheduled jobs, data validation, scraping-aware workflows, and repeatable operations.</p></article>
-                        <article class="cap"><div class="icon">03</div><h3>AI Workflow</h3><p>CV matching, summarization, recommendations, and focused AI-assisted features.</p></article>
-                        <article class="cap"><div class="icon">04</div><h3>SEO Systems</h3><p>Metadata, structured data, sitemap, page clarity, and mobile performance basics.</p></article>
+                        <article class="cap"><div class="icon">01</div><h3>Laravel Development</h3><p>7+ years building responsive and interactive web applications with Laravel technologies.</p></article>
+                        <article class="cap"><div class="icon">02</div><h3>Next.js Development</h3><p>Modern development with Next.js, Express.js, React, and Node.js-based stacks.</p></article>
+                        <article class="cap"><div class="icon">03</div><h3>WordPress Development</h3><p>Elementor, custom templates, HTML to WordPress conversion, and plugin development.</p></article>
+                        <article class="cap"><div class="icon">04</div><h3>Restful API Development</h3><p>Custom applications, third-party integrations, and seamless API functionality.</p></article>
+                    </div>
+                </div>
+            </section>
+
+            <section id="experience">
+                <div class="container">
+                    <div class="section-head">
+                        <div>
+                            <div class="kicker">Experience</div>
+                            <h2>Companies and teams from the old portfolio.</h2>
+                        </div>
+                        <p class="section-lead">Experience data migrated from ekoalfianto.my.id and presented in a cleaner Lamaraja-style timeline.</p>
+                    </div>
+                    <div class="project-grid">
+                        <article class="project-card">
+                            <span class="num">Oct 2021 - Sep 2024</span>
+                            <h3>Senior Full Stack Developer | Nine Dragon Labs</h3>
+                            <p>Nine Dragon Labs serves clients across more than 5 countries with teams in front-end, back-end, UI/UX, technology consulting, and blockchain smart contract development.</p>
+                        </article>
+                        <article class="project-card">
+                            <span class="num">Jan 2017 - Aug 2021</span>
+                            <h3>Full Stack Developer | Inowtech</h3>
+                            <p>Inowtech is a digital technology company focused on development, research, digitization, agencies, careers, and MSME business needs.</p>
+                        </article>
+                        <article class="project-card">
+                            <span class="num">Freelance</span>
+                            <h3>Independent and marketplace delivery</h3>
+                            <p>Delivered practical client work independently and with teams, with emphasis on communication, planning, and reliable execution.</p>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <section id="testimonials" class="capabilities">
+                <div class="container">
+                    <div class="section-head">
+                        <div>
+                            <div class="kicker">Testimonials</div>
+                            <h2>Client words from previous portfolio.</h2>
+                        </div>
+                        <p class="section-lead">Selected feedback highlights organization, communication, patience, quality delivery, and backend/devops strength.</p>
+                    </div>
+                    <div class="project-grid">
+                        <article class="project-card"><span class="num">Michael Kravc</span><h3>Road To Virtuosity</h3><p>Professional and well organized, with step-by-step planning and quick completion.</p></article>
+                        <article class="project-card"><span class="num">Ahmed Samah</span><h3>Jobsicle</h3><p>Talented developer building applications with latest technology and strong client communication.</p></article>
+                        <article class="project-card"><span class="num">Michael Thomp</span><h3>United Kingdom</h3><p>Strong back-end and dev-ops skills, high quality assurance, and detail-oriented work.</p></article>
                     </div>
                 </div>
             </section>
@@ -344,8 +407,8 @@
                         <h2>Clean work, clear progress.</h2>
                     </div>
                     <div>
-                        <p>Muhamad Eko Alfianto works between web development, product clarity, and operational problem solving. Public LinkedIn data could not be fully verified without login, so this page avoids unsupported claims and uses known work plus public GitHub signals.</p>
-                        <p>Former freelance marketplace experience is treated as delivery background, while the portfolio focuses on stronger proof: documented products, public repositories, and practical systems that keep improving.</p>
+                        <p>Muhamad Eko Alfianto is a Senior Full Stack Developer with experience delivering web products independently and as part of development teams. The old portfolio positions him around Laravel, Next.js, WordPress, Restful API, web development, security awareness, and scalable client solutions.</p>
+                        <p>This refreshed version keeps the proven content from ekoalfianto.my.id, then repackages it into a clean blue interface inspired by Lamaraja: clearer sections, sharper CTAs, better project hierarchy, and stronger presentation.</p>
                         <div class="principles">
                             <div class="principle"><strong>01. Clear first</strong><span>Make the message easy to understand before adding complexity.</span></div>
                             <div class="principle"><strong>02. Ship useful</strong><span>Build flows that solve actual work: upload, match, ingest, validate, publish.</span></div>
