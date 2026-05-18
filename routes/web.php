@@ -6,6 +6,11 @@ use App\Http\Controllers\ScraperController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
+
+Route::domain('promo.lamaraja.web.id')->group(function (): void {
+    Route::view('/', 'pages.portfolio')->name('portfolio.promo');
+});
+
 // SEO
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
