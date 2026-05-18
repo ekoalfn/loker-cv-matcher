@@ -30,7 +30,8 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet"></noscript>
     
     {{-- Google Sitelinks Search Box Structured Data --}}
     <script type="application/ld+json">
@@ -82,7 +83,7 @@
             <div class="flex items-center justify-between h-16">
                 {{-- Logo --}}
                 <a href="{{ route('home') }}" class="flex items-center gap-2.5 interactive-focus rounded-lg group">
-                    <img src="{{ asset('images/lamaraja-logo.png') }}" alt="Lamaraja logo" class="w-12 h-12 rounded-2xl transition-transform group-hover:scale-105">
+                    <img src="{{ asset('images/lamaraja-logo.png') }}" alt="Lamaraja logo" width="48" height="48" decoding="async" fetchpriority="high" class="w-12 h-12 rounded-2xl transition-transform group-hover:scale-105">
                     <div class="flex flex-col">
                         <span class="text-slate-900 font-[family-name:var(--font-display)] text-xl font-bold leading-none">Lamaraja</span>
                         <span class="text-xs text-emerald-600 font-medium leading-none mt-0.5">Lamar aja!</span>
@@ -180,7 +181,7 @@
                 {{-- Logo & Description --}}
                 <div class="lg:col-span-2">
                     <div class="flex items-center gap-2.5 mb-4">
-                        <img src="{{ asset('images/lamaraja-logo.png') }}" alt="Lamaraja logo" class="w-12 h-12 rounded-2xl">
+                        <img src="{{ asset('images/lamaraja-logo.png') }}" alt="Lamaraja logo" width="48" height="48" loading="lazy" decoding="async" class="w-12 h-12 rounded-2xl">
                         <div class="flex flex-col">
                             <span class="text-white font-[family-name:var(--font-display)] text-xl font-bold leading-none">Lamaraja</span>
                             <span class="text-xs text-emerald-400 font-medium leading-none mt-0.5">Lamar aja!</span>

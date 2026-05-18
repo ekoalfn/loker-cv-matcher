@@ -38,6 +38,11 @@
             @if($job->company_logo)
                 <img src="{{ $job->company_logo }}"
                      alt="{{ $job->company }}"
+                     width="64"
+                     height="64"
+                     loading="lazy"
+                     decoding="async"
+                     referrerpolicy="no-referrer"
                      class="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-contain shrink-0 border border-slate-200 bg-white p-1"
                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                 <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-gradient-to-br {{ $gradient }} items-center justify-center shrink-0 shadow-sm hidden">

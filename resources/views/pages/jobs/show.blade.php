@@ -38,6 +38,11 @@
                 @if($job->company_logo)
                     <img src="{{ $job->company_logo }}"
                          alt="{{ $job->company }}"
+                         width="56"
+                         height="56"
+                         decoding="async"
+                         fetchpriority="high"
+                         referrerpolicy="no-referrer"
                          class="w-14 h-14 rounded-2xl object-contain shrink-0 border border-slate-200 bg-white p-1"
                          style="box-shadow: 0 2px 8px rgba(0,0,0,0.10);"
                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
