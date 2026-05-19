@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Contracts\JobRepositoryInterface;
+use App\Models\Job;
 use App\Models\JobSource;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -84,6 +86,87 @@ class DailyJobRefreshService
         }
 
         return $stats;
+    }
+
+    /**
+     * Deactivate active jobs whose source URL is dead/closed or whose page indicates expiration.
+     *
+     * @return array{checked:int,deactivated:int,expired:int,url_dead:int,errors:int}
+     */
+    public function pruneExpiredJobs(?int $limit = null): array
+    {
+        $stats = ['checked' => 0, 'deactivated' => 0, 'expired' => 0, 'url_dead' => 0, 'errors' => 0];
+
+        $query = Job::active()->whereNotNull('source_url')->orderBy('scraped_at');
+        if ($limit !== null) {
+            $query->limit($limit);
+        }
+
+        $jobs = $query->get();
+
+        foreach ($jobs as $job) {
+            $stats['checked']++;
+            try {
+                $response = Http::timeout(20)
+                    ->withHeaders(['User-Agent' => 'Mozilla/5.0 LamarajaBot/1.0'])
+                    ->get((string) $job->source_url);
+
+                if (! $response->successful()) {
+                    $job->update(['is_active' => false]);
+                    $stats['deactivated']++;
+                    $stats['url_dead']++;
+                    continue;
+                }
+
+                $body = Str::lower(strip_tags($response->body()));
+                $expiredByText = collect([
+                    'this job is no longer available',
+                    'position has been filled',
+                    'job has expired',
+                    'lowongan ditutup',
+                    'posisi sudah terisi',
+                    'vacancy closed',
+                ])->contains(fn (string $signal) => Str::contains($body, $signal));
+
+                $expiredAt = $this->extractExpiredDate($body);
+                $isExpiredByDate = $expiredAt !== null && $expiredAt->isPast();
+
+                if ($expiredByText || $isExpiredByDate) {
+                    $job->update([
+                        'is_active' => false,
+                        'expires_at' => $expiredAt?->toDateTimeString() ?? now()->toDateTimeString(),
+                    ]);
+                    $stats['deactivated']++;
+                    $stats['expired']++;
+                }
+            } catch (\Throwable $e) {
+                $stats['errors']++;
+                Log::warning('Prune expired job check failed', [
+                    'job_id' => $job->id,
+                    'source_url' => $job->source_url,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return $stats;
+    }
+
+    private function extractExpiredDate(string $text): ?Carbon
+    {
+        if (! preg_match('/(deadline|berakhir|ditutup|expired)\s*[:\-]?\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i', $text, $m)) {
+            return null;
+        }
+
+        $raw = str_replace('/', '-', $m[2]);
+        foreach (['d-m-Y', 'd-m-y', 'm-d-Y', 'Y-m-d'] as $format) {
+            try {
+                return Carbon::createFromFormat($format, $raw);
+            } catch (\Throwable) {
+            }
+        }
+
+        return null;
     }
 
     /**
