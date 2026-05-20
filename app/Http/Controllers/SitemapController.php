@@ -46,14 +46,28 @@ class SitemapController extends Controller
         $xml .= '</url>';
 
         $staticPages = [
-            ['url' => route('cv-matcher.index'), 'changefreq' => 'weekly', 'priority' => '0.7'],
-            ['url' => route('about'), 'changefreq' => 'monthly', 'priority' => '0.5'],
+            [
+                'url' => route('cv-matcher.index'),
+                'view' => resource_path('views/cv-scan/index.blade.php'),
+                'changefreq' => 'weekly',
+                'priority' => '0.7',
+            ],
+            [
+                'url' => route('about'),
+                'view' => resource_path('views/pages/about.blade.php'),
+                'changefreq' => 'monthly',
+                'priority' => '0.5',
+            ],
         ];
 
         foreach ($staticPages as $page) {
+            $lastModified = file_exists($page['view'])
+                ? date(DATE_W3C, filemtime($page['view']))
+                : $latestJobDate->toW3cString();
+
             $xml .= '<url>';
             $xml .= '<loc>' . $page['url'] . '</loc>';
-            $xml .= '<lastmod>' . now()->toW3cString() . '</lastmod>';
+            $xml .= '<lastmod>' . $lastModified . '</lastmod>';
             $xml .= '<changefreq>' . $page['changefreq'] . '</changefreq>';
             $xml .= '<priority>' . $page['priority'] . '</priority>';
             $xml .= '</url>';
