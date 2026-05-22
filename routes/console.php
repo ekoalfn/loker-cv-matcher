@@ -7,17 +7,19 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Artisan::command('lamaraja:refresh-jobs {--limit= : Optional per-source limit for smoke tests} {--prune-limit= : Optional limit for source URL expiry checks}', function (): int {
+Artisan::command('lamaraja:refresh-jobs {--limit= : Optional per-source limit for smoke tests} {--prune-limit= : Optional limit for source URL expiry checks} {--skip-prune : Skip source URL expiry checks for quick ingestion-only runs}', function (): int {
     $limit = $this->option('limit') !== null ? (int) $this->option('limit') : null;
     $pruneLimit = $this->option('prune-limit') !== null ? (int) $this->option('prune-limit') : null;
     $service = app(\App\Services\DailyJobRefreshService::class);
     $stats = $service->refresh($limit);
-    $stats['pruned'] = $service->pruneExpiredJobs($pruneLimit);
+    $stats['pruned'] = $this->option('skip-prune')
+        ? ['checked' => 0, 'deactivated' => 0, 'expired' => 0, 'url_dead' => 0, 'errors' => 0, 'skipped' => true]
+        : $service->pruneExpiredJobs($pruneLimit);
 
     $this->info(json_encode($stats, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
     return empty($stats['errors']) && $stats['pruned']['errors'] === 0 ? 0 : 1;
-})->purpose('Refresh Lamaraja job listings from trusted public feeds with complete company logos, then deactivate expired source URLs.');
+})->purpose('Refresh Lamaraja job listings from trusted public feeds with complete company logos, then deactivate expired source URLs unless skipped.');
 
 
 Artisan::command('lamaraja:job-quality', function (): int {
