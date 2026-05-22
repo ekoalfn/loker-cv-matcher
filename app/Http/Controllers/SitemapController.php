@@ -48,7 +48,7 @@ class SitemapController extends Controller
         $staticPages = [
             [
                 'url' => route('cv-matcher.index'),
-                'view' => resource_path('views/cv-scan/index.blade.php'),
+                'view' => resource_path('views/pages/cv-matcher.blade.php'),
                 'changefreq' => 'weekly',
                 'priority' => '0.7',
             ],
