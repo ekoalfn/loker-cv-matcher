@@ -41,6 +41,7 @@ return [
     'models' => [
         'summarizer' => env('AI_MODEL_SUMMARIZER', 'meta-llama/llama-3.1-8b-instruct:free'),
         'cv_matcher' => env('AI_MODEL_CV_MATCHER', 'meta-llama/llama-3.1-8b-instruct:free'),
+        'mock_interview' => env('AI_MODEL_MOCK_INTERVIEW', env('AI_MODEL_CV_MATCHER', 'meta-llama/llama-3.1-8b-instruct:free')),
         'fallback' => env('AI_MODEL_FALLBACK', 'mistralai/mistral-7b-instruct:free'),
     ],
 

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CvScanController;
 use App\Http\Controllers\JobController;
+use App\Http\Controllers\MockInterviewController;
 use App\Http\Controllers\ScraperController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +30,13 @@ Route::view('/about', 'pages.about')->name('about');
 Route::get('/cv-matcher', [CvScanController::class, 'index'])->name('cv-matcher.index');
 Route::post('/cv-scan', [CvScanController::class, 'store'])->name('cv-scan.store');
 Route::get('/cv-scan/{id}/status', [CvScanController::class, 'status'])->name('cv-scan.status');
+
+// Mock Interview
+Route::get('/mock-interview', [MockInterviewController::class, 'index'])->name('mock-interview.index');
+Route::post('/mock-interview/start', [MockInterviewController::class, 'start'])->name('mock-interview.start');
+Route::get('/mock-interview/{token}', [MockInterviewController::class, 'show'])->name('mock-interview.show');
+Route::post('/mock-interview/{token}/reply', [MockInterviewController::class, 'reply'])->name('mock-interview.reply');
+Route::post('/mock-interview/{token}/finish', [MockInterviewController::class, 'finish'])->name('mock-interview.finish');
 
 // Scraper Admin (password-protected via session)
 Route::prefix('scraper')->group(function () {
