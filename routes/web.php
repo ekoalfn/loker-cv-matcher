@@ -6,6 +6,11 @@ use App\Http\Controllers\ScraperController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
+
+Route::domain('promo.lamaraja.web.id')->group(function (): void {
+    Route::view('/', 'pages.portfolio')->name('portfolio.promo');
+});
+
 // SEO
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
@@ -19,12 +24,9 @@ Route::get('/jobs/{slug}/apply', [JobController::class, 'apply'])->name('jobs.ap
 
 // Static Pages
 Route::view('/about', 'pages.about')->name('about');
-Route::view('/cv-matcher', 'pages.cv-matcher')->name('cv-matcher');
 
 // CV Scan
-Route::get('/cv-matcher', function () {
-    return view('pages.cv-matcher');
-})->name('cv-matcher.index');
+Route::get('/cv-matcher', [CvScanController::class, 'index'])->name('cv-matcher.index');
 Route::post('/cv-scan', [CvScanController::class, 'store'])->name('cv-scan.store');
 Route::get('/cv-scan/{id}/status', [CvScanController::class, 'status'])->name('cv-scan.status');
 

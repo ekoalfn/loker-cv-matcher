@@ -38,6 +38,11 @@
                 @if($job->company_logo)
                     <img src="{{ $job->company_logo }}"
                          alt="{{ $job->company }}"
+                         width="56"
+                         height="56"
+                         decoding="async"
+                         fetchpriority="high"
+                         referrerpolicy="no-referrer"
                          class="w-14 h-14 rounded-2xl object-contain shrink-0 border border-slate-200 bg-white p-1"
                          style="box-shadow: 0 2px 8px rgba(0,0,0,0.10);"
                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -186,7 +191,7 @@
 
                 <div class="job-description-wrapper">
                     <div class="job-description-content text-sm md:text-[15px] text-slate-600">
-                        {!! Str::markdown($job->description_raw) !!}
+                        {!! \App\Support\JobDescriptionFormatter::toHtml($job->description_raw) !!}
                     </div>
                 </div>
             </section>
@@ -511,8 +516,55 @@
     </script>
 
     @php
-        $jobLd = json_encode(['@context'=>'https://schema.org','@type'=>'JobPosting','title'=>$job->title,'description'=>Str::limit($job->description_raw??$job->summary_ai??$job->title,5000),'datePosted'=>$job->created_at->toIso8601String(),'validThrough'=>($job->expires_at ?? $job->created_at->addDays(60))->toIso8601String(),'hiringOrganization'=>['@type'=>'Organization','name'=>$job->company,'logo'=>$job->company_logo ?? null],'jobLocation'=>['@type'=>'Place','address'=>['@type'=>'PostalAddress','addressLocality'=>$job->location??'Indonesia','addressCountry'=>'ID']],'employmentType'=>strtoupper(str_replace('-','_',is_object($job->employment_type)?$job->employment_type->value:($job->employment_type??'FULL_TIME'))),'directApply'=>false], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
-        $breadcrumbLd = json_encode(['@context'=>'https://schema.org','@type'=>'BreadcrumbList','itemListElement'=>[['@type'=>'ListItem','position'=>1,'name'=>'Beranda','item'=>url('/')],['@type'=>'ListItem','position'=>2,'name'=>'Lowongan','item'=>route('jobs.index')],['@type'=>'ListItem','position'=>3,'name'=>$job->title]]], JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
+        $schemaDescription = trim(strip_tags(html_entity_decode($job->description_raw ?? $job->summary_ai ?? $job->title, ENT_QUOTES | ENT_HTML5)));
+
+        $jobPosting = [
+            chr(64) . 'context' => 'https://schema.org',
+            '@type' => 'JobPosting',
+            'title' => $job->title,
+            'description' => Str::limit($schemaDescription, 5000),
+            'datePosted' => $job->created_at->toIso8601String(),
+            'validThrough' => ($job->expires_at ?? $job->created_at->copy()->addDays(60))->toIso8601String(),
+            'hiringOrganization' => array_filter([
+                '@type' => 'Organization',
+                'name' => $job->company,
+                'logo' => $job->company_logo,
+            ]),
+            'jobLocation' => [
+                '@type' => 'Place',
+                'address' => [
+                    '@type' => 'PostalAddress',
+                    'addressLocality' => $job->location ?? 'Indonesia',
+                    'addressCountry' => 'ID',
+                ],
+            ],
+            'employmentType' => strtoupper(str_replace('-', '_', is_object($job->employment_type) ? $job->employment_type->value : ($job->employment_type ?? 'FULL_TIME'))),
+            'directApply' => false,
+        ];
+
+        if ($job->salary_min || $job->salary_max) {
+            $jobPosting['baseSalary'] = [
+                '@type' => 'MonetaryAmount',
+                'currency' => $job->salary_currency ?? 'IDR',
+                'value' => array_filter([
+                    '@type' => 'QuantitativeValue',
+                    'minValue' => $job->salary_min,
+                    'maxValue' => $job->salary_max,
+                    'unitText' => 'MONTH',
+                ], fn ($value) => ! is_null($value)),
+            ];
+        }
+
+        $jobLd = json_encode($jobPosting, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $breadcrumbLd = json_encode([
+            chr(64) . 'context' => 'https://schema.org',
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => [
+                ['@type' => 'ListItem', 'position' => 1, 'name' => 'Beranda', 'item' => url('/')],
+                ['@type' => 'ListItem', 'position' => 2, 'name' => 'Lowongan', 'item' => route('jobs.index')],
+                ['@type' => 'ListItem', 'position' => 3, 'name' => $job->title],
+            ],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     @endphp
     {!! '<script type="application/ld+json">' . $jobLd . '</script>' !!}
     {!! '<script type="application/ld+json">' . $breadcrumbLd . '</script>' !!}

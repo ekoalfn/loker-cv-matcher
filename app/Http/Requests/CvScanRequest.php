@@ -23,7 +23,6 @@ class CvScanRequest extends FormRequest
     {
         return [
             'pdf_file' => ['required', 'file', 'mimes:pdf', 'max:5120'],
-            'job_id' => ['required', 'exists:jobs,id'],
         ];
     }
 
@@ -39,8 +38,6 @@ class CvScanRequest extends FormRequest
             'pdf_file.file' => 'CV harus berupa file yang valid.',
             'pdf_file.mimes' => 'CV harus dalam format PDF.',
             'pdf_file.max' => 'Ukuran file CV maksimal 5MB.',
-            'job_id.required' => 'Lowongan kerja wajib dipilih.',
-            'job_id.exists' => 'Lowongan kerja yang dipilih tidak ditemukan.',
         ];
     }
 }

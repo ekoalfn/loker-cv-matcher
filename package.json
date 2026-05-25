@@ -4,7 +4,8 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "audit:firecrawl": "node scripts/firecrawl-audit.mjs"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
@@ -17,6 +18,7 @@
     },
     "dependencies": {
         "@alpinejs/collapse": "^3.15.8",
-        "alpinejs": "^3.15.8"
+        "alpinejs": "^3.15.8",
+        "firecrawl": "^4.23.0"
     }
 }

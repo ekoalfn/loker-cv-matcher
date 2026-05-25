@@ -1,6 +1,14 @@
+@php
+    $bulanIndonesia = [
+        1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+        5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+        9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+    ][(int) date('n')];
+@endphp
+
 <x-layout
-    title="Lowongan Kerja Terbaru {{ date('F Y') }} - Cari Loker | Lamaraja"
-    description="Lamaraja bantu kamu cari lowongan kerja dari berbagai sumber. Dirangkum AI, gratis, dan update setiap hari."
+    title="Lowongan Kerja Terbaru {{ $bulanIndonesia }} {{ date('Y') }} - Cari Loker | Lamaraja"
+    description="Cari lowongan kerja terbaru di Indonesia dari berbagai sumber. Lamaraja merangkum loker dengan AI dan menyediakan CV Matcher gratis."
 >
 
     {{-- HERO --}}
@@ -9,17 +17,17 @@
             <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
                 {{-- Left: Heading & Search --}}
                 <div class="animate-fade-up">
-                    <h1 class="font-[family-name:var(--font-display)] text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-[1.1] tracking-tight">
-                        Find the right job,<br>
-                        <span class="text-emerald-600">smarter</span> with AI. <span class="inline-block">✨</span>
+                    <h1 class="font-[family-name:var(--font-display)] text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-[1.1] tracking-tight">
+                        Cari lowongan kerja,<br>
+                        <span class="text-emerald-600">lebih cepat</span> dengan AI. <span class="inline-block">✨</span>
                     </h1>
                     <p class="mt-6 text-base md:text-lg text-slate-600 leading-relaxed max-w-xl">
-                        We aggregate job listings from top sources and use AI to summarize job descriptions — so you can understand opportunities in seconds, not minutes.
+                        Lamaraja mengumpulkan loker dari berbagai sumber dan merangkumnya dengan AI, supaya kamu bisa memahami peluang kerja dalam hitungan detik.
                     </p>
 
                     {{-- Search Bar --}}
                     <div class="mt-8 animate-fade-up delay-100">
-                        <form action="{{ route('jobs.index') }}" method="GET" class="flex flex-col sm:flex-row gap-3">
+                        <form action="{{ route('jobs.index') }}" method="GET" class="flex flex-col md:flex-row gap-3">
                             <div class="flex-1 relative">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -27,7 +35,7 @@
                                 <input
                                     type="text"
                                     name="keyword"
-                                    placeholder="Job title, keyword or skill"
+                                    placeholder="Posisi, skill, atau kata kunci"
                                     class="w-full h-14 pl-12 pr-4 rounded-xl border-2 border-slate-200 bg-white text-slate-900 placeholder-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all outline-none"
                                 >
                             </div>
@@ -39,7 +47,7 @@
                                 <input
                                     type="text"
                                     name="location"
-                                    placeholder="Location"
+                                    placeholder="Lokasi"
                                     class="w-full h-14 pl-12 pr-4 rounded-xl border-2 border-slate-200 bg-white text-slate-900 placeholder-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all outline-none"
                                 >
                             </div>
@@ -47,19 +55,19 @@
                                 type="submit"
                                 class="h-14 px-8 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-emerald-600/25 hover:shadow-xl hover:shadow-emerald-600/30 active:scale-[0.98]"
                             >
-                                Search Jobs
+                                Cari Loker
                             </button>
                         </form>
                     </div>
 
                     {{-- Job Sources --}}
                     <div class="mt-8 flex flex-wrap items-center gap-4 animate-fade-up delay-200">
-                        <span class="text-sm text-slate-500 font-medium">We aggregate jobs from</span>
-                        <div class="flex items-center gap-4">
+                        <span class="text-sm text-slate-500 font-medium">Loker dikumpulkan dari</span>
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
                             <span class="text-[#0077B5] font-bold text-lg">Linked<span class="bg-[#0077B5] text-white px-1 rounded">in</span></span>
                             <span class="text-[#2164f3] font-bold text-lg">indeed</span>
                             <span class="text-[#0caa41] font-bold text-lg">glassdoor</span>
-                            <span class="text-slate-400 text-sm">and more</span>
+                            <span class="text-slate-400 text-sm">dan sumber lain</span>
                         </div>
                     </div>
                 </div>
@@ -79,7 +87,7 @@
                             <div class="grid grid-cols-2 gap-4">
                                 {{-- Original Job Description --}}
                                 <div>
-                                    <div class="text-xs font-semibold text-slate-500 mb-3">Original Job Description</div>
+                                    <div class="text-xs font-semibold text-slate-500 mb-3">Deskripsi asli lowongan</div>
                                     <div class="space-y-2">
                                         <div class="h-2 skeleton-shimmer rounded w-full" style="animation-delay: 0s"></div>
                                         <div class="h-2 skeleton-shimmer rounded w-5/6" style="animation-delay: 0.15s"></div>
@@ -94,37 +102,37 @@
 
                                 {{-- AI Summary --}}
                                 <div class="relative">
-                                    <div class="text-xs font-semibold text-slate-500 mb-3">AI Summary</div>
+                                    <div class="text-xs font-semibold text-slate-500 mb-3">Ringkasan AI</div>
                                     <div class="space-y-3">
                                         <div class="flex items-start gap-2 ai-summary-item">
                                             <svg class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                             </svg>
-                                            <span class="text-xs text-slate-600">Key responsibilities</span>
+                                            <span class="text-xs text-slate-600">Tanggung jawab utama</span>
                                         </div>
                                         <div class="flex items-start gap-2 ai-summary-item">
                                             <svg class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                             </svg>
-                                            <span class="text-xs text-slate-600">Required skills</span>
+                                            <span class="text-xs text-slate-600">Skill yang dibutuhkan</span>
                                         </div>
                                         <div class="flex items-start gap-2 ai-summary-item">
                                             <svg class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                             </svg>
-                                            <span class="text-xs text-slate-600">Experience</span>
+                                            <span class="text-xs text-slate-600">Pengalaman</span>
                                         </div>
                                         <div class="flex items-start gap-2 ai-summary-item">
                                             <svg class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                             </svg>
-                                            <span class="text-xs text-slate-600">Nice to have</span>
+                                            <span class="text-xs text-slate-600">Nilai tambah</span>
                                         </div>
                                         <div class="flex items-start gap-2 ai-summary-item">
                                             <svg class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                             </svg>
-                                            <span class="text-xs text-slate-600">What you'll get</span>
+                                            <span class="text-xs text-slate-600">Benefit yang ditawarkan</span>
                                         </div>
                                     </div>
                                 </div>
@@ -133,7 +141,7 @@
                             {{-- Bottom CTA --}}
                             <div class="mt-6 pt-4 border-t border-slate-100">
                                 <div class="flex items-center justify-between">
-                                    <span class="text-xs text-emerald-600 font-semibold">Save time. Understand faster. Apply smarter.</span>
+                                    <span class="text-xs text-emerald-600 font-semibold">Hemat waktu. Pahami cepat. Lamar lebih yakin.</span>
                                     <div class="robot-illustration">
                                         <svg class="w-16 h-16" viewBox="0 0 64 64" fill="none">
                                             <circle cx="32" cy="32" r="28" fill="#10B981" opacity="0.1"/>
@@ -171,15 +179,15 @@
 
     {{-- RECENT JOBS --}}
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        <div class="flex items-center justify-between mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
             <div>
                 <h2 class="font-[family-name:var(--font-display)] text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
-                    Latest Jobs <span class="text-emerald-600">for You</span>
+                    Lowongan Terbaru <span class="text-emerald-600">untuk Kamu</span>
                 </h2>
-                <p class="text-sm text-slate-500 mt-1">AI summarized. Personalized. Relevant.</p>
+                <p class="text-sm text-slate-500 mt-1">Diringkas AI, relevan, dan siap dilamar.</p>
             </div>
-            <a href="{{ route('jobs.index') }}" class="flex items-center gap-2 text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition-colors">
-                View all jobs
+            <a href="{{ route('jobs.index') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition-colors">
+                Lihat semua lowongan
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
                 </svg>
@@ -194,7 +202,7 @@
             </div>
             <div class="mt-10 text-center">
                 <a href="{{ route('jobs.index') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-emerald-600/25 hover:shadow-xl hover:shadow-emerald-600/30 active:scale-[0.98]">
-                    View All Jobs
+                    Lihat Semua Lowongan
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
                     </svg>
@@ -202,8 +210,8 @@
             </div>
         @else
             <div class="bg-white rounded-xl border border-slate-200 text-center py-16 px-6">
-                <p class="font-[family-name:var(--font-display)] text-lg font-bold text-slate-700">No jobs available yet</p>
-                <p class="mt-1.5 text-sm text-slate-400">New jobs will appear soon!</p>
+                <p class="font-[family-name:var(--font-display)] text-lg font-bold text-slate-700">Belum ada lowongan tersedia</p>
+                <p class="mt-1.5 text-sm text-slate-400">Lowongan baru akan segera tampil.</p>
             </div>
         @endif
     </section>
@@ -337,8 +345,5 @@
             </div>
         </div>
     </section>
-
-    {{-- Structured Data --}}
-    {!! '<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Lamaraja","url":"' . url('/') . '","inLanguage":"id","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"' . url('/jobs') . '?keyword={search_term_string}"},"query-input":"required name=search_term_string"}}</script>' !!}
 
 </x-layout>

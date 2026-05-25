@@ -6,6 +6,8 @@ use App\Contracts\AiServiceInterface;
 use App\Enums\CvScanStatus;
 use App\Http\Requests\CvScanRequest;
 use App\Models\CvScan;
+use App\Models\Job;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -17,6 +19,14 @@ class CvScanController extends Controller
     public function __construct(
         private readonly AiServiceInterface $ai,
     ) {}
+
+    /**
+     * Show the CV Matcher page.
+     */
+    public function index(): View
+    {
+        return view('pages.cv-matcher');
+    }
 
     /**
      * POST /cv-scan — upload CV, proses langsung (synchronous).
@@ -35,12 +45,7 @@ class CvScanController extends Controller
         $path = $request->file('pdf_file')->store('temp-cv');
         $startTime = microtime(true);
 
-        $scan = CvScan::create([
-            'user_id' => auth()->id(),
-            'job_id' => $request->job_id,
-            'status' => CvScanStatus::Processing,
-            'ip_address' => $ip,
-        ]);
+        $scans = collect();
 
         try {
             // 1. Extract text from PDF (pure PHP, no external binary)
@@ -53,69 +58,95 @@ class CvScanController extends Controller
                 throw new \RuntimeException('Tidak bisa membaca teks dari PDF. File mungkin berupa gambar.');
             }
 
-            // 2. Get job description
-            $job = $scan->job;
-            if (! $job) {
-                throw new \RuntimeException('Lowongan tidak ditemukan.');
+            $jobs = $this->candidateJobs($cvText);
+            if ($jobs->isEmpty()) {
+                throw new \RuntimeException('Belum ada lowongan aktif yang bisa dicocokkan.');
             }
-            $jobDescription = $job->description_raw ?: $job->summary_ai ?: $job->title;
 
-            // 3. Call AI (synchronous)
-            Log::info('CV Matcher input', [
-                'scan_id' => $scan->id,
-                'cv_length' => strlen($cvText),
-                'job_desc_length' => strlen($jobDescription),
-                'cv_preview' => mb_substr($cvText, 0, 200),
-                'job_preview' => mb_substr($jobDescription, 0, 200),
-            ]);
+            $matches = [];
+            $totalTokens = 0;
 
-            $result = $this->ai->matchCv($cvText, $jobDescription);
+            foreach ($jobs as $job) {
+                $scan = CvScan::create([
+                    'user_id' => auth()->id(),
+                    'job_id' => $job->id,
+                    'status' => CvScanStatus::Processing,
+                    'ip_address' => $ip,
+                ]);
+                $scans->push($scan);
 
-            Log::info('CV Matcher AI response', [
-                'scan_id' => $scan->id,
-                'model' => $result['model'],
-                'tokens_used' => $result['tokens_used'],
-                'match_score' => $result['match_score'],
-                'strengths_count' => count($result['strengths']),
-                'weaknesses_count' => count($result['weaknesses']),
-            ]);
+                $jobDescription = $this->jobPromptText($job);
 
-            // 4. Save results
-            $scan->update([
-                'status' => CvScanStatus::Completed,
-                'match_score' => $result['match_score'],
-                'strengths' => $result['strengths'],
-                'weaknesses' => $result['weaknesses'],
-                'suggestions' => $result['suggestions'],
-                'ai_model_used' => $result['model'],
-                'tokens_used' => $result['tokens_used'],
-                'processing_time_ms' => (int) ((microtime(true) - $startTime) * 1000),
-            ]);
+                Log::info('CV Matcher input', [
+                    'scan_id' => $scan->id,
+                    'job_id' => $job->id,
+                    'cv_length' => strlen($cvText),
+                    'job_desc_length' => strlen($jobDescription),
+                    'cv_preview' => mb_substr($cvText, 0, 200),
+                    'job_preview' => mb_substr($jobDescription, 0, 200),
+                ]);
 
-            return response()->json([
-                'scan_id' => $scan->id,
-                'status' => 'completed',
-                'result' => [
+                $result = $this->ai->matchCv($cvText, $jobDescription);
+                $totalTokens += $result['tokens_used'];
+
+                $scan->update([
+                    'status' => CvScanStatus::Completed,
                     'match_score' => $result['match_score'],
                     'strengths' => $result['strengths'],
                     'weaknesses' => $result['weaknesses'],
                     'suggestions' => $result['suggestions'],
+                    'ai_model_used' => $result['model'],
+                    'tokens_used' => $result['tokens_used'],
+                    'processing_time_ms' => (int) ((microtime(true) - $startTime) * 1000),
+                ]);
+
+                $matches[] = [
+                    'scan_id' => $scan->id,
+                    'job' => [
+                        'id' => $job->id,
+                        'title' => $job->title,
+                        'company' => $job->company,
+                        'location' => $job->location,
+                        'employment_type' => $job->employment_type?->value ?? (string) $job->employment_type,
+                        'company_logo' => $job->company_logo,
+                        'url' => route('jobs.show', $job),
+                    ],
+                    'match_score' => $result['match_score'],
+                    'strengths' => $result['strengths'],
+                    'weaknesses' => $result['weaknesses'],
+                    'suggestions' => $result['suggestions'],
+                ];
+            }
+
+            usort($matches, fn (array $a, array $b): int => $b['match_score'] <=> $a['match_score']);
+
+            Log::info('CV Matcher completed', [
+                'matches_count' => count($matches),
+                'top_score' => $matches[0]['match_score'] ?? null,
+                'tokens_used' => $totalTokens,
+            ]);
+
+            return response()->json([
+                'status' => 'completed',
+                'result' => [
+                    'matches' => $matches,
                 ],
             ]);
 
         } catch (\Throwable $e) {
-            $scan->update([
-                'status' => CvScanStatus::Failed,
-                'processing_time_ms' => (int) ((microtime(true) - $startTime) * 1000),
-            ]);
+            $scans->each(function (CvScan $scan) use ($startTime): void {
+                $scan->update([
+                    'status' => CvScanStatus::Failed,
+                    'processing_time_ms' => (int) ((microtime(true) - $startTime) * 1000),
+                ]);
+            });
 
             Log::error('CV scan failed', [
-                'scan_id' => $scan->id,
+                'scan_ids' => $scans->pluck('id')->all(),
                 'error' => $e->getMessage(),
             ]);
 
             return response()->json([
-                'scan_id' => $scan->id,
                 'status' => 'failed',
                 'message' => 'Analisis gagal. ' . $e->getMessage(),
             ], 500);
@@ -124,6 +155,68 @@ class CvScanController extends Controller
             // Zero-retention: always delete temp PDF
             Storage::delete($path);
         }
+    }
+
+    /**
+     * Pick a small, relevant candidate set before using AI so users do not need to select a job manually.
+     */
+    private function candidateJobs(string $cvText)
+    {
+        $keywords = collect(preg_split('/[^a-z0-9+#.]+/i', strtolower($cvText)))
+            ->filter(fn (?string $word): bool => is_string($word) && strlen($word) >= 3)
+            ->reject(fn (string $word): bool => in_array($word, [
+                'and', 'the', 'for', 'with', 'from', 'this', 'that', 'you', 'your', 'ini', 'dan', 'yang', 'untuk', 'dengan', 'dari', 'atau',
+                'curriculum', 'vitae', 'resume', 'email', 'phone', 'address', 'linkedin',
+            ], true))
+            ->countBy()
+            ->sortDesc()
+            ->keys()
+            ->take(20)
+            ->values();
+
+        $jobs = Job::query()
+            ->active()
+            ->latest()
+            ->limit(80)
+            ->get();
+
+        return $jobs
+            ->map(function (Job $job) use ($keywords) {
+                $haystack = strtolower(implode(' ', array_filter([
+                    $job->title,
+                    $job->company,
+                    $job->location,
+                    $job->summary_ai,
+                    is_array($job->tags) ? implode(' ', $job->tags) : null,
+                    mb_substr((string) $job->description_raw, 0, 1200),
+                ])));
+
+                $score = $keywords->reduce(
+                    fn (int $carry, string $keyword): int => $carry + (str_contains($haystack, $keyword) ? 1 : 0),
+                    0
+                );
+
+                $job->setAttribute('candidate_score', $score);
+
+                return $job;
+            })
+            ->sortByDesc('candidate_score')
+            ->take(5)
+            ->values();
+    }
+
+    private function jobPromptText(Job $job): string
+    {
+        return trim(sprintf(
+            "Posisi: %s\nPerusahaan: %s\nLokasi: %s\nTipe: %s\nTags: %s\nRingkasan: %s\nDeskripsi: %s",
+            $job->title,
+            $job->company,
+            $job->location ?: '-',
+            $job->employment_type?->value ?? (string) $job->employment_type,
+            is_array($job->tags) ? implode(', ', $job->tags) : '-',
+            $job->summary_ai ?: '-',
+            mb_substr((string) ($job->description_raw ?: $job->title), 0, 2500)
+        ));
     }
 
     /**

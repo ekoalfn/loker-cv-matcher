@@ -37,6 +37,7 @@ class JobIngestRequest extends FormRequest
             'jobs.*.salary_currency' => 'nullable|string|max:3',
             'jobs.*.description_raw' => 'nullable|string',
             'jobs.*.summary_ai' => 'nullable|string',
+            'jobs.*.company_logo' => 'nullable|url|max:2048',
             'jobs.*.tags' => 'nullable|array',
             'jobs.*.tags.*' => 'string',
             'jobs.*.source_url' => 'required|url|max:2048',

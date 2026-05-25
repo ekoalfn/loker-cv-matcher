@@ -45,6 +45,34 @@ class SitemapController extends Controller
         $xml .= '<priority>0.8</priority>';
         $xml .= '</url>';
 
+        $staticPages = [
+            [
+                'url' => route('cv-matcher.index'),
+                'view' => resource_path('views/pages/cv-matcher.blade.php'),
+                'changefreq' => 'weekly',
+                'priority' => '0.7',
+            ],
+            [
+                'url' => route('about'),
+                'view' => resource_path('views/pages/about.blade.php'),
+                'changefreq' => 'monthly',
+                'priority' => '0.5',
+            ],
+        ];
+
+        foreach ($staticPages as $page) {
+            $lastModified = file_exists($page['view'])
+                ? date(DATE_W3C, filemtime($page['view']))
+                : $latestJobDate->toW3cString();
+
+            $xml .= '<url>';
+            $xml .= '<loc>' . $page['url'] . '</loc>';
+            $xml .= '<lastmod>' . $lastModified . '</lastmod>';
+            $xml .= '<changefreq>' . $page['changefreq'] . '</changefreq>';
+            $xml .= '<priority>' . $page['priority'] . '</priority>';
+            $xml .= '</url>';
+        }
+
         // Individual job detail pages
         foreach ($jobs as $job) {
             $xml .= '<url>';
@@ -59,7 +87,6 @@ class SitemapController extends Controller
 
         return response($xml, 200, [
             'Content-Type' => 'application/xml; charset=UTF-8',
-            'X-Robots-Tag' => 'noindex',
             'Cache-Control' => 'public, max-age=3600, s-maxage=3600',
         ]);
     }

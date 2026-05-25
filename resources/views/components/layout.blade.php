@@ -7,6 +7,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#0d9488">
     <meta name="robots" content="{{ $robots ?? 'index, follow' }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/lamaraja-logo.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/lamaraja-logo.png') }}">
 
     <title>{{ $title ?? 'Lowongan Kerja Terbaru di Indonesia - Cari Loker | Lamaraja' }}</title>
 
@@ -28,12 +30,13 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet"></noscript>
     
     {{-- Google Sitelinks Search Box Structured Data --}}
     <script type="application/ld+json">
     {!! json_encode([
-        '@context' => 'https://schema.org',
+        chr(64) . 'context' => 'https://schema.org',
         '@type' => 'WebSite',
         'name' => 'Lamaraja',
         'url' => url('/'),
@@ -51,12 +54,12 @@
     {{-- Organization Schema --}}
     <script type="application/ld+json">
     {!! json_encode([
-        '@context' => 'https://schema.org',
+        chr(64) . 'context' => 'https://schema.org',
         '@type' => 'Organization',
         'name' => 'Lamaraja',
         'url' => url('/'),
-        'logo' => url('/images/crown-logo.svg'),
-        'description' => 'AI-powered job search portal in Indonesia. Find jobs faster with AI summaries and CV matching.',
+        'logo' => url('/images/lamaraja-logo.png'),
+        'description' => 'Portal lowongan kerja Indonesia dengan ringkasan AI dan CV Matcher untuk membantu kandidat melamar lebih cepat.',
         'sameAs' => [
             'https://www.linkedin.com/company/lamaraja',
             'https://twitter.com/lamaraja',
@@ -80,7 +83,7 @@
             <div class="flex items-center justify-between h-16">
                 {{-- Logo --}}
                 <a href="{{ route('home') }}" class="flex items-center gap-2.5 interactive-focus rounded-lg group">
-                    <img src="{{ asset('images/crown-logo.svg') }}" alt="Lamaraja Crown" class="w-12 h-12 transition-transform group-hover:scale-105">
+                    <img src="{{ asset('images/lamaraja-logo.png') }}" alt="Lamaraja logo" width="48" height="48" decoding="async" fetchpriority="high" class="w-12 h-12 rounded-2xl transition-transform group-hover:scale-105">
                     <div class="flex flex-col">
                         <span class="text-slate-900 font-[family-name:var(--font-display)] text-xl font-bold leading-none">Lamaraja</span>
                         <span class="text-xs text-emerald-600 font-medium leading-none mt-0.5">Lamar aja!</span>
@@ -107,7 +110,12 @@
                             <span class="absolute -bottom-[1.125rem] left-0 right-0 h-0.5 bg-emerald-600"></span>
                         @endif
                     </a>
-                    <a href="#" class="text-sm font-semibold text-slate-700 hover:text-slate-900 transition-colors">About</a>
+                    <a href="{{ route('about') }}" class="relative text-sm font-semibold {{ request()->routeIs('about') ? 'text-emerald-600' : 'text-slate-700 hover:text-slate-900' }} transition-colors py-1">
+                        About
+                        @if(request()->routeIs('about'))
+                            <span class="absolute -bottom-[1.125rem] left-0 right-0 h-0.5 bg-emerald-600"></span>
+                        @endif
+                    </a>
                 </nav>
 
                 {{-- CTA Buttons --}}
@@ -146,7 +154,7 @@
                 <a href="{{ route('home') }}" class="block px-4 py-3 rounded-lg text-sm font-semibold transition-colors {{ request()->routeIs('home') ? 'text-emerald-600 bg-emerald-50' : 'text-slate-700 hover:bg-slate-50' }}">Home</a>
                 <a href="{{ route('jobs.index') }}" class="block px-4 py-3 rounded-lg text-sm font-semibold transition-colors {{ request()->routeIs('jobs.*') ? 'text-emerald-600 bg-emerald-50' : 'text-slate-700 hover:bg-slate-50' }}">Jobs</a>
                 <a href="{{ route('cv-matcher.index') }}" class="block px-4 py-3 rounded-lg text-sm font-semibold transition-colors {{ request()->routeIs('cv-matcher.*') ? 'text-emerald-600 bg-emerald-50' : 'text-slate-700 hover:bg-slate-50' }}">CV Matcher</a>
-                <a href="#" class="block px-4 py-3 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">About</a>
+                <a href="{{ route('about') }}" class="block px-4 py-3 rounded-lg text-sm font-semibold transition-colors {{ request()->routeIs('about') ? 'text-emerald-600 bg-emerald-50' : 'text-slate-700 hover:bg-slate-50' }}">About</a>
                 <div class="pt-3 space-y-2">
                     <button class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-slate-50 rounded-lg">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -173,7 +181,7 @@
                 {{-- Logo & Description --}}
                 <div class="lg:col-span-2">
                     <div class="flex items-center gap-2.5 mb-4">
-                        <img src="{{ asset('images/crown-logo.svg') }}" alt="Lamaraja Crown" class="w-12 h-12 brightness-0 invert">
+                        <img src="{{ asset('images/lamaraja-logo.png') }}" alt="Lamaraja logo" width="48" height="48" loading="lazy" decoding="async" class="w-12 h-12 rounded-2xl">
                         <div class="flex flex-col">
                             <span class="text-white font-[family-name:var(--font-display)] text-xl font-bold leading-none">Lamaraja</span>
                             <span class="text-xs text-emerald-400 font-medium leading-none mt-0.5">Lamar aja!</span>
@@ -220,7 +228,7 @@
                 <div class="max-w-md">
                     <h3 class="text-white font-semibold text-sm mb-2">Stay in the loop</h3>
                     <p class="text-slate-400 text-sm mb-4">Get the latest job tips and opportunities.</p>
-                    <form class="flex gap-2">
+                    <form class="flex flex-col sm:flex-row gap-2">
                         <input 
                             type="email" 
                             placeholder="Enter your email" 
