@@ -24,16 +24,18 @@ Artisan::command('lamaraja:refresh-jobs {--limit= : Optional per-source limit fo
 
 Artisan::command('lamaraja:job-quality', function (): int {
     $active = \App\Models\Job::active()->count();
-    $missingLogo = \App\Models\Job::active()
-        ->where(function ($query): void {
-            $query->whereNull('company_logo')->orWhere('company_logo', '');
-        })
+    $withLogo = \App\Models\Job::active()
+        ->whereNotNull('company_logo')
+        ->where('company_logo', '<>', '')
         ->count();
+    $missingLogo = $active - $withLogo;
 
     $this->info(json_encode([
         'active' => $active,
+        'with_logo' => $withLogo,
         'missing_logo' => $missingLogo,
+        'logo_coverage_percent' => $active > 0 ? round(($withLogo / $active) * 100, 2) : 0,
     ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
     return $missingLogo === 0 ? 0 : 1;
-})->purpose('Report active job quality counts for Lamaraja.');
+})->purpose('Report active job quality counts and logo coverage for Lamaraja.');
