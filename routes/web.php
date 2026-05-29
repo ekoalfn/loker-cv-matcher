@@ -14,12 +14,15 @@ Route::domain('promo.lamaraja.web.id')->group(function (): void {
 
 // SEO
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/sitemap-pages.xml', [SitemapController::class, 'pages'])->name('sitemap.pages');
+Route::get('/sitemap-jobs-{page}.xml', [SitemapController::class, 'jobs'])->whereNumber('page')->name('sitemap.jobs');
 
 // Home
 Route::get('/', [JobController::class, 'index'])->name('home');
 
 // Jobs
 Route::get('/jobs', [JobController::class, 'list'])->name('jobs.index');
+Route::get('/lowongan/{slug}', [JobController::class, 'landing'])->name('jobs.landing');
 Route::get('/jobs/{slug}', [JobController::class, 'show'])->name('jobs.show');
 Route::get('/jobs/{slug}/apply', [JobController::class, 'apply'])->name('jobs.apply');
 

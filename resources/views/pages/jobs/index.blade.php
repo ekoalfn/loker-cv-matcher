@@ -1,20 +1,23 @@
 @php
-    $pageTitle = 'Cari Lowongan Kerja Terbaru';
-    if ($filters->keyword ?? false) {
-        $pageTitle = 'Lowongan ' . ucfirst($filters->keyword);
+    $pageTitle = $landing['title'] ?? 'Cari Lowongan Kerja Terbaru';
+    if (! isset($landing)) {
+        if ($filters->keyword ?? false) {
+            $pageTitle = 'Lowongan ' . ucfirst($filters->keyword);
+        }
+        if ($filters->location ?? false) {
+            $locationStr = is_array($filters->location) ? implode(', ', $filters->location) : $filters->location;
+            $pageTitle .= ' di ' . $locationStr;
+        }
+        $pageTitle .= ' - Lamaraja';
     }
-    if ($filters->location ?? false) {
-        $locationStr = is_array($filters->location) ? implode(', ', $filters->location) : $filters->location;
-        $pageTitle .= ' di ' . $locationStr;
-    }
-    $pageTitle .= ' - Lamaraja';
 
-    // Prevent Google from indexing filtered/paginated pages to save crawl budget
+    // Index only curated landing pages and the main listing; keep ad-hoc filters out of the index.
     $hasFilters = ($filters->keyword ?? false) || ($filters->location ?? false) || !empty($filters->employmentType ?? []);
     $isPaginated = request()->has('page') && request()->get('page') > 1;
-    $shouldNoindex = $hasFilters || $isPaginated;
+    $shouldNoindex = (! isset($landing) && $hasFilters) || $isPaginated;
     $robotsMeta = $shouldNoindex ? 'noindex, follow' : 'index, follow';
-    $canonicalUrl = route('jobs.index');
+    $canonicalUrl = isset($landing) ? route('jobs.landing', request()->route('slug')) : route('jobs.index');
+    $metaDescription = $landing['description'] ?? 'Cari lowongan kerja terbaru di Indonesia dari berbagai sumber terpercaya. Lamaraja merangkum loker dengan AI dan menyediakan CV Matcher gratis.';
 @endphp
 @php
     $breadcrumbLd = json_encode([
@@ -49,7 +52,7 @@
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 @endphp
 
-<x-layout :title="$pageTitle" :robots="$robotsMeta" :canonical="$canonicalUrl">
+<x-layout :title="$pageTitle" :description="$metaDescription" :robots="$robotsMeta" :canonical="$canonicalUrl">
 
     {!! '<script type="application/ld+json">' . $breadcrumbLd . '</script>' !!}
     {!! '<script type="application/ld+json">' . $itemListLd . '</script>' !!}
@@ -60,11 +63,19 @@
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
                 <div class="flex-1">
                     <h1 class="font-[family-name:var(--font-display)] text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-3">
-                        Semua <span class="text-emerald-600">Lowongan</span>
+                        @if(isset($landing))
+                            {{ $landing['heading'] }}
+                        @else
+                            Semua <span class="text-emerald-600">Lowongan</span>
+                        @endif
                     </h1>
                     <p class="text-slate-600 text-base md:text-lg max-w-2xl">
-                        Temukan loker dari berbagai perusahaan dan sumber terpercaya.<br>
-                        Ringkasan AI membantu kamu memahami peluang kerja lebih cepat.
+                        @if(isset($landing))
+                            {{ $landing['intro'] ?? $landing['description'] }}
+                        @else
+                            Temukan loker dari berbagai perusahaan dan sumber terpercaya.<br>
+                            Ringkasan AI membantu kamu memahami peluang kerja lebih cepat.
+                        @endif
                     </p>
                 </div>
                 <div class="hidden lg:block">

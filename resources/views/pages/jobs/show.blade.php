@@ -3,6 +3,7 @@
     :description="Str::limit($job->summary_ai ?? $job->title . ' di ' . $job->company, 160)"
     ogType="article"
     :canonical="route('jobs.show', $job->slug)"
+    :robots="($jobClosed ?? false) ? 'noindex, follow' : 'index, follow'"
 >
 
     @php
@@ -31,6 +32,14 @@
                 <li class="text-slate-600 font-medium truncate max-w-[200px] sm:max-w-none" aria-current="page">{{ $job->title }}</li>
             </ol>
         </nav>
+
+        @if($jobClosed ?? false)
+            <section class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-amber-900">
+                <p class="text-sm font-bold">Lowongan ini sudah ditutup</p>
+                <p class="mt-1 text-sm">Detail lama tetap tersedia sebagai referensi. Lihat lowongan terkait atau kembali ke daftar lowongan aktif sebelum melamar.</p>
+                <a href="{{ route('jobs.index') }}" class="mt-3 inline-flex text-sm font-semibold text-amber-800 underline">Lihat lowongan aktif</a>
+            </section>
+        @endif
 
         {{-- Job Header --}}
         <header class="mb-8 animate-fade-up">
@@ -130,7 +139,7 @@
                         <div class="flex-1">
                             <p class="text-xs font-semibold text-amber-700 mb-1.5">Ringkasan AI</p>
                             <div class="text-sm text-stone-600 leading-relaxed markdown-content">
-                                {!! Str::markdown($job->summary_ai ?? '') !!}
+                                {!! \App\Support\JobDescriptionFormatter::toHtml($job->summary_ai ?? '') !!}
                             </div>
                         </div>
                     </div>
@@ -202,14 +211,22 @@
         {{-- Apply CTA --}}
         <section class="mb-8 animate-fade-up delay-300">
             <div class="surface rounded-2xl p-6 md:p-8 text-center  ">
-                <h2 class="text-lg font-bold text-slate-800 mb-1.5">Tertarik dengan posisi ini?</h2>
-                <p class="text-sm text-stone-500 mb-5">Lamar langsung di situs resmi perusahaan.</p>
-                <x-button variant="accent" :href="route('jobs.apply', $job)" rel="nofollow noopener">
-                    Lamar Sekarang
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                </x-button>
+                @if($jobClosed ?? false)
+                    <h2 class="text-lg font-bold text-slate-800 mb-1.5">Lowongan ini tidak lagi menerima lamaran</h2>
+                    <p class="text-sm text-stone-500 mb-5">Cari lowongan aktif lain yang masih relevan untuk profilmu.</p>
+                    <x-button variant="accent" :href="route('jobs.index')">
+                        Cari Lowongan Aktif
+                    </x-button>
+                @else
+                    <h2 class="text-lg font-bold text-slate-800 mb-1.5">Tertarik dengan posisi ini?</h2>
+                    <p class="text-sm text-stone-500 mb-5">Lamar langsung di situs resmi perusahaan.</p>
+                    <x-button variant="accent" :href="route('jobs.apply', $job)" rel="nofollow noopener">
+                        Lamar Sekarang
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                    </x-button>
+                @endif
             </div>
         </section>
 
@@ -523,6 +540,12 @@
             '@type' => 'JobPosting',
             'title' => $job->title,
             'description' => Str::limit($schemaDescription, 5000),
+            'identifier' => [
+                '@type' => 'PropertyValue',
+                'name' => 'Lamaraja',
+                'value' => (string) $job->id,
+            ],
+            'url' => route('jobs.show', $job->slug),
             'datePosted' => $job->created_at->toIso8601String(),
             'validThrough' => ($job->expires_at ?? $job->created_at->copy()->addDays(60))->toIso8601String(),
             'hiringOrganization' => array_filter([
@@ -541,6 +564,14 @@
             'employmentType' => strtoupper(str_replace('-', '_', is_object($job->employment_type) ? $job->employment_type->value : ($job->employment_type ?? 'FULL_TIME'))),
             'directApply' => false,
         ];
+
+        if (str_contains(strtolower((string) $job->location), 'remote') || (is_object($job->employment_type) && $job->employment_type->value === 'remote')) {
+            $jobPosting['jobLocationType'] = 'TELECOMMUTE';
+            $jobPosting['applicantLocationRequirements'] = [
+                '@type' => 'Country',
+                'name' => 'Indonesia',
+            ];
+        }
 
         if ($job->salary_min || $job->salary_max) {
             $jobPosting['baseSalary'] = [

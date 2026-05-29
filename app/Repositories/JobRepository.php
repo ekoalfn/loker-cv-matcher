@@ -123,6 +123,18 @@ class JobRepository implements JobRepositoryInterface
     }
 
     /**
+     * Find a job by slug even if it has expired, so detail pages can preserve
+     * index equity and guide users to current alternatives instead of 404ing.
+     */
+    public function findAnyBySlug(string $slug): ?Job
+    {
+        return $this->model
+            ->withTrashed()
+            ->where('slug', $slug)
+            ->first();
+    }
+
+    /**
      * Count all active, non-expired jobs.
      */
     public function getActiveCount(): int
