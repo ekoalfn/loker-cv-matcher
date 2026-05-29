@@ -8,6 +8,7 @@ use App\Services\MockInterviewService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Smalot\PdfParser\Parser as PdfParser;
 
@@ -17,8 +18,36 @@ class MockInterviewController extends Controller
         private readonly MockInterviewService $interviews,
     ) {}
 
+    public function login(): View
+    {
+        if (session('mock_interview_authenticated')) {
+            return $this->index(request());
+        }
+
+        return view('pages.mock-interview-login');
+    }
+
+    public function authenticate(Request $request)
+    {
+        $request->validate([
+            'password' => ['required', 'string'],
+        ]);
+
+        if ($request->password !== config('mock_interview.testing_password')) {
+            return back()->withErrors(['password' => 'Password salah.']);
+        }
+
+        session(['mock_interview_authenticated' => true]);
+
+        return redirect()->route('mock-interview.index');
+    }
+
     public function index(Request $request): View
     {
+        if (! session('mock_interview_authenticated')) {
+            return view('pages.mock-interview-login');
+        }
+
         return view('pages.mock-interview', [
             'jobs' => Job::query()->active()->latest()->limit(30)->get(['id', 'title', 'company', 'location']),
             'selectedJobId' => $request->integer('job_id') ?: null,
@@ -27,6 +56,10 @@ class MockInterviewController extends Controller
 
     public function start(Request $request): JsonResponse
     {
+        if (! session('mock_interview_authenticated')) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
         $data = $request->validate([
             'pdf_file' => ['required', 'file', 'mimes:pdf', 'max:5120'],
             'target_role' => ['nullable', 'string', 'max:160'],
@@ -66,6 +99,10 @@ class MockInterviewController extends Controller
 
     public function show(string $token, Request $request): JsonResponse
     {
+        if (! session('mock_interview_authenticated')) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
         $session = $this->findOwnedSession($token, $request);
 
         return response()->json($this->sessionPayload($session));
@@ -73,6 +110,10 @@ class MockInterviewController extends Controller
 
     public function reply(string $token, Request $request): JsonResponse
     {
+        if (! session('mock_interview_authenticated')) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
         $session = $this->findOwnedSession($token, $request);
 
         if ($session->status !== 'active') {
@@ -98,6 +139,10 @@ class MockInterviewController extends Controller
 
     public function finish(string $token, Request $request): JsonResponse
     {
+        if (! session('mock_interview_authenticated')) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
         $session = $this->findOwnedSession($token, $request);
 
         if ($session->status !== 'completed') {
@@ -107,9 +152,82 @@ class MockInterviewController extends Controller
         return response()->json($this->sessionPayload($session->refresh()));
     }
 
+    public function speech(Request $request)
+    {
+        if (! session('mock_interview_authenticated')) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $data = $request->validate([
+            'input' => ['required', 'string', 'max:3000'],
+        ]);
+
+        $response = Http::withToken((string) config('mock_interview.voice.api_key'))
+            ->timeout((int) config('mock_interview.voice.timeout', 90))
+            ->post(rtrim((string) config('mock_interview.voice.base_url'), '/').'/speech', [
+                'model' => config('mock_interview.voice.tts_model'),
+                'input' => $data['input'],
+                'language' => config('mock_interview.voice.language', 'Indonesian'),
+            ]);
+
+        if ($response->failed()) {
+            return response()->json([
+                'message' => 'Gagal membuat suara interviewer.',
+                'detail' => mb_substr($response->body(), 0, 300),
+            ], 502);
+        }
+
+        return response($response->body(), 200, [
+            'Content-Type' => $response->header('Content-Type', 'audio/mpeg'),
+            'Cache-Control' => 'no-store',
+        ]);
+    }
+
+    public function transcribe(Request $request): JsonResponse
+    {
+        if (! session('mock_interview_authenticated')) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $data = $request->validate([
+            'audio' => ['required', 'file', 'max:10240'],
+        ]);
+
+        $file = $data['audio'];
+        $response = Http::withToken((string) config('mock_interview.voice.api_key'))
+            ->timeout((int) config('mock_interview.voice.timeout', 90))
+            ->attach('file', file_get_contents($file->getRealPath()), $file->getClientOriginalName() ?: 'answer.webm')
+            ->post(rtrim((string) config('mock_interview.voice.base_url'), '/').'/transcriptions', [
+                'model' => config('mock_interview.voice.stt_model'),
+                'language' => config('mock_interview.voice.stt_language', 'id'),
+                'response_format' => 'json',
+            ]);
+
+        if ($response->failed()) {
+            return response()->json([
+                'message' => 'Gagal membaca rekaman jawaban.',
+                'detail' => mb_substr($response->body(), 0, 300),
+            ], 502);
+        }
+
+        $payload = $response->json();
+
+        return response()->json([
+            'text' => $payload['text'] ?? $payload['transcript'] ?? '',
+            'raw' => $payload,
+        ]);
+    }
+
+    public function logout()
+    {
+        session()->forget('mock_interview_authenticated');
+
+        return redirect()->route('mock-interview.login');
+    }
+
     private function extractPdfText(string $path): string
     {
-        $parser = new PdfParser();
+        $parser = new PdfParser;
         $pdf = $parser->parseFile(Storage::path($path));
         $text = trim($pdf->getText());
 

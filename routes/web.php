@@ -7,7 +7,6 @@ use App\Http\Controllers\ScraperController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
-
 Route::domain('promo.lamaraja.web.id')->group(function (): void {
     Route::view('/', 'pages.portfolio')->name('portfolio.promo');
 });
@@ -34,12 +33,21 @@ Route::get('/cv-matcher', [CvScanController::class, 'index'])->name('cv-matcher.
 Route::post('/cv-scan', [CvScanController::class, 'store'])->name('cv-scan.store');
 Route::get('/cv-scan/{id}/status', [CvScanController::class, 'status'])->name('cv-scan.status');
 
-// Mock Interview
-Route::get('/mock-interview', [MockInterviewController::class, 'index'])->name('mock-interview.index');
-Route::post('/mock-interview/start', [MockInterviewController::class, 'start'])->name('mock-interview.start');
-Route::get('/mock-interview/{token}', [MockInterviewController::class, 'show'])->name('mock-interview.show');
-Route::post('/mock-interview/{token}/reply', [MockInterviewController::class, 'reply'])->name('mock-interview.reply');
-Route::post('/mock-interview/{token}/finish', [MockInterviewController::class, 'finish'])->name('mock-interview.finish');
+// Mock Interview Testing (password-protected via session)
+Route::prefix('mock-interview')->group(function () {
+    Route::get('/', [MockInterviewController::class, 'login']);
+    Route::get('/login', [MockInterviewController::class, 'login'])->name('mock-interview.login');
+    Route::post('/login', [MockInterviewController::class, 'authenticate'])->name('mock-interview.authenticate');
+    Route::get('/testing', [MockInterviewController::class, 'index'])->name('mock-interview.index');
+    Route::post('/logout', [MockInterviewController::class, 'logout'])->name('mock-interview.logout');
+
+    Route::post('/start', [MockInterviewController::class, 'start'])->name('mock-interview.start');
+    Route::get('/{token}', [MockInterviewController::class, 'show'])->name('mock-interview.show');
+    Route::post('/speech', [MockInterviewController::class, 'speech'])->name('mock-interview.speech');
+    Route::post('/transcribe', [MockInterviewController::class, 'transcribe'])->name('mock-interview.transcribe');
+    Route::post('/{token}/reply', [MockInterviewController::class, 'reply'])->name('mock-interview.reply');
+    Route::post('/{token}/finish', [MockInterviewController::class, 'finish'])->name('mock-interview.finish');
+});
 
 // Scraper Admin (password-protected via session)
 Route::prefix('scraper')->group(function () {

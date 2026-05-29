@@ -110,12 +110,6 @@
                             <span class="absolute -bottom-[1.125rem] left-0 right-0 h-0.5 bg-emerald-600"></span>
                         @endif
                     </a>
-                    <a href="{{ route('mock-interview.index') }}" class="relative text-sm font-semibold {{ request()->routeIs('mock-interview.*') ? 'text-emerald-600' : 'text-slate-700 hover:text-slate-900' }} transition-colors py-1">
-                        Mock Interview
-                        @if(request()->routeIs('mock-interview.*'))
-                            <span class="absolute -bottom-[1.125rem] left-0 right-0 h-0.5 bg-emerald-600"></span>
-                        @endif
-                    </a>
                     <a href="{{ route('about') }}" class="relative text-sm font-semibold {{ request()->routeIs('about') ? 'text-emerald-600' : 'text-slate-700 hover:text-slate-900' }} transition-colors py-1">
                         About
                         @if(request()->routeIs('about'))
@@ -160,7 +154,6 @@
                 <a href="{{ route('home') }}" class="block px-4 py-3 rounded-lg text-sm font-semibold transition-colors {{ request()->routeIs('home') ? 'text-emerald-600 bg-emerald-50' : 'text-slate-700 hover:bg-slate-50' }}">Home</a>
                 <a href="{{ route('jobs.index') }}" class="block px-4 py-3 rounded-lg text-sm font-semibold transition-colors {{ request()->routeIs('jobs.*') ? 'text-emerald-600 bg-emerald-50' : 'text-slate-700 hover:bg-slate-50' }}">Jobs</a>
                 <a href="{{ route('cv-matcher.index') }}" class="block px-4 py-3 rounded-lg text-sm font-semibold transition-colors {{ request()->routeIs('cv-matcher.*') ? 'text-emerald-600 bg-emerald-50' : 'text-slate-700 hover:bg-slate-50' }}">CV Matcher</a>
-                <a href="{{ route('mock-interview.index') }}" class="block px-4 py-3 rounded-lg text-sm font-semibold transition-colors {{ request()->routeIs('mock-interview.*') ? 'text-emerald-600 bg-emerald-50' : 'text-slate-700 hover:bg-slate-50' }}">Mock Interview</a>
                 <a href="{{ route('about') }}" class="block px-4 py-3 rounded-lg text-sm font-semibold transition-colors {{ request()->routeIs('about') ? 'text-emerald-600 bg-emerald-50' : 'text-slate-700 hover:bg-slate-50' }}">About</a>
                 <div class="pt-3 space-y-2">
                     <button class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-slate-50 rounded-lg">
