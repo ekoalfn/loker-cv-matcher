@@ -58,9 +58,15 @@ class CvScanController extends Controller
                 throw new \RuntimeException('Tidak bisa membaca teks dari PDF. File mungkin berupa gambar.');
             }
 
-            $jobs = $this->candidateJobs($cvText);
+            $targetJob = $request->integer('job_id')
+                ? Job::query()->active()->find($request->integer('job_id'))
+                : null;
+            $jobs = $targetJob ? collect([$targetJob]) : $this->candidateJobs($cvText);
+
             if ($jobs->isEmpty()) {
-                throw new \RuntimeException('Belum ada lowongan aktif yang bisa dicocokkan.');
+                throw new \RuntimeException($request->integer('job_id')
+                    ? 'Lowongan ini sudah tidak aktif atau tidak bisa dicocokkan.'
+                    : 'Belum ada lowongan aktif yang bisa dicocokkan.');
             }
 
             $matches = [];
@@ -128,7 +134,7 @@ class CvScanController extends Controller
 
             return response()->json([
                 'status' => 'completed',
-                'result' => [
+                'result' => $targetJob ? $matches[0] : [
                     'matches' => $matches,
                 ],
             ]);

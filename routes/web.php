@@ -27,6 +27,9 @@ Route::get('/jobs/{slug}/apply', [JobController::class, 'apply'])->name('jobs.ap
 
 // Static Pages
 Route::view('/about', 'pages.about')->name('about');
+Route::view('/privacy-policy', 'pages.legal.privacy')->name('legal.privacy');
+Route::view('/terms-of-service', 'pages.legal.terms')->name('legal.terms');
+Route::view('/cookie-policy', 'pages.legal.cookies')->name('legal.cookies');
 
 // CV Scan
 Route::get('/cv-matcher', [CvScanController::class, 'index'])->name('cv-matcher.index');

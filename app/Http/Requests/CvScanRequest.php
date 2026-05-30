@@ -23,6 +23,7 @@ class CvScanRequest extends FormRequest
     {
         return [
             'pdf_file' => ['required', 'file', 'mimes:pdf', 'max:5120'],
+            'job_id' => ['nullable', 'integer', 'exists:jobs,id'],
         ];
     }
 

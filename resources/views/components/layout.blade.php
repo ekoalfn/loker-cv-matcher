@@ -216,9 +216,9 @@
                 <div>
                     <h3 class="text-white font-semibold text-sm mb-4">Legal</h3>
                     <ul class="space-y-3">
-                        <li><span class="text-slate-500 text-sm">Privacy Policy</span></li>
-                        <li><span class="text-slate-500 text-sm">Terms of Service</span></li>
-                        <li><span class="text-slate-500 text-sm">Cookie Policy</span></li>
+                        <li><a href="{{ route('legal.privacy') }}" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Privacy Policy</a></li>
+                        <li><a href="{{ route('legal.terms') }}" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Terms of Service</a></li>
+                        <li><a href="{{ route('legal.cookies') }}" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Cookie Policy</a></li>
                     </ul>
                 </div>
             </div>

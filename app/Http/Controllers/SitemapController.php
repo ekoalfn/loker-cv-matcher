@@ -85,6 +85,24 @@ class SitemapController extends Controller
                 'changefreq' => 'monthly',
                 'priority' => '0.5',
             ],
+            [
+                'loc' => route('legal.privacy'),
+                'lastmod' => $this->viewLastModified('pages/legal/privacy.blade.php', $latestJobDate),
+                'changefreq' => 'monthly',
+                'priority' => '0.3',
+            ],
+            [
+                'loc' => route('legal.terms'),
+                'lastmod' => $this->viewLastModified('pages/legal/terms.blade.php', $latestJobDate),
+                'changefreq' => 'monthly',
+                'priority' => '0.3',
+            ],
+            [
+                'loc' => route('legal.cookies'),
+                'lastmod' => $this->viewLastModified('pages/legal/cookies.blade.php', $latestJobDate),
+                'changefreq' => 'monthly',
+                'priority' => '0.3',
+            ],
         ];
 
         foreach (config('seo.job_landing_pages', []) as $slug => $landing) {
