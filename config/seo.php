@@ -32,5 +32,20 @@ return [
             'employment_type' => ['remote'],
             'intro' => 'Kumpulan lowongan remote dan hybrid untuk kandidat yang ingin bekerja fleksibel dari Indonesia.',
         ],
+        'fresh-graduate' => [
+            'title' => 'Lowongan Fresh Graduate Terbaru - Lamaraja',
+            'heading' => 'Lowongan Fresh Graduate',
+            'description' => 'Cari lowongan fresh graduate terbaru untuk mulai karier pertama dengan lebih percaya diri.',
+            'keyword' => 'fresh graduate',
+            'intro' => 'Kurasi lowongan fresh graduate aktif untuk kandidat awal karier. Upload CV sekali, lalu gunakan CV Matcher untuk menemukan peluang yang paling cocok.',
+        ],
+        'magang' => [
+            'title' => 'Lowongan Magang Terbaru - Lamaraja',
+            'heading' => 'Lowongan Magang',
+            'description' => 'Temukan lowongan magang dan internship terbaru dari perusahaan yang sedang membuka peluang untuk mahasiswa dan fresh graduate.',
+            'keyword' => 'intern',
+            'employment_type' => ['internship'],
+            'intro' => 'Kumpulan lowongan magang aktif untuk membangun pengalaman kerja pertama. Bandingkan ringkasan AI dan cek kecocokan CV sebelum melamar.',
+        ],
     ],
 ];
