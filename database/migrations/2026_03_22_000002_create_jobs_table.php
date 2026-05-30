@@ -55,7 +55,7 @@ return new class extends Migration
             DB::statement("
                 CREATE INDEX idx_jobs_search
                 ON jobs USING GIN (
-                    to_tsvector('indonesian', coalesce(title,'') || ' ' || coalesce(company,'') || ' ' || coalesce(location,''))
+                    to_tsvector('indonesian', coalesce(title,'') || ' ' || coalesce(company,'') || ' ' || coalesce(location,'') || ' ' || coalesce(summary_ai,'') || ' ' || coalesce(description_raw,''))
                 )
             ");
         }

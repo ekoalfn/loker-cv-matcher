@@ -168,7 +168,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         {{-- Results header --}}
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-            <p class="text-sm text-slate-600">
+            <p class="text-sm text-slate-600" data-results-count>
                 Showing <span class="font-semibold text-slate-900">{{ $jobs->firstItem() ?? 0 }}–{{ $jobs->lastItem() ?? 0 }}</span> of <span class="font-semibold text-slate-900">{{ $jobs->total() }}</span> jobs
             </p>
             <div class="flex items-center gap-3 overflow-x-auto pb-1 sm:pb-0">
@@ -183,7 +183,7 @@
 
         <div class="flex flex-col lg:flex-row gap-6">
             {{-- Job List --}}
-            <div class="flex-1">
+            <div class="flex-1" data-jobs-results>
                 @if($jobs->count() > 0)
                     <div class="space-y-4">
                         @foreach($jobs as $job)
@@ -217,7 +217,7 @@
                         </a>
                     </div>
 
-                    <form action="{{ route('jobs.index') }}" method="GET" class="space-y-6" x-data="{ searchLocation: '' }">
+                    <form action="{{ route('jobs.index') }}" method="GET" class="space-y-6" x-data="jobFilters()" @change.debounce.250ms="apply($el)" @submit.prevent="apply($el)">
                         @if($filters->keyword ?? false)
                             <input type="hidden" name="keyword" value="{{ $filters->keyword }}">
                         @endif
@@ -331,14 +331,7 @@
                             </div>
                         </div>
 
-                        <div class="border-t border-slate-100 pt-6">
-                            <button
-                                type="submit"
-                                class="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-all shadow-sm hover:shadow-md active:scale-[0.98]"
-                            >
-                                Apply Filters
-                            </button>
-                        </div>
+                        <p class="border-t border-slate-100 pt-6 text-xs font-medium text-slate-500" x-text="loading ? 'Memperbarui hasil...' : 'Filter otomatis diterapkan saat dicentang.'"></p>
                     </form>
                 </div>
             </aside>
