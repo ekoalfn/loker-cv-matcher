@@ -120,12 +120,12 @@
 
                 {{-- CTA Buttons --}}
                 <div class="hidden md:flex items-center gap-3">
-                    <button class="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-all">
+                    <a href="{{ route('cv-matcher.index') }}" class="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-all">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                         </svg>
                         Upload CV
-                    </button>
+                    </a>
                     <a href="{{ route('jobs.index') }}" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg transition-all shadow-sm hover:shadow-md active:scale-[0.98]">
                         Find Jobs
                     </a>
@@ -156,12 +156,12 @@
                 <a href="{{ route('cv-matcher.index') }}" class="block px-4 py-3 rounded-lg text-sm font-semibold transition-colors {{ request()->routeIs('cv-matcher.*') ? 'text-emerald-600 bg-emerald-50' : 'text-slate-700 hover:bg-slate-50' }}">CV Matcher</a>
                 <a href="{{ route('about') }}" class="block px-4 py-3 rounded-lg text-sm font-semibold transition-colors {{ request()->routeIs('about') ? 'text-emerald-600 bg-emerald-50' : 'text-slate-700 hover:bg-slate-50' }}">About</a>
                 <div class="pt-3 space-y-2">
-                    <button class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-slate-50 rounded-lg">
+                    <a href="{{ route('cv-matcher.index') }}" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-slate-50 rounded-lg">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                         </svg>
                         Upload CV
-                    </button>
+                    </a>
                     <a href="{{ route('jobs.index') }}" class="block w-full text-center px-4 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-lg">
                         Find Jobs
                     </a>
@@ -206,8 +206,9 @@
                 <div>
                     <h3 class="text-white font-semibold text-sm mb-4">Resources</h3>
                     <ul class="space-y-3">
-                        <li><span class="text-slate-500 text-sm">Blog</span></li>
-                        <li><span class="text-slate-500 text-sm">Help Center</span></li>
+                        <li><a href="{{ route('cv-matcher.index') }}" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">CV Matcher</a></li>
+                        <li><a href="{{ route('jobs.landing', 'fresh-graduate') }}" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Lowongan Fresh Graduate</a></li>
+                        <li><a href="{{ route('jobs.landing', 'remote') }}" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Lowongan Remote</a></li>
                         <li><a href="mailto:hello@lamaraja.web.id" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Contact</a></li>
                     </ul>
                 </div>

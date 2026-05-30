@@ -1,4 +1,4 @@
-<x-layout>
+<x-layout robots="noindex, nofollow">
     <x-slot:title>Mock Interview AI - Simulasi Interview Kerja Berbasis CV | Lamaraja</x-slot:title>
     <x-slot:description>Upload CV PDF dan latihan interview kerja dengan AI interviewer Lamaraja. Mode voice, transkrip, dan feedback akhir untuk persiapan interview.</x-slot:description>
 

@@ -20,29 +20,28 @@
     $metaDescription = $landing['description'] ?? 'Cari lowongan kerja terbaru di Indonesia dari berbagai sumber terpercaya. Lamaraja merangkum loker dengan AI dan menyediakan CV Matcher gratis.';
 @endphp
 @php
+    $breadcrumbItems = [
+        ['@type' => 'ListItem', 'position' => 1, 'name' => 'Beranda', 'item' => url('/')],
+        ['@type' => 'ListItem', 'position' => 2, 'name' => 'Lowongan', 'item' => route('jobs.index')],
+    ];
+    if (isset($landing)) {
+        $breadcrumbItems[] = ['@type' => 'ListItem', 'position' => 3, 'name' => $landing['heading'], 'item' => $canonicalUrl];
+    }
     $breadcrumbLd = json_encode([
         chr(64) . 'context' => 'https://schema.org',
         '@type' => 'BreadcrumbList',
-        'itemListElement' => [
-            [
-                '@type' => 'ListItem',
-                'position' => 1,
-                'name' => 'Beranda',
-                'item' => url('/')
-            ],
-            [
-                '@type' => 'ListItem',
-                'position' => 2,
-                'name' => 'Lowongan',
-                'item' => route('jobs.index')
-            ]
-        ]
+        'itemListElement' => $breadcrumbItems,
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+    $allLandingPages = collect(config('seo.job_landing_pages', []));
+    $relatedLandingPages = isset($landing)
+        ? $allLandingPages->only($landing['related'] ?? [])->filter()->take(6)
+        : $allLandingPages->take(12);
 
     $itemListLd = json_encode([
         chr(64) . 'context' => 'https://schema.org',
         '@type' => 'ItemList',
-        'name' => 'Daftar lowongan kerja Lamaraja',
+        'name' => $landing['heading'] ?? 'Daftar lowongan kerja Lamaraja',
         'itemListElement' => $jobs->getCollection()->values()->map(fn ($job, $index) => [
             '@type' => 'ListItem',
             'position' => $jobs->firstItem() ? $jobs->firstItem() + $index : $index + 1,
@@ -144,6 +143,26 @@
             </div>
         </div>
     </section>
+
+    @if($relatedLandingPages->isNotEmpty())
+        <section class="border-y border-emerald-100 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+                <div class="flex flex-col md:flex-row md:items-center gap-3 md:gap-5">
+                    <p class="shrink-0 text-sm font-bold text-slate-700">{{ isset($landing) ? 'Pencarian terkait' : 'Pencarian populer' }}</p>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach($relatedLandingPages as $slug => $hub)
+                            <a href="{{ route('jobs.landing', $slug) }}" class="rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-sm font-semibold text-slate-700 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800">
+                                {{ $hub['heading'] }}
+                            </a>
+                        @endforeach
+                        <a href="{{ route('cv-matcher.index') }}" class="rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-1.5 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-100">
+                            Cek kecocokan CV
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    @endif
 
     {{-- Main Content --}}
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
