@@ -6,5 +6,7 @@ Allow: /
 Disallow: /cv-scan
 Disallow: /api/
 Disallow: /storage/
+Disallow: /mock-interview
+Disallow: /scraper
 
 Sitemap: https://lamaraja.web.id/sitemap.xml

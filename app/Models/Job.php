@@ -125,16 +125,60 @@ class Job extends Model
     }
 
     /**
-     * PostgreSQL full-text search across title, company, and location.
+     * Flexible search across title, company, location, tags, summary, and description.
+     * Typo-tolerant fallback ranking runs in JobRepository when exact DB matches are weak.
      *
      * @param  Builder<Job>  $query
      * @return Builder<Job>
      */
     public function scopeSearch(Builder $query, string $keyword): Builder
     {
-        return $query->whereRaw(
-            "to_tsvector('indonesian', coalesce(title,'') || ' ' || coalesce(company,'') || ' ' || coalesce(location,'')) @@ plainto_tsquery('indonesian', ?)",
-            [$keyword]
+        $keyword = Str::of($keyword)->squish()->lower()->toString();
+        $terms = collect(preg_split('/[^a-z0-9]+/i', $keyword) ?: [])
+            ->map(fn (string $term): string => Str::lower($term))
+            ->filter(fn (string $term): bool => strlen($term) >= 2)
+            ->reject(fn (string $term): bool => in_array($term, ['di', 'job', 'jobs', 'karir', 'kerja', 'loker', 'lowongan', 'pt'], true))
+            ->values();
+
+        if ($terms->isEmpty()) {
+            $terms = collect([$keyword]);
+        }
+
+        $driver = $query->getConnection()->getDriverName();
+        $operator = $driver === 'pgsql' ? 'ILIKE' : 'LIKE';
+        $searchColumns = ['title', 'company', 'location', 'summary_ai', 'description_raw'];
+
+        $query->where(function (Builder $q) use ($driver, $keyword, $terms, $operator, $searchColumns): void {
+            if ($driver === 'pgsql') {
+                $q->whereRaw(
+                    "to_tsvector('indonesian', coalesce(title,'') || ' ' || coalesce(company,'') || ' ' || coalesce(location,'') || ' ' || coalesce(summary_ai,'') || ' ' || coalesce(description_raw,'') || ' ' || coalesce(tags::text,'')) @@ websearch_to_tsquery('indonesian', ?)",
+                    [$keyword]
+                )
+                    ->orWhereRaw('tags::text ILIKE ?', ['%' . $keyword . '%']);
+            }
+
+            foreach ($terms as $term) {
+                $q->orWhere(function (Builder $termQuery) use ($driver, $operator, $searchColumns, $term): void {
+                    foreach ($searchColumns as $column) {
+                        $termQuery->orWhere($column, $operator, '%' . $term . '%');
+                    }
+
+                    if ($driver === 'pgsql') {
+                        $termQuery->orWhereRaw('tags::text ILIKE ?', ['%' . $term . '%']);
+                    }
+                });
+            }
+        });
+
+        return $query->orderByRaw(
+            "CASE
+                WHEN title {$operator} ? THEN 0
+                WHEN company {$operator} ? THEN 1
+                WHEN title {$operator} ? OR company {$operator} ? THEN 2
+                WHEN location {$operator} ? THEN 3
+                ELSE 4
+            END",
+            ["%{$keyword}%", "%{$keyword}%", '%' . $terms->first() . '%', '%' . $terms->first() . '%', '%' . $terms->first() . '%']
         );
     }
 

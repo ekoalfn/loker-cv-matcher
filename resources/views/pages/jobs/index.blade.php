@@ -1,45 +1,47 @@
 @php
-    $pageTitle = 'Cari Lowongan Kerja Terbaru';
-    if ($filters->keyword ?? false) {
-        $pageTitle = 'Lowongan ' . ucfirst($filters->keyword);
+    $pageTitle = $landing['title'] ?? 'Cari Lowongan Kerja Terbaru';
+    if (! isset($landing)) {
+        if ($filters->keyword ?? false) {
+            $pageTitle = 'Lowongan ' . ucfirst($filters->keyword);
+        }
+        if ($filters->location ?? false) {
+            $locationStr = is_array($filters->location) ? implode(', ', $filters->location) : $filters->location;
+            $pageTitle .= ' di ' . $locationStr;
+        }
+        $pageTitle .= ' - Lamaraja';
     }
-    if ($filters->location ?? false) {
-        $locationStr = is_array($filters->location) ? implode(', ', $filters->location) : $filters->location;
-        $pageTitle .= ' di ' . $locationStr;
-    }
-    $pageTitle .= ' - Lamaraja';
 
-    // Prevent Google from indexing filtered/paginated pages to save crawl budget
+    // Index only curated landing pages and the main listing; keep ad-hoc filters out of the index.
     $hasFilters = ($filters->keyword ?? false) || ($filters->location ?? false) || !empty($filters->employmentType ?? []);
     $isPaginated = request()->has('page') && request()->get('page') > 1;
-    $shouldNoindex = $hasFilters || $isPaginated;
+    $shouldNoindex = (! isset($landing) && $hasFilters) || $isPaginated;
     $robotsMeta = $shouldNoindex ? 'noindex, follow' : 'index, follow';
-    $canonicalUrl = route('jobs.index');
+    $canonicalUrl = isset($landing) ? route('jobs.landing', request()->route('slug')) : route('jobs.index');
+    $metaDescription = $landing['description'] ?? 'Cari lowongan kerja terbaru di Indonesia dari berbagai sumber terpercaya. Lamaraja merangkum loker dengan AI dan menyediakan CV Matcher gratis.';
 @endphp
 @php
+    $breadcrumbItems = [
+        ['@type' => 'ListItem', 'position' => 1, 'name' => 'Beranda', 'item' => url('/')],
+        ['@type' => 'ListItem', 'position' => 2, 'name' => 'Lowongan', 'item' => route('jobs.index')],
+    ];
+    if (isset($landing)) {
+        $breadcrumbItems[] = ['@type' => 'ListItem', 'position' => 3, 'name' => $landing['heading'], 'item' => $canonicalUrl];
+    }
     $breadcrumbLd = json_encode([
         chr(64) . 'context' => 'https://schema.org',
         '@type' => 'BreadcrumbList',
-        'itemListElement' => [
-            [
-                '@type' => 'ListItem',
-                'position' => 1,
-                'name' => 'Beranda',
-                'item' => url('/')
-            ],
-            [
-                '@type' => 'ListItem',
-                'position' => 2,
-                'name' => 'Lowongan',
-                'item' => route('jobs.index')
-            ]
-        ]
+        'itemListElement' => $breadcrumbItems,
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+    $allLandingPages = collect(config('seo.job_landing_pages', []));
+    $relatedLandingPages = isset($landing)
+        ? $allLandingPages->only($landing['related'] ?? [])->filter()->take(6)
+        : $allLandingPages->take(12);
 
     $itemListLd = json_encode([
         chr(64) . 'context' => 'https://schema.org',
         '@type' => 'ItemList',
-        'name' => 'Daftar lowongan kerja Lamaraja',
+        'name' => $landing['heading'] ?? 'Daftar lowongan kerja Lamaraja',
         'itemListElement' => $jobs->getCollection()->values()->map(fn ($job, $index) => [
             '@type' => 'ListItem',
             'position' => $jobs->firstItem() ? $jobs->firstItem() + $index : $index + 1,
@@ -49,7 +51,7 @@
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 @endphp
 
-<x-layout :title="$pageTitle" :robots="$robotsMeta" :canonical="$canonicalUrl">
+<x-layout :title="$pageTitle" :description="$metaDescription" :robots="$robotsMeta" :canonical="$canonicalUrl">
 
     {!! '<script type="application/ld+json">' . $breadcrumbLd . '</script>' !!}
     {!! '<script type="application/ld+json">' . $itemListLd . '</script>' !!}
@@ -60,11 +62,19 @@
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
                 <div class="flex-1">
                     <h1 class="font-[family-name:var(--font-display)] text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-3">
-                        Semua <span class="text-emerald-600">Lowongan</span>
+                        @if(isset($landing))
+                            {{ $landing['heading'] }}
+                        @else
+                            Semua <span class="text-emerald-600">Lowongan</span>
+                        @endif
                     </h1>
                     <p class="text-slate-600 text-base md:text-lg max-w-2xl">
-                        Temukan loker dari berbagai perusahaan dan sumber terpercaya.<br>
-                        Ringkasan AI membantu kamu memahami peluang kerja lebih cepat.
+                        @if(isset($landing))
+                            {{ $landing['intro'] ?? $landing['description'] }}
+                        @else
+                            Temukan loker dari berbagai perusahaan dan sumber terpercaya.<br>
+                            Ringkasan AI membantu kamu memahami peluang kerja lebih cepat.
+                        @endif
                     </p>
                 </div>
                 <div class="hidden lg:block">
@@ -134,11 +144,31 @@
         </div>
     </section>
 
+    @if($relatedLandingPages->isNotEmpty())
+        <section class="border-y border-emerald-100 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+                <div class="flex flex-col md:flex-row md:items-center gap-3 md:gap-5">
+                    <p class="shrink-0 text-sm font-bold text-slate-700">{{ isset($landing) ? 'Pencarian terkait' : 'Pencarian populer' }}</p>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach($relatedLandingPages as $slug => $hub)
+                            <a href="{{ route('jobs.landing', $slug) }}" class="rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-sm font-semibold text-slate-700 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800">
+                                {{ $hub['heading'] }}
+                            </a>
+                        @endforeach
+                        <a href="{{ route('cv-matcher.index') }}" class="rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-1.5 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-100">
+                            Cek kecocokan CV
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    @endif
+
     {{-- Main Content --}}
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         {{-- Results header --}}
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-            <p class="text-sm text-slate-600">
+            <p class="text-sm text-slate-600" data-results-count>
                 Showing <span class="font-semibold text-slate-900">{{ $jobs->firstItem() ?? 0 }}–{{ $jobs->lastItem() ?? 0 }}</span> of <span class="font-semibold text-slate-900">{{ $jobs->total() }}</span> jobs
             </p>
             <div class="flex items-center gap-3 overflow-x-auto pb-1 sm:pb-0">
@@ -153,7 +183,7 @@
 
         <div class="flex flex-col lg:flex-row gap-6">
             {{-- Job List --}}
-            <div class="flex-1">
+            <div class="flex-1" data-jobs-results>
                 @if($jobs->count() > 0)
                     <div class="space-y-4">
                         @foreach($jobs as $job)
@@ -187,7 +217,7 @@
                         </a>
                     </div>
 
-                    <form action="{{ route('jobs.index') }}" method="GET" class="space-y-6" x-data="{ searchLocation: '' }">
+                    <form action="{{ route('jobs.index') }}" method="GET" class="space-y-6" x-data="jobFilters()" @change.debounce.250ms="apply($el)" @submit.prevent="apply($el)">
                         @if($filters->keyword ?? false)
                             <input type="hidden" name="keyword" value="{{ $filters->keyword }}">
                         @endif
@@ -301,14 +331,7 @@
                             </div>
                         </div>
 
-                        <div class="border-t border-slate-100 pt-6">
-                            <button
-                                type="submit"
-                                class="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-all shadow-sm hover:shadow-md active:scale-[0.98]"
-                            >
-                                Apply Filters
-                            </button>
-                        </div>
+                        <p class="border-t border-slate-100 pt-6 text-xs font-medium text-slate-500" x-text="loading ? 'Memperbarui hasil...' : 'Filter otomatis diterapkan saat dicentang.'"></p>
                     </form>
                 </div>
             </aside>

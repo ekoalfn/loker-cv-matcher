@@ -50,13 +50,15 @@ return new class extends Migration
             WHERE deleted_at IS NULL
         ');
 
-        // GIN index for full-text search in Indonesian
-        DB::statement("
-            CREATE INDEX idx_jobs_search
-            ON jobs USING GIN (
-                to_tsvector('indonesian', coalesce(title,'') || ' ' || coalesce(company,'') || ' ' || coalesce(location,''))
-            )
-        ");
+        if (DB::getDriverName() === 'pgsql') {
+            // GIN index for full-text search in Indonesian.
+            DB::statement("
+                CREATE INDEX idx_jobs_search
+                ON jobs USING GIN (
+                    to_tsvector('indonesian', coalesce(title,'') || ' ' || coalesce(company,'') || ' ' || coalesce(location,'') || ' ' || coalesce(summary_ai,'') || ' ' || coalesce(description_raw,''))
+                )
+            ");
+        }
     }
 
     /**

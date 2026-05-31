@@ -2,10 +2,10 @@
 
 use App\Http\Controllers\CvScanController;
 use App\Http\Controllers\JobController;
+use App\Http\Controllers\MockInterviewController;
 use App\Http\Controllers\ScraperController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
-
 
 Route::domain('promo.lamaraja.web.id')->group(function (): void {
     Route::view('/', 'pages.portfolio')->name('portfolio.promo');
@@ -13,22 +13,44 @@ Route::domain('promo.lamaraja.web.id')->group(function (): void {
 
 // SEO
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/sitemap-pages.xml', [SitemapController::class, 'pages'])->name('sitemap.pages');
+Route::get('/sitemap-jobs-{page}.xml', [SitemapController::class, 'jobs'])->whereNumber('page')->name('sitemap.jobs');
 
 // Home
 Route::get('/', [JobController::class, 'index'])->name('home');
 
 // Jobs
 Route::get('/jobs', [JobController::class, 'list'])->name('jobs.index');
+Route::get('/lowongan/{slug}', [JobController::class, 'landing'])->name('jobs.landing');
 Route::get('/jobs/{slug}', [JobController::class, 'show'])->name('jobs.show');
 Route::get('/jobs/{slug}/apply', [JobController::class, 'apply'])->name('jobs.apply');
 
 // Static Pages
 Route::view('/about', 'pages.about')->name('about');
+Route::view('/privacy-policy', 'pages.legal.privacy')->name('legal.privacy');
+Route::view('/terms-of-service', 'pages.legal.terms')->name('legal.terms');
+Route::view('/cookie-policy', 'pages.legal.cookies')->name('legal.cookies');
 
 // CV Scan
 Route::get('/cv-matcher', [CvScanController::class, 'index'])->name('cv-matcher.index');
 Route::post('/cv-scan', [CvScanController::class, 'store'])->name('cv-scan.store');
 Route::get('/cv-scan/{id}/status', [CvScanController::class, 'status'])->name('cv-scan.status');
+
+// Mock Interview Testing (password-protected via session)
+Route::prefix('mock-interview')->group(function () {
+    Route::get('/', [MockInterviewController::class, 'login']);
+    Route::get('/login', [MockInterviewController::class, 'login'])->name('mock-interview.login');
+    Route::post('/login', [MockInterviewController::class, 'authenticate'])->name('mock-interview.authenticate');
+    Route::get('/testing', [MockInterviewController::class, 'index'])->name('mock-interview.index');
+    Route::post('/logout', [MockInterviewController::class, 'logout'])->name('mock-interview.logout');
+
+    Route::post('/start', [MockInterviewController::class, 'start'])->name('mock-interview.start');
+    Route::get('/{token}', [MockInterviewController::class, 'show'])->name('mock-interview.show');
+    Route::post('/speech', [MockInterviewController::class, 'speech'])->name('mock-interview.speech');
+    Route::post('/transcribe', [MockInterviewController::class, 'transcribe'])->name('mock-interview.transcribe');
+    Route::post('/{token}/reply', [MockInterviewController::class, 'reply'])->name('mock-interview.reply');
+    Route::post('/{token}/finish', [MockInterviewController::class, 'finish'])->name('mock-interview.finish');
+});
 
 // Scraper Admin (password-protected via session)
 Route::prefix('scraper')->group(function () {

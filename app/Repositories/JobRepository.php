@@ -6,8 +6,10 @@ use App\Contracts\JobRepositoryInterface;
 use App\DTOs\JobFilterDTO;
 use App\Models\Job;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 
 class JobRepository implements JobRepositoryInterface
@@ -89,26 +91,24 @@ class JobRepository implements JobRepositoryInterface
      */
     public function search(JobFilterDTO $filters): LengthAwarePaginator
     {
-        $query = $this->model->newQuery()->active();
+        $query = $this->filteredBaseQuery($filters);
 
         if ($filters->keyword) {
             $query->search($filters->keyword);
         }
 
-        if ($filters->location) {
-            $query->inLocation($filters->location);
-        }
-
-        if ($filters->employmentType) {
-            $query->whereIn('employment_type', $filters->employmentType);
-        }
-
-        return $query
+        $results = $query
             ->orderByDesc('created_at')
             ->paginate(
                 perPage: $filters->perPage,
                 page: $filters->page,
             );
+
+        if ($filters->keyword && $results->total() === 0) {
+            return $this->typoTolerantSearch($filters);
+        }
+
+        return $results;
     }
 
     /**
@@ -119,6 +119,18 @@ class JobRepository implements JobRepositoryInterface
         return $this->model
             ->where('slug', $slug)
             ->active()
+            ->first();
+    }
+
+    /**
+     * Find a job by slug even if it has expired, so detail pages can preserve
+     * index equity and guide users to current alternatives instead of 404ing.
+     */
+    public function findAnyBySlug(string $slug): ?Job
+    {
+        return $this->model
+            ->withTrashed()
+            ->where('slug', $slug)
             ->first();
     }
 
@@ -176,6 +188,89 @@ class JobRepository implements JobRepositoryInterface
         }
 
         return $related;
+    }
+
+    private function filteredBaseQuery(JobFilterDTO $filters): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = $this->model->newQuery()->active();
+
+        if ($filters->location) {
+            $query->inLocation($filters->location);
+        }
+
+        if ($filters->employmentType) {
+            $query->whereIn('employment_type', $filters->employmentType);
+        }
+
+        return $query;
+    }
+
+    private function typoTolerantSearch(JobFilterDTO $filters): LengthAwarePaginator
+    {
+        $keyword = Str::of($filters->keyword ?? '')->squish()->lower()->toString();
+        $terms = collect(preg_split('/[^a-z0-9]+/i', $keyword) ?: [])
+            ->map(fn (string $term): string => Str::lower($term))
+            ->filter(fn (string $term): bool => strlen($term) >= 3)
+            ->reject(fn (string $term): bool => in_array($term, ['job', 'jobs', 'karir', 'kerja', 'loker', 'lowongan'], true))
+            ->values();
+
+        if ($terms->isEmpty()) {
+            return new Paginator([], 0, $filters->perPage, $filters->page, [
+                'path' => request()->url(),
+                'query' => request()->query(),
+            ]);
+        }
+
+        $matches = $this->filteredBaseQuery($filters)
+            ->select(['id', 'title', 'slug', 'company', 'location', 'employment_type', 'salary_min', 'salary_max', 'salary_currency', 'description_raw', 'summary_ai', 'tags', 'source_url', 'company_logo', 'created_at', 'updated_at', 'expires_at', 'is_active'])
+            ->orderByDesc('created_at')
+            ->limit(400)
+            ->get()
+            ->map(fn (Job $job): array => ['job' => $job, 'score' => $this->fuzzyScore($job, $terms)])
+            ->filter(fn (array $match): bool => $match['score'] >= 62)
+            ->sortByDesc('score')
+            ->values();
+
+        $items = $matches->pluck('job');
+        $pageItems = $items->forPage($filters->page, $filters->perPage)->values();
+
+        return new Paginator($pageItems, $items->count(), $filters->perPage, $filters->page, [
+            'path' => request()->url(),
+            'query' => request()->query(),
+        ]);
+    }
+
+    /**
+     * @param  Collection<int, string>  $terms
+     */
+    private function fuzzyScore(Job $job, Collection $terms): int
+    {
+        $haystack = Str::of(implode(' ', array_filter([
+            $job->title,
+            $job->company,
+            $job->location,
+            is_array($job->tags) ? implode(' ', $job->tags) : (string) $job->tags,
+            $job->summary_ai,
+            Str::limit((string) $job->description_raw, 1200, ''),
+        ])))->lower()->ascii()->toString();
+
+        $words = collect(preg_split('/[^a-z0-9]+/i', $haystack) ?: [])
+            ->filter(fn (string $word): bool => strlen($word) >= 3)
+            ->unique()
+            ->values();
+
+        $total = 0;
+        foreach ($terms as $term) {
+            $needle = Str::ascii($term);
+            $best = $words->max(function (string $word) use ($needle): int {
+                similar_text($needle, $word, $percent);
+
+                return (int) round($percent);
+            }) ?? 0;
+            $total += $best;
+        }
+
+        return (int) floor($total / max(1, $terms->count()));
     }
 
     /**

@@ -3,8 +3,8 @@
     :description="Str::limit($job->summary_ai ?? $job->title . ' di ' . $job->company, 160)"
     ogType="article"
     :canonical="route('jobs.show', $job->slug)"
+    :robots="($jobClosed ?? false) ? 'noindex, follow' : 'index, follow'"
 >
-
     @php
         $gradients = [
             'from-teal-500 to-cyan-600',
@@ -14,382 +14,247 @@
             'from-rose-500 to-pink-600',
             'from-violet-500 to-purple-600',
         ];
-        $colorIndex    = crc32($job->company ?? '') % count($gradients);
-        $gradient      = $gradients[$colorIndex];
+        $colorIndex = crc32($job->company ?? '') % count($gradients);
+        $gradient = $gradients[$colorIndex];
         $companyInitial = strtoupper(mb_substr($job->company ?? '?', 0, 1));
+        $employmentLabel = employment_label($job->employment_type) ?: 'Full Time';
+        $summaryText = trim(strip_tags(html_entity_decode($job->summary_ai ?? '', ENT_QUOTES | ENT_HTML5)));
+        $shortSummary = $summaryText !== '' ? Str::limit($summaryText, 210) : 'Temukan detail tanggung jawab, kualifikasi, dan informasi perusahaan untuk posisi ini.';
+        $safeDescription = \App\Support\JobDescriptionFormatter::toHtml($job->description_raw ?? '');
+        $visibleTags = collect($job->tags ?? [])->take(5);
     @endphp
 
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
+    <div class="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50/60 to-white">
+        <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
+            <div class="absolute -top-28 right-[-10rem] h-96 w-96 rounded-full bg-emerald-200/60 blur-3xl"></div>
+            <div class="absolute top-1/3 left-[-12rem] h-80 w-80 rounded-full bg-cyan-200/45 blur-3xl"></div>
+        </div>
 
-        {{-- Breadcrumb --}}
-        <nav class="mb-6 text-sm text-stone-400" aria-label="Breadcrumb">
-            <ol class="flex flex-wrap items-center gap-1.5">
-                <li><a href="{{ route('home') }}"       class="hover:text-teal-600 transition-colors">Beranda</a></li>
-                <li class="text-stone-300">/</li>
-                <li><a href="{{ route('jobs.index') }}" class="hover:text-teal-600 transition-colors">Lowongan</a></li>
-                <li class="text-stone-300">/</li>
-                <li class="text-slate-600 font-medium truncate max-w-[200px] sm:max-w-none" aria-current="page">{{ $job->title }}</li>
-            </ol>
-        </nav>
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+            <nav class="mb-6 text-sm text-slate-500" aria-label="Breadcrumb">
+                <ol class="flex flex-wrap items-center gap-2">
+                    <li><a href="{{ route('home') }}" class="font-medium hover:text-emerald-700 transition-colors">Beranda</a></li>
+                    <li class="text-slate-300">/</li>
+                    <li><a href="{{ route('jobs.index') }}" class="font-medium hover:text-emerald-700 transition-colors">Lowongan</a></li>
+                    <li class="text-slate-300">/</li>
+                    <li class="text-slate-700 font-semibold truncate max-w-[220px] sm:max-w-lg" aria-current="page">{{ $job->title }}</li>
+                </ol>
+            </nav>
 
-        {{-- Job Header --}}
-        <header class="mb-8 animate-fade-up">
-            <div class="flex items-start gap-4">
-                @if($job->company_logo)
-                    <img src="{{ $job->company_logo }}"
-                         alt="{{ $job->company }}"
-                         width="56"
-                         height="56"
-                         decoding="async"
-                         fetchpriority="high"
-                         referrerpolicy="no-referrer"
-                         class="w-14 h-14 rounded-2xl object-contain shrink-0 border border-slate-200 bg-white p-1"
-                         style="box-shadow: 0 2px 8px rgba(0,0,0,0.10);"
-                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br {{ $gradient }} items-center justify-center shrink-0 hidden"
-                         style="box-shadow: 0 2px 8px rgba(0,0,0,0.10);">
-                        <span class="text-white font-bold text-xl">{{ $companyInitial }}</span>
-                    </div>
-                @else
-                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br {{ $gradient }} flex items-center justify-center shrink-0"
-                         style="box-shadow: 0 2px 8px rgba(0,0,0,0.10);">
-                        <span class="text-white font-bold text-xl">{{ $companyInitial }}</span>
-                    </div>
-                @endif
-
-                <div class="min-w-0 flex-1">
-                    <h1 class="font-[family-name:var(--font-display)] text-xl md:text-2xl font-extrabold text-slate-800 leading-tight tracking-tight">
-                        {{ $job->title }}
-                    </h1>
-                    <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-stone-500">
-                        <span class="font-medium text-slate-700">{{ $job->company }}</span>
-                        @if($job->location)
-                            <span class="text-stone-300">&middot;</span>
-                            <span>{{ $job->location }}</span>
-                        @endif
-                        @if($job->employment_type)
-                            <span class="text-stone-300">&middot;</span>
-                            <x-badge :text="employment_label($job->employment_type)" color="blue" />
-                        @endif
-                        <span class="text-stone-300">&middot;</span>
-                        <time datetime="{{ $job->created_at->toISOString() }}">{{ $job->created_at->diffForHumans() }}</time>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Salary --}}
-            @if($job->salary_min || $job->salary_max)
-                <div class="mt-5 inline-flex items-center gap-2 px-4 py-2 rounded-xl badge-green">
-                    <span class="text-base font-bold">
-                        @if($job->salary_min && $job->salary_max)
-                            Rp {{ number_format($job->salary_min, 0, ',', '.') }} – {{ number_format($job->salary_max, 0, ',', '.') }}
-                        @elseif($job->salary_min)
-                            Mulai Rp {{ number_format($job->salary_min, 0, ',', '.') }}
-                        @else
-                            Hingga Rp {{ number_format($job->salary_max, 0, ',', '.') }}
-                        @endif
-                    </span>
-                    <span class="text-xs opacity-70">/bulan</span>
-                </div>
-            @endif
-
-            {{-- Tags --}}
-            @if(!empty($job->tags))
-                <div class="mt-4 flex flex-wrap gap-1.5">
-                    @foreach($job->tags as $tag)
-                        <x-badge :text="$tag" color="gray" />
-                    @endforeach
-                </div>
-            @endif
-
-            {{-- Share --}}
-            <div class="mt-5 pt-4" style="border-top: 1px solid #eae7e3;">
-                <x-share-buttons
-                    :url="route('jobs.show', $job)"
-                    :title="$job->title"
-                    :company="$job->company"
-                    :location="$job->location"
-                />
-            </div>
-        </header>
-
-        <div class="mb-8" style="border-top: 1px solid #eae7e3;"></div>
-
-        {{-- AI Summary --}}
-        @if($job->summary_ai)
-            <section class="mb-8 animate-fade-up delay-100">
-                <div class="rounded-2xl p-5 "
-                     style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.18);">
-                    <div class="flex items-start gap-3">
-                        <div class="shrink-0 w-8 h-8 rounded-xl flex items-center justify-center"
-                             style="background: rgba(245,158,11,0.80); box-shadow: 0 2px 8px rgba(245,158,11,0.30);">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-xs font-semibold text-amber-700 mb-1.5">Ringkasan AI</p>
-                            <div class="text-sm text-stone-600 leading-relaxed markdown-content">
-                                {!! Str::markdown($job->summary_ai ?? '') !!}
+            <div class="grid lg:grid-cols-[minmax(0,1fr)_370px] gap-6 lg:gap-8 items-start">
+                <main class="space-y-6">
+                    <article class="rounded-[2rem] border border-white/80 bg-white/95 p-5 md:p-8 shadow-xl shadow-emerald-950/5 animate-fade-up">
+                        @if($jobClosed ?? false)
+                            <div class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-900">
+                                <p class="text-sm font-bold">Lowongan ini sudah ditutup</p>
+                                <p class="mt-1 text-sm">Detail lama tetap tersedia sebagai referensi. Lihat lowongan terkait atau kembali ke daftar lowongan aktif sebelum melamar.</p>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        @endif
+                        @endif
 
-        {{-- Quick Info Grid --}}
-        <section class="mb-8 animate-fade-up delay-150">
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {{-- Employment Type --}}
-                <div class="surface rounded-2xl p-4 text-center">
-                    <div class="w-9 h-9 mx-auto mb-2 rounded-xl flex items-center justify-center" style="background: #eef2ff; border: 1px solid #e0e7ff;">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                    </div>
-                    <p class="text-[11px] text-stone-400 font-medium uppercase tracking-wider mb-0.5">Tipe</p>
-                    <p class="text-sm font-semibold text-slate-700">{{ employment_label($job->employment_type) ?: 'Full Time' }}</p>
-                </div>
+                        <header class="flex flex-col sm:flex-row gap-5">
+                            @if($job->company_logo)
+                                <img src="{{ $job->company_logo }}"
+                                     alt="{{ $job->company }}"
+                                     width="72"
+                                     height="72"
+                                     decoding="async"
+                                     fetchpriority="high"
+                                     referrerpolicy="no-referrer"
+                                     class="h-20 w-20 sm:h-20 sm:w-20 rounded-2xl object-contain shrink-0 border border-slate-200 bg-white p-2 shadow-sm"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="hidden h-20 w-20 sm:h-20 sm:w-20 rounded-2xl bg-gradient-to-br {{ $gradient }} items-center justify-center shrink-0 shadow-sm">
+                                    <span class="text-white font-bold text-2xl">{{ $companyInitial }}</span>
+                                </div>
+                            @else
+                                <div class="h-20 w-20 sm:h-20 sm:w-20 rounded-2xl bg-gradient-to-br {{ $gradient }} flex items-center justify-center shrink-0 shadow-sm">
+                                    <span class="text-white font-bold text-2xl">{{ $companyInitial }}</span>
+                                </div>
+                            @endif
 
-                {{-- Location --}}
-                <div class="surface rounded-2xl p-4 text-center">
-                    <div class="w-9 h-9 mx-auto mb-2 rounded-xl flex items-center justify-center" style="background: #ecfdf5; border: 1px solid #d1fae5;">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                    </div>
-                    <p class="text-[11px] text-stone-400 font-medium uppercase tracking-wider mb-0.5">Lokasi</p>
-                    <p class="text-sm font-semibold text-slate-700 truncate">{{ $job->location ?: 'Indonesia' }}</p>
-                </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="mb-3 flex flex-wrap items-center gap-2">
+                                    <span class="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 ring-1 ring-emerald-100">{{ $jobClosed ?? false ? 'Referensi lowongan' : 'Lowongan aktif' }}</span>
+                                    <span class="inline-flex items-center rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-700 ring-1 ring-teal-100">{{ $employmentLabel }}</span>
+                                </div>
 
-                {{-- Company --}}
-                <div class="surface rounded-2xl p-4 text-center">
-                    <div class="w-9 h-9 mx-auto mb-2 rounded-xl flex items-center justify-center" style="background: #f0fdfa; border: 1px solid #ccfbf1;">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
-                    </div>
-                    <p class="text-[11px] text-stone-400 font-medium uppercase tracking-wider mb-0.5">Perusahaan</p>
-                    <p class="text-sm font-semibold text-slate-700 truncate">{{ $job->company }}</p>
-                </div>
+                                <h1 class="font-[family-name:var(--font-display)] text-3xl md:text-5xl font-extrabold tracking-tight leading-tight text-slate-950">{{ $job->title }}</h1>
 
-                {{-- Posted --}}
-                <div class="surface rounded-2xl p-4 text-center">
-                    <div class="w-9 h-9 mx-auto mb-2 rounded-xl flex items-center justify-center" style="background: #fffbeb; border: 1px solid #fef3c7;">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                    </div>
-                    <p class="text-[11px] text-stone-400 font-medium uppercase tracking-wider mb-0.5">Diposting</p>
-                    <p class="text-sm font-semibold text-slate-700">{{ $job->created_at->diffForHumans() }}</p>
-                </div>
-            </div>
-        </section>
+                                <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-600">
+                                    <span class="inline-flex items-center gap-1.5 font-semibold text-slate-800">
+                                        {{ $job->company }}
+                                        <svg class="h-4 w-4 text-emerald-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.86-9.9a.75.75 0 00-1.22-.87l-3.2 4.48-1.66-1.66a.75.75 0 10-1.06 1.06l2.29 2.29a.75.75 0 001.14-.1l3.71-5.2z" clip-rule="evenodd" /></svg>
+                                    </span>
+                                    @if($job->location)
+                                        <span class="inline-flex items-center gap-1.5">
+                                            <svg class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                            {{ $job->location }}
+                                        </span>
+                                    @endif
+                                    <time datetime="{{ $job->created_at->toISOString() }}" class="inline-flex items-center gap-1.5">
+                                        <svg class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z" /></svg>
+                                        {{ $job->created_at->diffForHumans() }}
+                                    </time>
+                                </div>
 
-        {{-- Description --}}
-        @if($job->description_raw)
-            <section class="mb-12 animate-fade-up delay-200">
-                <div class="flex items-center justify-between mb-6">
-                    <div class="flex items-center gap-3">
-                        <div class="h-8 w-1.5 bg-teal-600 rounded-full"></div>
-                        <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight">Detail Lowongan</h2>
-                    </div>
-                </div>
-
-                <div class="job-description-wrapper">
-                    <div class="job-description-content text-sm md:text-[15px] text-slate-600">
-                        {!! \App\Support\JobDescriptionFormatter::toHtml($job->description_raw) !!}
-                    </div>
-                </div>
-            </section>
-        @endif
-
-        <div class="mb-8" style="border-top: 1px solid #eae7e3;"></div>
-
-        {{-- Apply CTA --}}
-        <section class="mb-8 animate-fade-up delay-300">
-            <div class="surface rounded-2xl p-6 md:p-8 text-center  ">
-                <h2 class="text-lg font-bold text-slate-800 mb-1.5">Tertarik dengan posisi ini?</h2>
-                <p class="text-sm text-stone-500 mb-5">Lamar langsung di situs resmi perusahaan.</p>
-                <x-button variant="accent" :href="route('jobs.apply', $job)" rel="nofollow noopener">
-                    Lamar Sekarang
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                </x-button>
-            </div>
-        </section>
-
-        {{-- Related Jobs --}}
-        @if(isset($relatedJobs) && $relatedJobs->count() > 0)
-            <section class="mb-8 animate-fade-up delay-300">
-                <h2 class="text-lg font-bold text-slate-800 mb-4">Lowongan Terkait</h2>
-                <div class="space-y-3">
-                    @foreach($relatedJobs as $relatedJob)
-                        <x-job-card :job="$relatedJob" />
-                    @endforeach
-                </div>
-            </section>
-        @endif
-
-        <div class="mb-8" style="border-top: 1px solid #eae7e3;"></div>
-
-        {{-- CV Matcher --}}
-        <section
-            class="surface rounded-2xl overflow-hidden  transition-colors"
-            :class="{ 'scanning-shimmer': scanning }"
-            x-data="cvMatcher()"
-        >
-            <div class="p-6 md:p-8">
-                <h2 class="text-lg font-bold text-slate-800 mb-1">Cek Kecocokan CV</h2>
-                <p class="text-sm text-stone-500 mb-6">Upload CV dan lihat seberapa cocok dengan lowongan ini.</p>
-
-                {{-- Upload Area --}}
-                <div x-show="!result">
-                    <div
-                        class="rounded-2xl p-8 text-center transition-all cursor-pointer"
-                        style="border: 2px dashed #d5d1cc;"
-                        :class="{ 'drag-active': isDragging }"
-                        @mouseover="this.style.borderColor='rgba(13,148,136,0.40)'; this.style.background='rgba(13,148,136,0.03)'"
-                        @mouseout="!isDragging && (this.style.borderColor='#d5d1cc', this.style.background='')"
-                        @dragover.prevent="isDragging = true"
-                        @dragleave.prevent="isDragging = false"
-                        @drop.prevent="handleDrop($event)"
-                        @click="$refs.fileInput.click()"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-stone-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                        </svg>
-                        <p class="text-sm text-stone-500 mb-1">
-                            Seret file CV ke sini, atau <span class="text-teal-600 font-medium">pilih file</span>
-                        </p>
-                        <p class="text-xs text-stone-400">Hanya PDF, maksimal 5 MB</p>
-                        <input type="file" accept=".pdf,application/pdf" class="sr-only" x-ref="fileInput" @change="handleFileSelect($event)">
-                    </div>
-
-                    {{-- Selected File --}}
-                    <div x-show="file" x-cloak class="mt-3 flex items-center gap-3 text-sm text-slate-600 rounded-xl px-4 py-2.5"
-                         style="background: #f5f3f0; border: 1px solid #eae7e3;">
-                        <span class="truncate font-medium" x-text="file?.name"></span>
-                        <span class="text-stone-400 text-xs shrink-0" x-text="file ? (file.size / 1024 / 1024).toFixed(1) + ' MB' : ''"></span>
-                        <button @click.stop="file = null" class="text-stone-400 hover:text-red-500 ml-auto shrink-0 p-1 rounded-lg hover:bg-red-50 transition-colors" aria-label="Hapus file">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                        </button>
-                    </div>
-
-                    <p class="mt-3 text-xs text-stone-400 flex items-center gap-1.5">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-teal-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-                        CV dihapus otomatis setelah dianalisis.
-                    </p>
-
-                    <div class="mt-4">
-                        <button
-                            type="button"
-                            class="inline-flex items-center justify-center w-full sm:w-auto min-h-[2.5rem] px-5 py-2 rounded-xl font-semibold text-sm transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-amber-400 active:scale-[0.97]"
-                            :class="!file || scanning ? 'cursor-not-allowed text-stone-400' : 'cursor-pointer text-white'"
-                            :style="!file || scanning ? 'background: #f0eeeb; border: 1px solid #e0ddd9;' : 'background: rgba(245,158,11,0.85); border: 1px solid rgba(251,191,36,0.40); box-shadow: 0 2px 12px rgba(245,158,11,0.28), inset 0 1px 0 rgba(255,255,255,0.20);'"
-                            :disabled="!file || scanning"
-                            @click="uploadAndScan()"
-                        >
-                            <span x-show="!scanning">Analisis CV Saya</span>
-                            <span x-show="scanning" x-cloak class="flex items-center gap-2">
-                                <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                                </svg>
-                                Menganalisis...
-                            </span>
-                        </button>
-                    </div>
-
-                    <div x-show="error" x-cloak class="mt-3 text-sm text-red-600 rounded-xl p-3 flex items-start gap-2"
-                         style="background: #fef2f2; border: 1px solid #fecaca;" role="alert">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                        <span x-text="error"></span>
-                    </div>
-                </div>
-
-                {{-- Results --}}
-                <div x-show="result" x-cloak
-                    x-transition:enter="transition ease-out duration-300"
-                    x-transition:enter-start="opacity-0"
-                    x-transition:enter-end="opacity-100"
-                    class="space-y-5"
-                    aria-live="polite" aria-atomic="true"
-                >
-                    {{-- Score --}}
-                    <div class="text-center py-4">
-                        <div class="relative inline-flex items-center justify-center w-32 h-32">
-                            <svg class="w-32 h-32 -rotate-90" viewBox="0 0 120 120">
-                                <circle cx="60" cy="60" r="54" fill="none" stroke="#eae7e3" stroke-width="8" />
-                                <circle cx="60" cy="60" r="54" fill="none"
-                                    :stroke="result?.match_score >= 70 ? '#0d9488' : result?.match_score >= 40 ? '#d97706' : '#ef4444'"
-                                    stroke-width="8" stroke-linecap="round"
-                                    :stroke-dasharray="339.292"
-                                    :stroke-dashoffset="339.292 - (339.292 * (result?.match_score || 0) / 100)"
-                                    class="gauge-circle gauge-animate" />
-                            </svg>
-                            <div class="absolute flex flex-col items-center">
-                                <span class="font-[family-name:var(--font-display)] text-3xl font-extrabold" :class="{
-                                    'text-teal-600':  result?.match_score >= 70,
-                                    'text-amber-600': result?.match_score >= 40 && result?.match_score < 70,
-                                    'text-red-500':   result?.match_score < 40
-                                }" x-text="(result?.match_score || 0) + '%'"></span>
-                                <span class="text-xs text-stone-400 font-medium">kecocokan</span>
+                                @if($visibleTags->isNotEmpty())
+                                    <div class="mt-5 flex flex-wrap gap-2">
+                                        @foreach($visibleTags as $tag)
+                                            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">{{ $tag }}</span>
+                                        @endforeach
+                                    </div>
+                                @endif
                             </div>
+                        </header>
+
+                        <div class="mt-7 border-t border-slate-100 pt-5">
+                            <x-share-buttons :url="route('jobs.show', $job)" :title="$job->title" :company="$job->company" :location="$job->location" />
                         </div>
-                    </div>
 
-                    {{-- Strengths --}}
-                    <div>
-                        <h3 class="text-sm font-semibold text-emerald-600 mb-2">Kekuatan</h3>
-                        <ul class="space-y-1.5">
-                            <template x-for="(item, i) in result?.strengths" :key="'s-'+i">
-                                <li class="text-sm text-slate-600 flex items-start gap-2 rounded-xl px-3 py-2.5"
-                                    style="background: #ecfdf5; border: 1px solid #d1fae5;">
-                                    <span class="text-emerald-600 font-semibold shrink-0">+</span>
-                                    <span x-text="item"></span>
-                                </li>
-                            </template>
-                        </ul>
-                    </div>
+                        <section class="mt-8 border-t border-slate-100 pt-8">
+                            <div class="mb-6 flex items-center gap-3">
+                                <div class="h-10 w-10 rounded-2xl bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100 flex items-center justify-center">
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M7 4h10a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6a2 2 0 012-2z" /></svg>
+                                </div>
+                                <h2 class="font-[family-name:var(--font-display)] text-2xl font-bold text-slate-900 tracking-tight">Deskripsi Pekerjaan</h2>
+                            </div>
 
-                    {{-- Weaknesses --}}
-                    <div>
-                        <h3 class="text-sm font-semibold text-red-600 mb-2">Kekurangan</h3>
-                        <ul class="space-y-1.5">
-                            <template x-for="(item, i) in result?.weaknesses" :key="'w-'+i">
-                                <li class="text-sm text-slate-600 flex items-start gap-2 rounded-xl px-3 py-2.5"
-                                    style="background: #fef2f2; border: 1px solid #fecaca;">
-                                    <span class="text-red-600 font-semibold shrink-0">&minus;</span>
-                                    <span x-text="item"></span>
-                                </li>
-                            </template>
-                        </ul>
-                    </div>
+                            @if($summaryText !== '')
+                                <p class="mb-6 text-[15px] leading-7 text-slate-600">{{ $shortSummary }}</p>
+                            @endif
 
-                    {{-- Suggestions --}}
-                    <div>
-                        <h3 class="text-sm font-semibold text-slate-600 mb-2">Saran Perbaikan</h3>
-                        <ul class="space-y-1.5">
-                            <template x-for="(item, i) in result?.suggestions" :key="'sg-'+i">
-                                <li class="text-sm text-stone-600 flex items-start gap-2 rounded-xl px-3 py-2.5"
-                                    style="background: #f5f3f0; border: 1px solid #eae7e3;">
-                                    <span class="text-teal-600 font-semibold shrink-0">&rarr;</span>
-                                    <span x-text="item"></span>
-                                </li>
-                            </template>
-                        </ul>
-                    </div>
+                            <div class="job-description-content text-sm md:text-[15px] text-slate-600 leading-relaxed">
+                                {!! $safeDescription ?: '<p>Detail lowongan belum tersedia. Gunakan ringkasan cepat untuk melihat informasi utama posisi ini.</p>' !!}
+                            </div>
+                        </section>
+                    </article>
 
-                    <div class="pt-4" style="border-top: 1px solid #eae7e3;">
-                        <x-button variant="secondary" type="button" @click="resetMatcher()">
-                            Analisis CV Lainnya
-                        </x-button>
-                    </div>
-                </div>
+                    @if(isset($relatedJobs) && $relatedJobs->count() > 0)
+                        <section class="animate-fade-up delay-200">
+                            <div class="mb-4 flex items-center justify-between gap-4">
+                                <div>
+                                    <h2 class="font-[family-name:var(--font-display)] text-2xl font-bold text-slate-900">Lowongan Terkait</h2>
+                                    <p class="text-sm text-slate-500">Peluang lain yang mungkin cocok untuk Anda.</p>
+                                </div>
+                                <a href="{{ route('jobs.index') }}" class="hidden sm:inline-flex items-center gap-2 text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition-colors">
+                                    Lihat semua
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                                </a>
+                            </div>
+                            <div class="grid md:grid-cols-3 gap-4">
+                                @foreach($relatedJobs as $relatedJob)
+                                    <x-job-card :job="$relatedJob" compact />
+                                @endforeach
+                            </div>
+                        </section>
+                    @endif
+                </main>
+
+                <aside class="lg:sticky lg:top-24 space-y-5 animate-fade-up delay-100">
+                    <section class="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-xl shadow-slate-950/5" x-data="cvMatcher()">
+                        <h2 class="font-[family-name:var(--font-display)] text-lg font-bold text-slate-900">Cocokkan CV Anda</h2>
+                        <p class="mt-1 text-sm leading-6 text-slate-500">Upload CV dan dapatkan analisis kecocokan instan dengan posisi ini.</p>
+
+                        <div x-show="!result" class="mt-5">
+                            <div class="rounded-2xl border-2 border-dashed border-emerald-200 bg-emerald-50/40 p-6 text-center transition-all cursor-pointer hover:border-emerald-300 hover:bg-emerald-50"
+                                :class="{ 'border-emerald-400 bg-emerald-50': isDragging }"
+                                @dragover.prevent="isDragging = true"
+                                @dragleave.prevent="isDragging = false"
+                                @drop.prevent="handleDrop($event)"
+                                @click="$refs.fileInput.click()">
+                                <svg class="mx-auto mb-3 h-9 w-9 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                                <p class="text-sm text-slate-600">Seret file CV ke sini, atau <span class="font-semibold text-emerald-600 underline">pilih file</span></p>
+                                <p class="mt-1 text-xs text-slate-400">Hanya PDF, maksimal 5 MB</p>
+                                <input type="file" accept=".pdf,application/pdf" class="sr-only" x-ref="fileInput" @change="handleFileSelect($event)">
+                            </div>
+
+                            <div x-show="file" x-cloak class="mt-3 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-600">
+                                <span class="truncate font-medium" x-text="file?.name"></span>
+                                <span class="shrink-0 text-xs text-slate-400" x-text="file ? (file.size / 1024 / 1024).toFixed(1) + ' MB' : ''"></span>
+                                <button @click.stop="file = null" class="ml-auto rounded-lg p-1 text-slate-400 hover:bg-red-50 hover:text-red-500" aria-label="Hapus file">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                                </button>
+                            </div>
+
+                            <p class="mt-3 flex items-center gap-1.5 text-xs text-slate-400">
+                                <svg class="h-3.5 w-3.5 shrink-0 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A12 12 0 0112 2.944a12 12 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                                CV dihapus otomatis setelah dianalisis.
+                            </p>
+
+                            <button type="button" class="mt-4 inline-flex w-full items-center justify-center rounded-xl px-5 py-3 text-sm font-bold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                                :class="!file || scanning ? 'cursor-not-allowed bg-slate-100 text-slate-400' : 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-700'"
+                                :disabled="!file || scanning"
+                                @click="uploadAndScan()">
+                                <span x-show="!scanning">Analisis CV Saya</span>
+                                <span x-show="scanning" x-cloak class="flex items-center gap-2">
+                                    <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                                    Menganalisis...
+                                </span>
+                            </button>
+
+                            <div x-show="error" x-cloak class="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600" role="alert" x-text="error"></div>
+                        </div>
+
+                        <div x-show="result" x-cloak x-transition class="mt-5 space-y-5" aria-live="polite" aria-atomic="true">
+                            <div class="text-center">
+                                <div class="relative inline-flex h-32 w-32 items-center justify-center">
+                                    <svg class="h-32 w-32 -rotate-90" viewBox="0 0 120 120">
+                                        <circle cx="60" cy="60" r="54" fill="none" stroke="#e5e7eb" stroke-width="8" />
+                                        <circle cx="60" cy="60" r="54" fill="none" :stroke="result?.match_score >= 70 ? '#059669' : result?.match_score >= 40 ? '#d97706' : '#ef4444'" stroke-width="8" stroke-linecap="round" :stroke-dasharray="339.292" :stroke-dashoffset="339.292 - (339.292 * (result?.match_score || 0) / 100)" />
+                                    </svg>
+                                    <div class="absolute flex flex-col items-center">
+                                        <span class="font-[family-name:var(--font-display)] text-3xl font-extrabold text-emerald-600" x-text="(result?.match_score || 0) + '%'"></span>
+                                        <span class="text-xs font-medium text-slate-400">kecocokan</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="mb-2 text-sm font-bold text-emerald-700">Kekuatan Anda</h3>
+                                <ul class="space-y-2">
+                                    <template x-for="(item, i) in result?.strengths" :key="'s-'+i">
+                                        <li class="flex items-start gap-2 rounded-xl bg-emerald-50 px-3 py-2 text-sm text-slate-600"><span class="font-bold text-emerald-600">✓</span><span x-text="item"></span></li>
+                                    </template>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <h3 class="mb-2 text-sm font-bold text-amber-700">Yang Bisa Ditingkatkan</h3>
+                                <ul class="space-y-2">
+                                    <template x-for="(item, i) in result?.weaknesses" :key="'w-'+i">
+                                        <li class="flex items-start gap-2 rounded-xl bg-amber-50 px-3 py-2 text-sm text-slate-600"><span class="font-bold text-amber-600">!</span><span x-text="item"></span></li>
+                                    </template>
+                                </ul>
+                            </div>
+
+                            <button type="button" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50" @click="resetMatcher()">Analisis CV Lainnya</button>
+                        </div>
+                    </section>
+
+                    <section class="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-xl shadow-slate-950/5">
+                        <h2 class="font-[family-name:var(--font-display)] text-lg font-bold text-slate-900">Ringkasan Cepat</h2>
+                        <dl class="mt-5 space-y-4 text-sm">
+                            <div class="flex items-start justify-between gap-4"><dt class="text-slate-500">Tipe</dt><dd class="font-semibold text-slate-800 text-right">{{ $employmentLabel }}</dd></div>
+                            <div class="flex items-start justify-between gap-4"><dt class="text-slate-500">Lokasi</dt><dd class="font-semibold text-slate-800 text-right">{{ $job->location ?: 'Indonesia' }}</dd></div>
+                            <div class="flex items-start justify-between gap-4"><dt class="text-slate-500">Perusahaan</dt><dd class="font-semibold text-slate-800 text-right">{{ $job->company }}</dd></div>
+                            <div class="flex items-start justify-between gap-4"><dt class="text-slate-500">Diposting</dt><dd class="font-semibold text-slate-800 text-right">{{ $job->created_at->diffForHumans() }}</dd></div>
+                        </dl>
+                        <div class="mt-5">
+                            @if($jobClosed ?? false)
+                                <x-button variant="secondary" :href="route('jobs.index')" class="w-full justify-center">Cari Lowongan Aktif</x-button>
+                            @else
+                                <x-button variant="accent" :href="route('jobs.apply', $job)" target="_blank" rel="nofollow noopener noreferrer" class="w-full justify-center">Lamar Sekarang <svg class="ml-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg></x-button>
+                            @endif
+                        </div>
+                    </section>
+                </aside>
             </div>
-        </section>
+        </div>
     </div>
 
     <script>
         function cvMatcher() {
             return {
                 file: null, scanning: false, result: null, error: null, isDragging: false,
-
                 handleFileSelect(event) {
                     const file = event.target.files[0];
                     if (file) this.setFile(file);
@@ -425,12 +290,9 @@
                         });
 
                         const data = await response.json();
-
                         if (!response.ok) {
                             throw new Error(data.message || 'Gagal menganalisis CV.');
                         }
-
-                        // Synchronous: result comes back immediately
                         if (data.result) {
                             this.result = data.result;
                         } else {
@@ -451,25 +313,25 @@
             };
         }
 
-        // Enhance description headers
         document.addEventListener('DOMContentLoaded', () => {
             const descContainer = document.querySelector('.job-description-content');
             if (!descContainer) return;
 
             const config = [
                 { header: 'Tentang Pekerjaan', class: 'section-teal' },
-                { header: 'Tanggung Jawab',    class: 'section-blue' },
-                { header: 'Tugas',             class: 'section-blue' },
-                { header: 'Kualifikasi',       class: 'section-amber' },
-                { header: 'Requirement',       class: 'section-amber' },
-                { header: 'Persyaratan',       class: 'section-amber' },
-                { header: 'Keuntungan',        class: 'section-green' },
-                { header: 'Benefit',           class: 'section-green' }
+                { header: 'Tanggung Jawab', class: 'section-blue' },
+                { header: 'Responsibilities', class: 'section-blue' },
+                { header: 'Kualifikasi', class: 'section-amber' },
+                { header: 'Qualifications', class: 'section-amber' },
+                { header: 'Requirement', class: 'section-amber' },
+                { header: 'Persyaratan', class: 'section-amber' },
+                { header: 'Tentang Perusahaan', class: 'section-blue' },
+                { header: 'Company', class: 'section-blue' },
+                { header: 'Keuntungan', class: 'section-green' },
+                { header: 'Benefit', class: 'section-green' }
             ];
-            
-            // 1. First, handle plain text if needed (no H3s yet)
-            const hasH3 = descContainer.querySelector('h3');
-            if (!hasH3) {
+
+            if (!descContainer.querySelector('h3')) {
                 let html = descContainer.innerHTML;
                 config.forEach(item => {
                     const regex = new RegExp(`(^|<br>|<p>|\\n)(${item.header})(:)?(\\s|\\n|<|$)`, 'gi');
@@ -478,35 +340,26 @@
                 descContainer.innerHTML = html;
             }
 
-            // 2. Wrap each H3 and its following content into a section card
             const children = Array.from(descContainer.children);
             let currentCard = null;
 
             children.forEach(child => {
                 if (child.tagName === 'H3') {
-                    // Create new card
                     currentCard = document.createElement('div');
-                    currentCard.className = 'surface rounded-3xl p-6 md:p-8 mb-6 animate-fade-up';
-                    currentCard.style.boxShadow = '0 4px 20px rgba(0,0,0,0.03)';
-                    
-                    // Assign section class to H3
+                    currentCard.className = 'rounded-3xl border border-slate-100 bg-slate-50/70 p-5 md:p-6 mb-5 shadow-sm';
                     const text = child.textContent.toLowerCase();
                     const match = config.find(item => text.includes(item.header.toLowerCase()));
                     child.classList.add(match ? match.class : 'section-teal');
-                    
-                    // Insert card before the H3 and move H3 into it
                     descContainer.insertBefore(currentCard, child);
                     currentCard.appendChild(child);
                 } else if (currentCard) {
-                    // Move sibling into the current card
                     currentCard.appendChild(child);
                 }
             });
 
-            // If there were no H3s, wrap everything in one card
-            if (!descContainer.querySelector('.surface')) {
+            if (!descContainer.querySelector('.rounded-3xl')) {
                 const wrapper = document.createElement('div');
-                wrapper.className = 'surface rounded-3xl p-6 md:p-8 mb-6';
+                wrapper.className = 'rounded-3xl border border-slate-100 bg-slate-50/70 p-5 md:p-6 shadow-sm';
                 while (descContainer.firstChild) {
                     wrapper.appendChild(descContainer.firstChild);
                 }
@@ -523,6 +376,12 @@
             '@type' => 'JobPosting',
             'title' => $job->title,
             'description' => Str::limit($schemaDescription, 5000),
+            'identifier' => [
+                '@type' => 'PropertyValue',
+                'name' => 'Lamaraja',
+                'value' => (string) $job->id,
+            ],
+            'url' => route('jobs.show', $job->slug),
             'datePosted' => $job->created_at->toIso8601String(),
             'validThrough' => ($job->expires_at ?? $job->created_at->copy()->addDays(60))->toIso8601String(),
             'hiringOrganization' => array_filter([
@@ -541,6 +400,14 @@
             'employmentType' => strtoupper(str_replace('-', '_', is_object($job->employment_type) ? $job->employment_type->value : ($job->employment_type ?? 'FULL_TIME'))),
             'directApply' => false,
         ];
+
+        if (str_contains(strtolower((string) $job->location), 'remote') || (is_object($job->employment_type) && $job->employment_type->value === 'remote')) {
+            $jobPosting['jobLocationType'] = 'TELECOMMUTE';
+            $jobPosting['applicantLocationRequirements'] = [
+                '@type' => 'Country',
+                'name' => 'Indonesia',
+            ];
+        }
 
         if ($job->salary_min || $job->salary_max) {
             $jobPosting['baseSalary'] = [
@@ -568,5 +435,4 @@
     @endphp
     {!! '<script type="application/ld+json">' . $jobLd . '</script>' !!}
     {!! '<script type="application/ld+json">' . $breadcrumbLd . '</script>' !!}
-
 </x-layout>

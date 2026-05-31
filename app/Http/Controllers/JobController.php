@@ -60,16 +60,31 @@ class JobController extends Controller
     {
         $filters = JobFilterDTO::fromRequest($request->all());
         $jobs = $this->jobRepository->search($filters);
-
-        $locations = Job::query()
-            ->active()
-            ->whereNotNull('location')
-            ->distinct()
-            ->pluck('location')
-            ->sort()
-            ->values();
+        $locations = $this->activeLocations();
 
         return view('pages.jobs.index', compact('jobs', 'filters', 'locations'));
+    }
+
+    /**
+     * GET /lowongan/{slug} -- curated SEO landing pages from GSC signals.
+     */
+    public function landing(string $slug): View
+    {
+        $landing = config("seo.job_landing_pages.$slug");
+
+        if (! is_array($landing)) {
+            abort(404);
+        }
+
+        $filters = JobFilterDTO::fromRequest([
+            'keyword' => $landing['keyword'] ?? null,
+            'location' => $landing['location'] ?? null,
+            'employment_type' => $landing['employment_type'] ?? null,
+        ]);
+        $jobs = $this->jobRepository->search($filters);
+        $locations = $this->activeLocations();
+
+        return view('pages.jobs.index', compact('jobs', 'filters', 'locations', 'landing'));
     }
 
     /**
@@ -77,15 +92,18 @@ class JobController extends Controller
      */
     public function show(string $slug): View
     {
-        $job = $this->jobRepository->findBySlug($slug);
+        $job = $this->jobRepository->findAnyBySlug($slug);
 
         if (! $job) {
             abort(404);
         }
 
+        $jobClosed = $job->trashed()
+            || ! $job->is_active
+            || ($job->expires_at && $job->expires_at->isPast());
         $relatedJobs = $this->jobRepository->getRelatedJobs($job, 3);
 
-        return view('pages.jobs.show', compact('job', 'relatedJobs'));
+        return view('pages.jobs.show', compact('job', 'relatedJobs', 'jobClosed'));
     }
 
     /**
@@ -102,5 +120,16 @@ class JobController extends Controller
         // TODO: track click event
 
         return redirect()->away($job->source_url);
+    }
+
+    private function activeLocations(): \Illuminate\Support\Collection
+    {
+        return Job::query()
+            ->active()
+            ->whereNotNull('location')
+            ->distinct()
+            ->pluck('location')
+            ->sort()
+            ->values();
     }
 }

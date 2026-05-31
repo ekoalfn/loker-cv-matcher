@@ -177,6 +177,31 @@
         </div>
     @endif
 
+    {{-- SEO HUBS --}}
+    @php
+        $seoHubs = collect(config('seo.job_landing_pages', []))->take(10);
+    @endphp
+    @if($seoHubs->isNotEmpty())
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 md:pt-12">
+            <div class="rounded-3xl border border-emerald-100 bg-white p-5 md:p-6 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-[0.18em] text-emerald-600">Pencarian populer</p>
+                        <h2 class="mt-1 font-[family-name:var(--font-display)] text-xl md:text-2xl font-bold text-slate-900">Jelajahi lowongan yang sering dicari</h2>
+                    </div>
+                    <a href="{{ route('jobs.index') }}" class="text-sm font-semibold text-emerald-700 hover:text-emerald-800">Lihat semua lowongan</a>
+                </div>
+                <div class="mt-5 flex flex-wrap gap-2">
+                    @foreach($seoHubs as $slug => $hub)
+                        <a href="{{ route('jobs.landing', $slug) }}" class="rounded-full border border-emerald-100 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100">
+                            {{ $hub['heading'] }}
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+
     {{-- RECENT JOBS --}}
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
@@ -328,12 +353,12 @@
                         <p class="text-slate-600 leading-relaxed mb-6">
                             Upload your CV and let our AI do the heavy lifting. We'll match you with the best jobs and show you how well you fit.
                         </p>
-                        <button class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-emerald-600/25 hover:shadow-xl hover:shadow-emerald-600/30 active:scale-[0.98]">
+                        <a href="{{ route('cv-matcher.index') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-emerald-600/25 hover:shadow-xl hover:shadow-emerald-600/30 active:scale-[0.98]">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                             </svg>
                             Upload Your CV
-                        </button>
+                        </a>
                         <div class="flex items-center gap-2 mt-4 text-sm text-slate-500">
                             <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
