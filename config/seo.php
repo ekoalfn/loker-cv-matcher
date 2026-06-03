@@ -32,7 +32,6 @@ return [
             'heading' => 'Lowongan Kerja Remote',
             'description' => 'Temukan lowongan remote dan hybrid terbaru untuk kandidat Indonesia.',
             'keyword' => 'remote',
-            'employment_type' => ['remote'],
             'intro' => 'Kumpulan lowongan remote dan hybrid untuk kandidat yang ingin bekerja fleksibel dari Indonesia.',
             'related' => ['it', 'part-time', 'customer-service'],
         ],
