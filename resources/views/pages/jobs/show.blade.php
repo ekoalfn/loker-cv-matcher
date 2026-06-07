@@ -150,9 +150,32 @@
                 </main>
 
                 <aside class="lg:sticky lg:top-24 space-y-5 animate-fade-up delay-100">
-                    <section class="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-xl shadow-slate-950/5" x-data="cvMatcher()">
-                        <h2 class="font-[family-name:var(--font-display)] text-lg font-bold text-slate-900">Cocokkan CV Anda</h2>
-                        <p class="mt-1 text-sm leading-6 text-slate-500">Upload CV dan dapatkan analisis kecocokan instan dengan posisi ini.</p>
+                    {{-- AI Funnel: primary actions for this job --}}
+                    <section class="rounded-[1.75rem] border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50/50 p-5 shadow-xl shadow-emerald-900/5">
+                        <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-700">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M13 7H7v6h6V7z"/><path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clip-rule="evenodd"/></svg>
+                            Persiapan dengan AI
+                        </div>
+                        <h2 class="mt-2 font-[family-name:var(--font-display)] text-lg font-bold text-slate-900">Tingkatkan peluang di posisi ini</h2>
+                        <div class="mt-4 space-y-2.5">
+                            <a href="#cv-match" @click.prevent="document.getElementById('cv-match')?.scrollIntoView({behavior:'smooth'})" class="flex items-center gap-3 rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-700">
+                                <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                Cek Kecocokan CV dengan Lowongan Ini
+                            </a>
+                            <a href="{{ route('ai-tools.interview-practice', ['job_id' => $job->id]) }}" class="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-white px-4 py-3 text-sm font-bold text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-50">
+                                <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+                                Latihan Interview untuk Posisi Ini
+                            </a>
+                            <a href="{{ route('ai-tools.cover-letter') }}?job_id={{ $job->id }}" class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition hover:border-emerald-200 hover:bg-emerald-50/40">
+                                <svg class="w-5 h-5 shrink-0 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                Buat Surat Lamaran dengan AI
+                            </a>
+                        </div>
+                    </section>
+
+                    <section id="cv-match" class="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-xl shadow-slate-950/5 scroll-mt-24" x-data="cvMatcher()">
+                        <h2 class="font-[family-name:var(--font-display)] text-lg font-bold text-slate-900">Cek Kecocokan CV dengan Lowongan Ini</h2>
+                        <p class="mt-1 text-sm leading-6 text-slate-500">Upload CV dan dapatkan skor kecocokan, kekuatan, gap, dan draft ringkasan CV yang lebih ATS-friendly.</p>
 
                         <div x-show="!result" class="mt-5">
                             <div class="rounded-2xl border-2 border-dashed border-emerald-200 bg-emerald-50/40 p-6 text-center transition-all cursor-pointer hover:border-emerald-300 hover:bg-emerald-50"
@@ -225,6 +248,37 @@
                                     </template>
                                 </ul>
                             </div>
+
+                            <template x-if="result?.suggestions?.length">
+                                <div>
+                                    <h3 class="mb-2 text-sm font-bold text-emerald-700">Rekomendasi Perbaikan CV</h3>
+                                    <ul class="space-y-2">
+                                        <template x-for="(item, i) in result?.suggestions" :key="'sg-'+i">
+                                            <li class="flex items-start gap-2 rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-600"><span class="font-bold text-emerald-600">→</span><span x-text="item"></span></li>
+                                        </template>
+                                    </ul>
+                                </div>
+                            </template>
+
+                            <template x-if="result?.ats_summary?.summary">
+                                <div class="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <h3 class="text-sm font-bold text-emerald-800">Draft Ringkasan CV (ATS-friendly)</h3>
+                                        <button type="button" class="text-xs font-bold text-emerald-700 hover:underline" @click="copyText(result.ats_summary.summary, $event)">Salin</button>
+                                    </div>
+                                    <p class="mt-2 text-sm leading-6 text-slate-700" x-text="result.ats_summary.summary"></p>
+                                    <div class="mt-3 flex flex-wrap gap-1.5">
+                                        <template x-for="(kw, i) in result.ats_summary.keywords" :key="'kw-'+i">
+                                            <span class="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-100" x-text="kw"></span>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <a href="{{ route('jobs.apply', $job) }}" target="_blank" rel="nofollow noopener noreferrer" class="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-800">
+                                Lamar Sekarang
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                            </a>
 
                             <button type="button" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50" @click="resetMatcher()">Analisis CV Lainnya</button>
                         </div>
@@ -309,6 +363,15 @@
                     this.result = null;
                     this.error = null;
                     this.scanning = false;
+                },
+                copyText(text, event) {
+                    navigator.clipboard?.writeText(text);
+                    if (event?.target) {
+                        const el = event.target;
+                        const original = el.textContent;
+                        el.textContent = 'Tersalin!';
+                        setTimeout(() => { el.textContent = original; }, 1500);
+                    }
                 },
             };
         }

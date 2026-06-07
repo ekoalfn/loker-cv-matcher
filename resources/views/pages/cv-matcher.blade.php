@@ -1,6 +1,6 @@
 <x-layout>
-    <x-slot:title>CV Matcher Gratis - Cek Kecocokan CV dengan Lowongan | Lamaraja</x-slot:title>
-    <x-slot:description>Upload CV PDF dan gunakan CV Matcher gratis Lamaraja untuk menemukan lowongan kerja yang paling cocok berdasarkan skill, pengalaman, dan profilmu.</x-slot:description>
+    <x-slot:title>CV Matcher AI & ATS Checker - Cek Kecocokan CV dengan Lowongan | Lamaraja</x-slot:title>
+    <x-slot:description>Upload CV PDF dan gunakan CV Matcher AI Lamaraja: cek skor kecocokan, skill cocok, skill gap, dan saran perbaikan CV agar lebih ATS-friendly. Gratis.</x-slot:description>
 
     @php
         $faqLd = json_encode([
@@ -61,13 +61,13 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div>
                     <h1 class="font-[family-name:var(--font-display)] text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-950 leading-tight">
-                        CV Matcher <span class="text-emerald-600">Lamaraja</span>
+                        CV Matcher <span class="text-emerald-600">AI</span>
                     </h1>
                     <p class="mt-5 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
-                        Upload CV, biarkan Lamaraja carikan lowongan yang cocok.
+                        Cek kecocokan CV dengan lowongan, lebih cerdas dengan AI.
                     </p>
                     <p class="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
-                        Tidak perlu pilih job manual. Sistem akan membaca profil dari CV kamu, mengambil kandidat lowongan aktif, lalu mengurutkan rekomendasi berdasarkan skor kecocokan AI.
+                        Upload CV sekali, dan AI akan menemukan lowongan yang paling cocok plus menampilkan skor kecocokan, skill yang cocok, skill gap, dan saran agar CV-mu lebih ATS-friendly.
                     </p>
 
                     <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -167,11 +167,17 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
                 <div class="grid grid-cols-1 lg:grid-cols-[0.85fr_1.15fr] gap-10 items-start">
                     <div>
-                        <p class="text-sm font-bold uppercase tracking-wider text-emerald-600">CV Matcher SEO Guide</p>
-                        <h2 class="mt-3 font-[family-name:var(--font-display)] text-3xl sm:text-4xl font-extrabold text-slate-950">Cek kecocokan CV sebelum melamar kerja</h2>
+                        <p class="text-sm font-bold uppercase tracking-wider text-emerald-600">CV Matcher AI & ATS Checker Indonesia</p>
+                        <h2 class="mt-3 font-[family-name:var(--font-display)] text-3xl sm:text-4xl font-extrabold text-slate-950">Cek kecocokan CV dengan lowongan sebelum melamar kerja</h2>
                         <p class="mt-4 text-slate-600 leading-8">
-                            Banyak perusahaan memakai proses screening awal untuk mencari kandidat yang paling relevan. CV Matcher Lamaraja membantu kamu melihat lowongan mana yang paling sesuai dengan pengalaman, skill, dan kata kunci di CV.
+                            Banyak perusahaan memakai sistem ATS (Applicant Tracking System) untuk menyaring kandidat. CV Matcher AI Lamaraja membantu kamu sebagai ATS checker: melihat lowongan mana yang paling sesuai dengan pengalaman, skill, dan kata kunci di CV, lalu memberi saran cara memperbaiki CV agar lebih ATS-friendly.
                         </p>
+                        <div class="mt-5 flex flex-wrap gap-2">
+                            <a href="{{ route('ai-tools.cv-rewrite') }}" class="rounded-full border border-emerald-100 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 hover:bg-emerald-100">Cara memperbaiki CV ATS</a>
+                            <a href="{{ route('ai-tools.cover-letter') }}" class="rounded-full border border-emerald-100 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 hover:bg-emerald-100">Generator surat lamaran kerja</a>
+                            <a href="{{ route('mock-interview.landing') }}" class="rounded-full border border-emerald-100 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 hover:bg-emerald-100">Latihan interview AI</a>
+                            <a href="{{ route('ai-tools.skill-gap') }}" class="rounded-full border border-emerald-100 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 hover:bg-emerald-100">Skill gap analyzer</a>
+                        </div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">

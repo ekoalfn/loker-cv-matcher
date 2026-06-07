@@ -7,157 +7,85 @@
 @endphp
 
 <x-layout
-    title="Lowongan Kerja Terbaru {{ $bulanIndonesia }} {{ date('Y') }} - Cari Loker | Lamaraja"
-    description="Cari lowongan kerja terbaru di Indonesia dari berbagai sumber. Lamaraja merangkum loker dengan AI dan menyediakan CV Matcher gratis."
+    title="AI Career Assistant - Cek CV, Latihan Interview & Cari Kerja | Lamaraja"
+    description="Lamaraja adalah AI career copilot untuk pencari kerja Indonesia. Cek kecocokan CV dengan ATS checker, latihan interview AI, dan temukan lowongan yang paling pas."
 >
+    @php
+        $aiAppLd = json_encode([
+            chr(64) . 'context' => 'https://schema.org',
+            '@type' => 'WebApplication',
+            'name' => 'Lamaraja AI Career Assistant',
+            'applicationCategory' => 'BusinessApplication',
+            'operatingSystem' => 'Web',
+            'url' => url('/'),
+            'description' => 'AI career assistant untuk cek kecocokan CV, latihan interview, generator surat lamaran, dan rekomendasi lowongan kerja.',
+            'offers' => ['@type' => 'Offer', 'price' => '0', 'priceCurrency' => 'IDR'],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    @endphp
+    <script type="application/ld+json">{!! $aiAppLd !!}</script>
 
-    {{-- HERO --}}
-    <section class="hero-gradient">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
-            <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-                {{-- Left: Heading & Search --}}
+    {{-- HERO: AI-first --}}
+    <section class="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50/60 to-white">
+        <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
+            <div class="absolute -top-28 right-[-10rem] h-96 w-96 rounded-full bg-emerald-200/60 blur-3xl"></div>
+            <div class="absolute top-1/3 left-[-12rem] h-80 w-80 rounded-full bg-cyan-200/45 blur-3xl"></div>
+        </div>
+
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
+            <div class="grid lg:grid-cols-[1.05fr_0.95fr] gap-10 lg:gap-12 items-center">
                 <div class="animate-fade-up">
-                    <h1 class="font-[family-name:var(--font-display)] text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-[1.1] tracking-tight">
-                        Cari lowongan kerja,<br>
-                        <span class="text-emerald-600">lebih cepat</span> dengan AI. <span class="inline-block">✨</span>
+                    <span class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-xs font-bold text-emerald-700 ring-1 ring-emerald-100 shadow-sm">
+                        <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                        AI Career Copilot untuk Pencari Kerja Indonesia
+                    </span>
+
+                    <h1 class="mt-5 font-[family-name:var(--font-display)] text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-950 leading-[1.08] tracking-tight">
+                        Cari kerja lebih cerdas <span class="text-emerald-600">dengan AI.</span>
                     </h1>
-                    <p class="mt-6 text-base md:text-lg text-slate-600 leading-relaxed max-w-xl">
-                        Lamaraja mengumpulkan loker dari berbagai sumber dan merangkumnya dengan AI, supaya kamu bisa memahami peluang kerja dalam hitungan detik.
+                    <p class="mt-5 max-w-xl text-lg leading-8 text-slate-600">
+                        Cocokkan CV, latihan interview, dan temukan lowongan yang paling pas. Semua dipandu AI, gratis untuk dicoba.
                     </p>
 
-                    {{-- Search Bar --}}
-                    <div class="mt-8 animate-fade-up delay-100">
-                        <form action="{{ route('jobs.index') }}" method="GET" class="flex flex-col md:flex-row gap-3">
-                            <div class="flex-1 relative">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                                <input
-                                    type="text"
-                                    name="keyword"
-                                    placeholder="Posisi, skill, atau kata kunci"
-                                    class="w-full h-14 pl-12 pr-4 rounded-xl border-2 border-slate-200 bg-white text-slate-900 placeholder-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all outline-none"
-                                >
-                            </div>
-                            <div class="flex-1 relative">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                                <input
-                                    type="text"
-                                    name="location"
-                                    placeholder="Lokasi"
-                                    class="w-full h-14 pl-12 pr-4 rounded-xl border-2 border-slate-200 bg-white text-slate-900 placeholder-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all outline-none"
-                                >
-                            </div>
-                            <button
-                                type="submit"
-                                class="h-14 px-8 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-emerald-600/25 hover:shadow-xl hover:shadow-emerald-600/30 active:scale-[0.98]"
-                            >
-                                Cari Loker
-                            </button>
-                        </form>
+                    <div class="mt-8 flex flex-col sm:flex-row gap-3">
+                        <a href="{{ route('cv-matcher.index') }}" class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-7 py-4 text-base font-bold text-white shadow-lg shadow-emerald-600/25 transition hover:bg-emerald-700 hover:shadow-xl active:scale-[0.98]">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Cek CV Sekarang
+                        </a>
+                        <a href="{{ route('mock-interview.landing') }}" class="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-emerald-200 bg-white px-7 py-4 text-base font-bold text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-50 active:scale-[0.98]">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+                            Latihan Interview AI
+                        </a>
                     </div>
 
-                    {{-- Job Sources --}}
-                    <div class="mt-8 flex flex-wrap items-center gap-4 animate-fade-up delay-200">
-                        <span class="text-sm text-slate-500 font-medium">Loker dikumpulkan dari</span>
-                        <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-                            <span class="text-[#0077B5] font-bold text-lg">Linked<span class="bg-[#0077B5] text-white px-1 rounded">in</span></span>
-                            <span class="text-[#2164f3] font-bold text-lg">indeed</span>
-                            <span class="text-[#0caa41] font-bold text-lg">glassdoor</span>
-                            <span class="text-slate-400 text-sm">dan sumber lain</span>
-                        </div>
+                    <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-500">
+                        <span class="inline-flex items-center gap-1.5"><svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg> Tanpa daftar</span>
+                        <span class="inline-flex items-center gap-1.5"><svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg> CV langsung dihapus</span>
+                        @if($totalJobs > 0)
+                            <span class="inline-flex items-center gap-1.5"><svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg> {{ number_format($totalJobs) }}+ lowongan aktif</span>
+                        @endif
                     </div>
                 </div>
 
-                {{-- Right: AI Summary Card --}}
-                <div class="animate-fade-up delay-300 hidden lg:block">
-                    <div class="ai-summary-card group relative">
-                        <div class="absolute -top-3 left-6 flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-md border border-emerald-100 z-9999">
-                            <svg class="w-5 h-5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M13 7H7v6h6V7z"/>
-                                <path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="text-sm font-bold text-emerald-600">AI Job Summary</span>
+                {{-- Right: AI feature stack --}}
+                <div class="animate-fade-up delay-200">
+                    <div class="rounded-[2rem] border border-white/80 bg-white/90 p-5 sm:p-6 shadow-2xl shadow-emerald-900/10 backdrop-blur">
+                        <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-600">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M13 7H7v6h6V7z"/><path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clip-rule="evenodd"/></svg>
+                            Powered by AI
                         </div>
-                        
-                        <div class="ai-card-inner bg-white rounded-2xl shadow-xl border border-slate-200 p-6 mt-4 transition-all duration-300">
-                            <div class="grid grid-cols-2 gap-4">
-                                {{-- Original Job Description --}}
-                                <div>
-                                    <div class="text-xs font-semibold text-slate-500 mb-3">Deskripsi asli lowongan</div>
-                                    <div class="space-y-2">
-                                        <div class="h-2 skeleton-shimmer rounded w-full" style="animation-delay: 0s"></div>
-                                        <div class="h-2 skeleton-shimmer rounded w-5/6" style="animation-delay: 0.15s"></div>
-                                        <div class="h-2 skeleton-shimmer rounded w-full" style="animation-delay: 0.3s"></div>
-                                        <div class="h-2 skeleton-shimmer rounded w-4/6" style="animation-delay: 0.45s"></div>
-                                        <div class="h-2 skeleton-shimmer rounded w-full" style="animation-delay: 0.6s"></div>
-                                        <div class="h-2 skeleton-shimmer rounded w-3/6" style="animation-delay: 0.75s"></div>
-                                        <div class="h-2 skeleton-shimmer rounded w-5/6" style="animation-delay: 0.9s"></div>
-                                        <div class="h-2 skeleton-shimmer rounded w-full" style="animation-delay: 1.05s"></div>
-                                    </div>
-                                </div>
-
-                                {{-- AI Summary --}}
-                                <div class="relative">
-                                    <div class="text-xs font-semibold text-slate-500 mb-3">Ringkasan AI</div>
-                                    <div class="space-y-3">
-                                        <div class="flex items-start gap-2 ai-summary-item">
-                                            <svg class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                            </svg>
-                                            <span class="text-xs text-slate-600">Tanggung jawab utama</span>
-                                        </div>
-                                        <div class="flex items-start gap-2 ai-summary-item">
-                                            <svg class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                            </svg>
-                                            <span class="text-xs text-slate-600">Skill yang dibutuhkan</span>
-                                        </div>
-                                        <div class="flex items-start gap-2 ai-summary-item">
-                                            <svg class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                            </svg>
-                                            <span class="text-xs text-slate-600">Pengalaman</span>
-                                        </div>
-                                        <div class="flex items-start gap-2 ai-summary-item">
-                                            <svg class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                            </svg>
-                                            <span class="text-xs text-slate-600">Nilai tambah</span>
-                                        </div>
-                                        <div class="flex items-start gap-2 ai-summary-item">
-                                            <svg class="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                            </svg>
-                                            <span class="text-xs text-slate-600">Benefit yang ditawarkan</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Bottom CTA --}}
-                            <div class="mt-6 pt-4 border-t border-slate-100">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-xs text-emerald-600 font-semibold">Hemat waktu. Pahami cepat. Lamar lebih yakin.</span>
-                                    <div class="robot-illustration">
-                                        <svg class="w-16 h-16" viewBox="0 0 64 64" fill="none">
-                                            <circle cx="32" cy="32" r="28" fill="#10B981" opacity="0.1"/>
-                                            <rect x="20" y="24" width="24" height="20" rx="4" fill="#10B981"/>
-                                            <g class="robot-eye">
-                                                <circle cx="26" cy="32" r="3" fill="#000"/>
-                                                <circle cx="38" cy="32" r="3" fill="#000"/>
-                                            </g>
-                                            <path d="M26 38h12" stroke="#000" stroke-width="2" stroke-linecap="round"/>
-                                            <circle cx="32" cy="44" r="2" fill="#10B981"/>
-                                            <rect x="16" y="28" width="4" height="8" rx="2" fill="#10B981"/>
-                                            <rect x="44" y="28" width="4" height="8" rx="2" fill="#10B981"/>
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="mt-4 space-y-3">
+                            <a href="{{ route('cv-matcher.index') }}" class="flex items-center gap-4 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4 transition hover:border-emerald-300 hover:bg-emerald-50">
+                                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+                                <div><p class="font-bold text-slate-900">CV Matcher & ATS Checker</p><p class="text-sm text-slate-500">Skor kecocokan, skill cocok, gap & saran.</p></div>
+                            </a>
+                            <a href="{{ route('mock-interview.landing') }}" class="flex items-center gap-4 rounded-2xl border border-slate-100 bg-white p-4 transition hover:border-emerald-200 hover:bg-emerald-50/40">
+                                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-teal-600 text-white shadow-sm"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg></div>
+                                <div><p class="font-bold text-slate-900">Mock Interview AI</p><p class="text-sm text-slate-500">Latihan interview + feedback instan.</p></div>
+                            </a>
+                            <a href="{{ route('ai-tools.cover-letter') }}" class="flex items-center gap-4 rounded-2xl border border-slate-100 bg-white p-4 transition hover:border-emerald-200 hover:bg-emerald-50/40">
+                                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-sm"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
+                                <div><p class="font-bold text-slate-900">Cover Letter Generator</p><p class="text-sm text-slate-500">Surat lamaran instan dari CV + lowongan.</p></div>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -165,24 +93,91 @@
         </div>
     </section>
 
-    {{-- STATS BAR --}}
-    @if($jobsAddedToday > 0 || $totalJobs > 0)
-        <div class="border-b border-stone-200 bg-stone-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center gap-x-6 gap-y-1 text-sm text-stone-500">
-                @if($jobsAddedToday > 0)
-                    <span><span class="font-semibold text-teal-600">{{ $jobsAddedToday }}</span> loker baru hari ini</span>
-                @endif
-                <span>Total: <span class="font-semibold text-slate-700">{{ number_format($totalJobs) }}</span> lowongan aktif</span>
+    {{-- QUICK SEARCH (supporting) --}}
+    <section class="border-y border-slate-100 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <form action="{{ route('jobs.index') }}" method="GET" class="flex flex-col md:flex-row gap-3">
+                <div class="flex-1 relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    <input type="text" name="keyword" placeholder="Posisi, skill, atau kata kunci" class="w-full h-12 pl-12 pr-4 rounded-xl border-2 border-slate-200 bg-white text-slate-900 placeholder-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all outline-none">
+                </div>
+                <div class="flex-1 relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    <input type="text" name="location" placeholder="Lokasi" class="w-full h-12 pl-12 pr-4 rounded-xl border-2 border-slate-200 bg-white text-slate-900 placeholder-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all outline-none">
+                </div>
+                <button type="submit" class="h-12 px-8 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl transition-all active:scale-[0.98]">Cari Loker</button>
+            </form>
+        </div>
+    </section>
+
+    {{-- AI TOOLS GRID --}}
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-16">
+        <div class="text-center max-w-2xl mx-auto">
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-emerald-600">AI Career Tools</p>
+            <h2 class="mt-2 font-[family-name:var(--font-display)] text-3xl md:text-4xl font-extrabold text-slate-950 tracking-tight">Semua yang kamu butuhkan untuk melamar lebih siap</h2>
+            <p class="mt-3 text-slate-600">Pakai AI di tiap tahap pencarian kerja, dari memperbaiki CV sampai latihan interview.</p>
+        </div>
+
+        <div class="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            @php
+                $tools = [
+                    ['route' => route('cv-matcher.index'), 'title' => 'CV Matcher (ATS Checker)', 'desc' => 'Cek kecocokan CV dengan lowongan, lihat skill cocok, gap, dan saran perbaikan.', 'color' => 'emerald'],
+                    ['route' => route('mock-interview.landing'), 'title' => 'Latihan Interview AI', 'desc' => 'Simulasi interview dengan pertanyaan relevan dan feedback otomatis.', 'color' => 'teal'],
+                    ['route' => route('ai-tools.cover-letter'), 'title' => 'Generator Surat Lamaran', 'desc' => 'Buat cover letter personal dari CV dan deskripsi lowongan dalam hitungan detik.', 'color' => 'indigo'],
+                    ['route' => route('ai-tools.cv-rewrite'), 'title' => 'CV Rewrite / ATS Optimizer', 'desc' => 'Ubah pengalaman kerja jadi bullet point ATS-friendly berbasis pencapaian.', 'color' => 'violet'],
+                    ['route' => route('ai-tools.skill-gap'), 'title' => 'Skill Gap Analyzer', 'desc' => 'Dari CV + target role, lihat skill yang kurang dan rencana belajarnya.', 'color' => 'amber'],
+                    ['route' => route('ai-tools.career-path'), 'title' => 'AI Career Path', 'desc' => 'Rekomendasi role berikutnya yang realistis berdasarkan profil CV-mu.', 'color' => 'rose'],
+                ];
+                $colorMap = [
+                    'emerald' => 'bg-emerald-50 text-emerald-700 ring-emerald-100',
+                    'teal' => 'bg-teal-50 text-teal-700 ring-teal-100',
+                    'indigo' => 'bg-indigo-50 text-indigo-700 ring-indigo-100',
+                    'violet' => 'bg-violet-50 text-violet-700 ring-violet-100',
+                    'amber' => 'bg-amber-50 text-amber-700 ring-amber-100',
+                    'rose' => 'bg-rose-50 text-rose-700 ring-rose-100',
+                ];
+            @endphp
+            @foreach($tools as $tool)
+                <a href="{{ $tool['route'] }}" class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-md">
+                    <div class="inline-flex h-11 w-11 items-center justify-center rounded-xl ring-1 {{ $colorMap[$tool['color']] }}">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    </div>
+                    <h3 class="mt-4 text-lg font-bold text-slate-900 group-hover:text-emerald-700">{{ $tool['title'] }}</h3>
+                    <p class="mt-2 text-sm leading-6 text-slate-600">{{ $tool['desc'] }}</p>
+                    <span class="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-emerald-600">Coba sekarang
+                        <svg class="w-4 h-4 transition group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                    </span>
+                </a>
+            @endforeach
+        </div>
+    </section>
+
+    {{-- HOW IT WORKS --}}
+    <section class="bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 py-14 md:py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-center font-[family-name:var(--font-display)] text-2xl md:text-3xl font-bold text-slate-900">Cara kerjanya</h2>
+            <div class="mt-10 grid md:grid-cols-3 gap-6">
+                @foreach([
+                    ['1', 'Upload CV kamu', 'Unggah CV PDF. AI membaca skill, pengalaman, dan profilmu secara otomatis.'],
+                    ['2', 'Dapatkan insight AI', 'Lihat skor kecocokan, skill gap, saran perbaikan CV, dan latihan interview.'],
+                    ['3', 'Lamar lebih yakin', 'Perbaiki CV, buat surat lamaran, lalu lamar lowongan yang paling pas.'],
+                ] as $step)
+                    <div class="rounded-2xl bg-white p-6 shadow-sm border border-emerald-100">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-600 text-white font-bold">{{ $step[0] }}</div>
+                        <h3 class="mt-4 text-lg font-bold text-slate-900">{{ $step[1] }}</h3>
+                        <p class="mt-2 text-sm leading-6 text-slate-600">{{ $step[2] }}</p>
+                    </div>
+                @endforeach
             </div>
         </div>
-    @endif
+    </section>
 
-    {{-- SEO HUBS --}}
+    {{-- SUPPORTING: SEO HUBS --}}
     @php
         $seoHubs = collect(config('seo.job_landing_pages', []))->take(10);
     @endphp
     @if($seoHubs->isNotEmpty())
-        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 md:pt-12">
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
             <div class="rounded-3xl border border-emerald-100 bg-white p-5 md:p-6 shadow-sm">
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
@@ -202,20 +197,21 @@
         </section>
     @endif
 
-    {{-- RECENT JOBS --}}
+    {{-- SUPPORTING: RECENT JOBS --}}
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
             <div>
                 <h2 class="font-[family-name:var(--font-display)] text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
                     Lowongan Terbaru <span class="text-emerald-600">untuk Kamu</span>
                 </h2>
-                <p class="text-sm text-slate-500 mt-1">Diringkas AI, relevan, dan siap dilamar.</p>
+                <p class="text-sm text-slate-500 mt-1">
+                    @if($jobsAddedToday > 0)<span class="font-semibold text-emerald-600">{{ $jobsAddedToday }}</span> loker baru hari ini · @endif
+                    Diringkas AI, relevan, dan siap dicocokkan dengan CV-mu.
+                </p>
             </div>
             <a href="{{ route('jobs.index') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition-colors">
                 Lihat semua lowongan
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                </svg>
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
             </a>
         </div>
 
@@ -226,147 +222,27 @@
                 @endforeach
             </div>
             <div class="mt-10 text-center">
-                <a href="{{ route('jobs.index') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-emerald-600/25 hover:shadow-xl hover:shadow-emerald-600/30 active:scale-[0.98]">
+                <a href="{{ route('jobs.index') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl transition-all active:scale-[0.98]">
                     Lihat Semua Lowongan
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                    </svg>
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                 </a>
             </div>
         @else
             <div class="bg-white rounded-xl border border-slate-200 text-center py-16 px-6">
                 <p class="font-[family-name:var(--font-display)] text-lg font-bold text-slate-700">Belum ada lowongan tersedia</p>
-                <p class="mt-1.5 text-sm text-slate-400">Lowongan baru akan segera tampil.</p>
+                <p class="mt-1.5 text-sm text-slate-400">Sementara itu, kamu tetap bisa cek CV dan latihan interview di atas.</p>
             </div>
         @endif
     </section>
 
-    {{-- WHY LAMARAJA --}}
-    <section class="bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 py-16 md:py-20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-center font-[family-name:var(--font-display)] text-3xl md:text-4xl font-bold text-slate-900 mb-12">
-                Why <span class="text-emerald-600">Lamaraja</span>?
-            </h2>
-
-            <div class="grid md:grid-cols-2 gap-8 mb-16">
-                {{-- AI Job Summarization --}}
-                <div class="bg-white rounded-2xl p-8 shadow-sm border border-emerald-100 hover:shadow-lg transition-shadow">
-                    <div class="flex items-start gap-6">
-                        <div class="w-20 h-20 rounded-full bg-emerald-600 flex items-center justify-center flex-shrink-0 shadow-lg">
-                            <svg class="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="text-xl font-bold text-slate-900 mb-2">AI Job Summarization</h3>
-                            <p class="text-slate-600 leading-relaxed">
-                                Our AI reads and summarizes job descriptions so you can quickly understand the role, requirements, and benefits.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- CV Matcher --}}
-                <div class="bg-white rounded-2xl p-8 shadow-sm border border-emerald-100 hover:shadow-lg transition-shadow">
-                    <div class="flex items-start gap-6">
-                        <div class="w-20 h-20 rounded-full bg-emerald-600 flex items-center justify-center flex-shrink-0 shadow-lg">
-                            <svg class="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="text-xl font-bold text-slate-900 mb-2">CV Matcher (AI-Powered)</h3>
-                            <p class="text-slate-600 leading-relaxed">
-                                Upload your CV and our AI analyzes your skills, experience and achievements to match you with the most relevant jobs.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Get Matched Section --}}
-            <div class="bg-white rounded-2xl p-8 md:p-12 shadow-lg border border-emerald-100">
-                <div class="grid md:grid-cols-2 gap-8 items-center">
-                    {{-- Left: Illustration --}}
-                    <div class="flex justify-center">
-                        <div class="relative">
-                            <div class="bg-slate-50 rounded-2xl p-8 border-2 border-slate-200">
-                                <div class="flex items-center gap-3 mb-4">
-                                    <div class="w-12 h-12 rounded-full bg-slate-300"></div>
-                                    <div class="flex-1">
-                                        <div class="h-3 bg-slate-300 rounded w-20 mb-2"></div>
-                                        <div class="h-2 bg-slate-200 rounded w-32"></div>
-                                    </div>
-                                </div>
-                                <div class="space-y-2">
-                                    <div class="h-2 bg-slate-200 rounded"></div>
-                                    <div class="h-2 bg-slate-200 rounded w-5/6"></div>
-                                    <div class="h-2 bg-slate-200 rounded w-4/6"></div>
-                                </div>
-                            </div>
-                            
-                            <div class="absolute -right-4 top-1/2 -translate-y-1/2">
-                                <svg class="w-12 h-12 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                                </svg>
-                            </div>
-
-                            <div class="absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-emerald-600 flex items-center justify-center shadow-xl">
-                                <svg class="w-12 h-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                                </svg>
-                            </div>
-
-                            <div class="absolute -top-6 -right-8 bg-white rounded-xl p-3 shadow-lg border border-emerald-100">
-                                <div class="text-xs font-semibold text-emerald-600 mb-1">Get better matches</div>
-                                <div class="text-xs text-slate-500 mb-2">with your CV</div>
-                                <div class="space-y-1">
-                                    <div class="flex items-center gap-1">
-                                        <svg class="w-3 h-3 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                        </svg>
-                                        <div class="h-1.5 bg-slate-200 rounded w-16"></div>
-                                    </div>
-                                    <div class="flex items-center gap-1">
-                                        <svg class="w-3 h-3 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                        </svg>
-                                        <div class="h-1.5 bg-slate-200 rounded w-12"></div>
-                                    </div>
-                                    <div class="flex items-center gap-1">
-                                        <svg class="w-3 h-3 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                        </svg>
-                                        <div class="h-1.5 bg-slate-200 rounded w-14"></div>
-                                    </div>
-                                </div>
-                                <div class="mt-2 w-10 h-10 rounded-full bg-emerald-600 ml-auto"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Right: Content --}}
-                    <div>
-                        <h3 class="font-[family-name:var(--font-display)] text-2xl md:text-3xl font-bold text-slate-900 mb-4">
-                            Get <span class="text-emerald-600">matched</span>. Get noticed.
-                        </h3>
-                        <p class="text-slate-600 leading-relaxed mb-6">
-                            Upload your CV and let our AI do the heavy lifting. We'll match you with the best jobs and show you how well you fit.
-                        </p>
-                        <a href="{{ route('cv-matcher.index') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-emerald-600/25 hover:shadow-xl hover:shadow-emerald-600/30 active:scale-[0.98]">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                            </svg>
-                            Upload Your CV
-                        </a>
-                        <div class="flex items-center gap-2 mt-4 text-sm text-slate-500">
-                            <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                            </svg>
-                            Your data is secure and private.
-                        </div>
-                    </div>
-                </div>
+    {{-- FINAL CTA --}}
+    <section class="bg-slate-900">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-16 text-center">
+            <h2 class="font-[family-name:var(--font-display)] text-3xl md:text-4xl font-extrabold text-white">Siap melamar dengan lebih percaya diri?</h2>
+            <p class="mt-3 text-slate-300 max-w-2xl mx-auto">Mulai dari cek kecocokan CV gratis. Tidak perlu daftar, dan datamu tetap privat.</p>
+            <div class="mt-8 flex flex-col sm:flex-row justify-center gap-3">
+                <a href="{{ route('cv-matcher.index') }}" class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-7 py-4 text-base font-bold text-white shadow-lg transition hover:bg-emerald-700 active:scale-[0.98]">Cek CV Sekarang</a>
+                <a href="{{ route('mock-interview.landing') }}" class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-7 py-4 text-base font-bold text-white transition hover:bg-slate-700 active:scale-[0.98]">Latihan Interview AI</a>
             </div>
         </div>
     </section>

@@ -91,22 +91,28 @@
                 </a>
 
                 {{-- Navigation --}}
-                <nav class="hidden md:flex items-center gap-8" aria-label="Navigasi utama">
-                    <a href="{{ route('home') }}" class="relative text-sm font-semibold {{ request()->routeIs('home') ? 'text-emerald-600' : 'text-slate-700 hover:text-slate-900' }} transition-colors py-1">
-                        Home
-                        @if(request()->routeIs('home'))
+                <nav class="hidden md:flex items-center gap-7" aria-label="Navigasi utama">
+                    <a href="{{ route('cv-matcher.index') }}" class="relative text-sm font-semibold {{ request()->routeIs('cv-matcher.*') ? 'text-emerald-600' : 'text-slate-700 hover:text-slate-900' }} transition-colors py-1">
+                        Cek CV
+                        @if(request()->routeIs('cv-matcher.*'))
+                            <span class="absolute -bottom-[1.125rem] left-0 right-0 h-0.5 bg-emerald-600"></span>
+                        @endif
+                    </a>
+                    <a href="{{ route('mock-interview.landing') }}" class="relative text-sm font-semibold {{ request()->routeIs('mock-interview.landing') ? 'text-emerald-600' : 'text-slate-700 hover:text-slate-900' }} transition-colors py-1">
+                        Latihan Interview
+                        @if(request()->routeIs('mock-interview.landing'))
+                            <span class="absolute -bottom-[1.125rem] left-0 right-0 h-0.5 bg-emerald-600"></span>
+                        @endif
+                    </a>
+                    <a href="{{ route('ai-tools.index') }}" class="relative text-sm font-semibold {{ request()->routeIs('ai-tools.*') ? 'text-emerald-600' : 'text-slate-700 hover:text-slate-900' }} transition-colors py-1">
+                        AI Tools
+                        @if(request()->routeIs('ai-tools.*'))
                             <span class="absolute -bottom-[1.125rem] left-0 right-0 h-0.5 bg-emerald-600"></span>
                         @endif
                     </a>
                     <a href="{{ route('jobs.index') }}" class="relative text-sm font-semibold {{ request()->routeIs('jobs.*') ? 'text-emerald-600' : 'text-slate-700 hover:text-slate-900' }} transition-colors py-1">
-                        Jobs
+                        Lowongan
                         @if(request()->routeIs('jobs.*'))
-                            <span class="absolute -bottom-[1.125rem] left-0 right-0 h-0.5 bg-emerald-600"></span>
-                        @endif
-                    </a>
-                    <a href="{{ route('cv-matcher.index') }}" class="relative text-sm font-semibold {{ request()->routeIs('cv-matcher.*') ? 'text-emerald-600' : 'text-slate-700 hover:text-slate-900' }} transition-colors py-1">
-                        CV Matcher
-                        @if(request()->routeIs('cv-matcher.*'))
                             <span class="absolute -bottom-[1.125rem] left-0 right-0 h-0.5 bg-emerald-600"></span>
                         @endif
                     </a>
@@ -120,14 +126,14 @@
 
                 {{-- CTA Buttons --}}
                 <div class="hidden md:flex items-center gap-3">
-                    <a href="{{ route('cv-matcher.index') }}" class="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-all">
+                    <a href="{{ route('mock-interview.landing') }}" class="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-all">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
                         </svg>
-                        Upload CV
+                        Latihan Interview
                     </a>
-                    <a href="{{ route('jobs.index') }}" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg transition-all shadow-sm hover:shadow-md active:scale-[0.98]">
-                        Find Jobs
+                    <a href="{{ route('cv-matcher.index') }}" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg transition-all shadow-sm hover:shadow-md active:scale-[0.98]">
+                        Cek CV Sekarang
                     </a>
                 </div>
 
@@ -151,19 +157,17 @@
             x-transition:leave-end="opacity-0"
             class="md:hidden border-t border-slate-200 bg-white">
             <nav class="px-4 py-3 space-y-1" aria-label="Navigasi mobile">
-                <a href="{{ route('home') }}" class="block px-4 py-3 rounded-lg text-sm font-semibold transition-colors {{ request()->routeIs('home') ? 'text-emerald-600 bg-emerald-50' : 'text-slate-700 hover:bg-slate-50' }}">Home</a>
-                <a href="{{ route('jobs.index') }}" class="block px-4 py-3 rounded-lg text-sm font-semibold transition-colors {{ request()->routeIs('jobs.*') ? 'text-emerald-600 bg-emerald-50' : 'text-slate-700 hover:bg-slate-50' }}">Jobs</a>
-                <a href="{{ route('cv-matcher.index') }}" class="block px-4 py-3 rounded-lg text-sm font-semibold transition-colors {{ request()->routeIs('cv-matcher.*') ? 'text-emerald-600 bg-emerald-50' : 'text-slate-700 hover:bg-slate-50' }}">CV Matcher</a>
+                <a href="{{ route('cv-matcher.index') }}" class="block px-4 py-3 rounded-lg text-sm font-semibold transition-colors {{ request()->routeIs('cv-matcher.*') ? 'text-emerald-600 bg-emerald-50' : 'text-slate-700 hover:bg-slate-50' }}">Cek CV</a>
+                <a href="{{ route('mock-interview.landing') }}" class="block px-4 py-3 rounded-lg text-sm font-semibold transition-colors {{ request()->routeIs('mock-interview.landing') ? 'text-emerald-600 bg-emerald-50' : 'text-slate-700 hover:bg-slate-50' }}">Latihan Interview</a>
+                <a href="{{ route('ai-tools.index') }}" class="block px-4 py-3 rounded-lg text-sm font-semibold transition-colors {{ request()->routeIs('ai-tools.*') ? 'text-emerald-600 bg-emerald-50' : 'text-slate-700 hover:bg-slate-50' }}">AI Tools</a>
+                <a href="{{ route('jobs.index') }}" class="block px-4 py-3 rounded-lg text-sm font-semibold transition-colors {{ request()->routeIs('jobs.*') ? 'text-emerald-600 bg-emerald-50' : 'text-slate-700 hover:bg-slate-50' }}">Lowongan</a>
                 <a href="{{ route('about') }}" class="block px-4 py-3 rounded-lg text-sm font-semibold transition-colors {{ request()->routeIs('about') ? 'text-emerald-600 bg-emerald-50' : 'text-slate-700 hover:bg-slate-50' }}">About</a>
                 <div class="pt-3 space-y-2">
-                    <a href="{{ route('cv-matcher.index') }}" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-slate-50 rounded-lg">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                        </svg>
-                        Upload CV
+                    <a href="{{ route('mock-interview.landing') }}" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-slate-50 rounded-lg">
+                        Latihan Interview AI
                     </a>
-                    <a href="{{ route('jobs.index') }}" class="block w-full text-center px-4 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-lg">
-                        Find Jobs
+                    <a href="{{ route('cv-matcher.index') }}" class="block w-full text-center px-4 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-lg">
+                        Cek CV Sekarang
                     </a>
                 </div>
             </nav>
@@ -188,7 +192,7 @@
                         </div>
                     </div>
                     <p class="text-slate-400 text-sm leading-relaxed max-w-sm">
-                        AI-powered job search that saves your time and gets you better opportunities.
+                        AI career copilot untuk pencari kerja Indonesia. Cek kecocokan CV, latihan interview, dan temukan lowongan yang paling pas.
                     </p>
                 </div>
 
@@ -197,19 +201,20 @@
                     <h3 class="text-white font-semibold text-sm mb-4">Company</h3>
                     <ul class="space-y-3">
                         <li><a href="{{ route('about') }}" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">About Us</a></li>
-                        <li><span class="text-slate-500 text-sm">How It Works</span></li>
+                        <li><a href="{{ route('jobs.index') }}" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Lowongan</a></li>
                         <li><span class="text-slate-500 text-sm">Careers</span></li>
                     </ul>
                 </div>
 
-                {{-- Resources --}}
+                {{-- AI Tools --}}
                 <div>
-                    <h3 class="text-white font-semibold text-sm mb-4">Resources</h3>
+                    <h3 class="text-white font-semibold text-sm mb-4">AI Career Tools</h3>
                     <ul class="space-y-3">
-                        <li><a href="{{ route('cv-matcher.index') }}" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">CV Matcher</a></li>
-                        <li><a href="{{ route('jobs.landing', 'fresh-graduate') }}" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Lowongan Fresh Graduate</a></li>
-                        <li><a href="{{ route('jobs.landing', 'remote') }}" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Lowongan Remote</a></li>
-                        <li><a href="mailto:hello@lamaraja.web.id" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Contact</a></li>
+                        <li><a href="{{ route('cv-matcher.index') }}" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">CV Matcher (ATS Checker)</a></li>
+                        <li><a href="{{ route('mock-interview.landing') }}" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Latihan Interview AI</a></li>
+                        <li><a href="{{ route('ai-tools.cover-letter') }}" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Generator Surat Lamaran</a></li>
+                        <li><a href="{{ route('ai-tools.cv-rewrite') }}" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">CV Rewrite / ATS Optimizer</a></li>
+                        <li><a href="{{ route('ai-tools.skill-gap') }}" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Skill Gap Analyzer</a></li>
                     </ul>
                 </div>
 

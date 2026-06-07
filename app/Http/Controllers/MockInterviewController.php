@@ -27,6 +27,19 @@ class MockInterviewController extends Controller
         return view('pages.mock-interview-login');
     }
 
+    /**
+     * Public Mock Interview AI page: marketing/SEO content + the full
+     * hands-free live call experience inline (no password required).
+     */
+    public function landing(Request $request): View
+    {
+        return view('pages.mock-interview-landing', [
+            'targetRole' => (string) $request->query('role', ''),
+            'jobs' => Job::query()->active()->latest()->limit(30)->get(['id', 'title', 'company', 'location']),
+            'selectedJobId' => $request->integer('job_id') ?: null,
+        ]);
+    }
+
     public function authenticate(Request $request)
     {
         $request->validate([
@@ -56,10 +69,6 @@ class MockInterviewController extends Controller
 
     public function start(Request $request): JsonResponse
     {
-        if (! session('mock_interview_authenticated')) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
         $data = $request->validate([
             'pdf_file' => ['required', 'file', 'mimes:pdf', 'max:5120'],
             'target_role' => ['nullable', 'string', 'max:160'],
@@ -99,10 +108,6 @@ class MockInterviewController extends Controller
 
     public function show(string $token, Request $request): JsonResponse
     {
-        if (! session('mock_interview_authenticated')) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
         $session = $this->findOwnedSession($token, $request);
 
         return response()->json($this->sessionPayload($session));
@@ -110,10 +115,6 @@ class MockInterviewController extends Controller
 
     public function reply(string $token, Request $request): JsonResponse
     {
-        if (! session('mock_interview_authenticated')) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
         $session = $this->findOwnedSession($token, $request);
 
         if ($session->status !== 'active') {
@@ -139,10 +140,6 @@ class MockInterviewController extends Controller
 
     public function finish(string $token, Request $request): JsonResponse
     {
-        if (! session('mock_interview_authenticated')) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
         $session = $this->findOwnedSession($token, $request);
 
         if ($session->status !== 'completed') {
@@ -154,10 +151,6 @@ class MockInterviewController extends Controller
 
     public function speech(Request $request)
     {
-        if (! session('mock_interview_authenticated')) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
         $data = $request->validate([
             'input' => ['required', 'string', 'max:3000'],
         ]);
@@ -185,10 +178,6 @@ class MockInterviewController extends Controller
 
     public function transcribe(Request $request): JsonResponse
     {
-        if (! session('mock_interview_authenticated')) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
         $data = $request->validate([
             'audio' => ['required', 'file', 'max:10240'],
         ]);

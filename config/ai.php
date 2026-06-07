@@ -54,6 +54,9 @@ return [
     'limits' => [
         'max_tokens_per_request' => env('AI_MAX_TOKENS', 2048),
         'daily_request_limit' => env('AI_DAILY_LIMIT', 1000),
+
+        // Free guest attempts per AI career tool, per day (per IP).
+        'guest_daily_tool_limit' => env('AI_GUEST_TOOL_LIMIT', 5),
     ],
 
     /*

@@ -6,7 +6,11 @@
         <div class="absolute -top-24 -right-24 h-80 w-80 rounded-full bg-emerald-200/50 blur-3xl"></div>
         <div class="absolute top-44 -left-24 h-72 w-72 rounded-full bg-teal-100/70 blur-3xl"></div>
 
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 flex justify-end">
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 flex justify-end gap-2">
+            <a href="{{ route('mock-interview.landing') }}" class="inline-flex items-center gap-2 min-h-[2.5rem] px-4 py-2 rounded-xl text-sm font-bold text-emerald-700 hover:bg-emerald-50 transition-colors interactive-focus" style="background: #ffffff; border: 1px solid #d1fae5;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.18z"/></svg>
+                Mode Live Call (Publik)
+            </a>
             <form action="{{ route('mock-interview.logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="inline-flex items-center gap-2 min-h-[2.5rem] px-4 py-2 rounded-xl text-sm font-medium text-stone-600 hover:text-red-600 hover:bg-red-50 transition-colors interactive-focus" style="background: #ffffff; border: 1px solid #d1fae5;">
