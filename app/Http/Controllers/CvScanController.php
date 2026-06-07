@@ -18,6 +18,7 @@ class CvScanController extends Controller
 {
     public function __construct(
         private readonly AiServiceInterface $ai,
+        private readonly \App\Services\CareerToolsService $tools,
     ) {}
 
     /**
@@ -132,9 +133,28 @@ class CvScanController extends Controller
                 'tokens_used' => $totalTokens,
             ]);
 
+            // For a targeted job scan, also draft an ATS-friendly CV summary
+            // so users get an immediate, actionable improvement they can copy.
+            $atsSummary = null;
+            if ($targetJob && ! empty($matches)) {
+                try {
+                    $atsSummary = $this->tools->atsSummary($cvText, $targetJob);
+                } catch (\Throwable $e) {
+                    Log::warning('ATS summary generation failed', ['error' => $e->getMessage()]);
+                }
+            }
+
+            $topMatch = $matches[0] ?? [];
+            if ($atsSummary) {
+                $topMatch['ats_summary'] = [
+                    'summary' => $atsSummary['summary'],
+                    'keywords' => $atsSummary['keywords'],
+                ];
+            }
+
             return response()->json([
                 'status' => 'completed',
-                'result' => $targetJob ? $matches[0] : [
+                'result' => $targetJob ? $topMatch : [
                     'matches' => $matches,
                 ],
             ]);

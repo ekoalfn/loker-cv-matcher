@@ -80,6 +80,48 @@ class SitemapController extends Controller
                 'priority' => '0.7',
             ],
             [
+                'loc' => route('mock-interview.landing'),
+                'lastmod' => $this->viewLastModified('pages/mock-interview-landing.blade.php', $latestJobDate),
+                'changefreq' => 'weekly',
+                'priority' => '0.7',
+            ],
+            [
+                'loc' => route('ai-tools.index'),
+                'lastmod' => $this->viewLastModified('pages/ai-tools/index.blade.php', $latestJobDate),
+                'changefreq' => 'weekly',
+                'priority' => '0.7',
+            ],
+            [
+                'loc' => route('ai-tools.cover-letter'),
+                'lastmod' => $this->viewLastModified('pages/ai-tools/cover-letter.blade.php', $latestJobDate),
+                'changefreq' => 'monthly',
+                'priority' => '0.6',
+            ],
+            [
+                'loc' => route('ai-tools.cv-rewrite'),
+                'lastmod' => $this->viewLastModified('pages/ai-tools/cv-rewrite.blade.php', $latestJobDate),
+                'changefreq' => 'monthly',
+                'priority' => '0.6',
+            ],
+            [
+                'loc' => route('ai-tools.skill-gap'),
+                'lastmod' => $this->viewLastModified('pages/ai-tools/skill-gap.blade.php', $latestJobDate),
+                'changefreq' => 'monthly',
+                'priority' => '0.6',
+            ],
+            [
+                'loc' => route('ai-tools.career-path'),
+                'lastmod' => $this->viewLastModified('pages/ai-tools/career-path.blade.php', $latestJobDate),
+                'changefreq' => 'monthly',
+                'priority' => '0.6',
+            ],
+            [
+                'loc' => route('ai-tools.interview-practice'),
+                'lastmod' => $this->viewLastModified('pages/ai-tools/interview-practice.blade.php', $latestJobDate),
+                'changefreq' => 'monthly',
+                'priority' => '0.6',
+            ],
+            [
                 'loc' => route('about'),
                 'lastmod' => $this->viewLastModified('pages/about.blade.php', $latestJobDate),
                 'changefreq' => 'monthly',

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AiToolController;
 use App\Http\Controllers\CvScanController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\MockInterviewController;
@@ -36,7 +37,30 @@ Route::get('/cv-matcher', [CvScanController::class, 'index'])->name('cv-matcher.
 Route::post('/cv-scan', [CvScanController::class, 'store'])->name('cv-scan.store');
 Route::get('/cv-scan/{id}/status', [CvScanController::class, 'status'])->name('cv-scan.status');
 
-// Mock Interview Testing (password-protected via session)
+// AI Career Tools (public, guest rate-limited)
+Route::prefix('ai-tools')->name('ai-tools.')->group(function () {
+    Route::get('/', [AiToolController::class, 'hub'])->name('index');
+    Route::get('/cover-letter', [AiToolController::class, 'coverLetterPage'])->name('cover-letter');
+    Route::get('/cv-rewrite', [AiToolController::class, 'cvRewritePage'])->name('cv-rewrite');
+    Route::get('/skill-gap', [AiToolController::class, 'skillGapPage'])->name('skill-gap');
+    Route::get('/career-path', [AiToolController::class, 'careerPathPage'])->name('career-path');
+    Route::get('/interview-practice', [AiToolController::class, 'interviewPracticePage'])->name('interview-practice');
+
+    // AJAX actions
+    Route::post('/cover-letter', [AiToolController::class, 'coverLetter'])->name('cover-letter.run');
+    Route::post('/cv-rewrite', [AiToolController::class, 'cvRewrite'])->name('cv-rewrite.run');
+    Route::post('/skill-gap', [AiToolController::class, 'skillGap'])->name('skill-gap.run');
+    Route::post('/career-path', [AiToolController::class, 'careerPath'])->name('career-path.run');
+    Route::post('/job-fit', [AiToolController::class, 'jobFit'])->name('job-fit.run');
+    Route::post('/interview-questions', [AiToolController::class, 'interviewQuestions'])->name('interview-questions.run');
+    Route::post('/interview-demo/question', [AiToolController::class, 'interviewDemoQuestion'])->name('interview-demo.question');
+    Route::post('/interview-demo/feedback', [AiToolController::class, 'interviewDemoFeedback'])->name('interview-demo.feedback');
+});
+
+// Mock Interview public landing (no password)
+Route::get('/latihan-interview', [MockInterviewController::class, 'landing'])->name('mock-interview.landing');
+
+// Mock Interview (public live call + password-protected testing playground)
 Route::prefix('mock-interview')->group(function () {
     Route::get('/', [MockInterviewController::class, 'login']);
     Route::get('/login', [MockInterviewController::class, 'login'])->name('mock-interview.login');
@@ -44,12 +68,15 @@ Route::prefix('mock-interview')->group(function () {
     Route::get('/testing', [MockInterviewController::class, 'index'])->name('mock-interview.index');
     Route::post('/logout', [MockInterviewController::class, 'logout'])->name('mock-interview.logout');
 
-    Route::post('/start', [MockInterviewController::class, 'start'])->name('mock-interview.start');
+    // Public interview session + voice endpoints (throttled to limit abuse).
+    Route::middleware('throttle:30,1')->group(function () {
+        Route::post('/start', [MockInterviewController::class, 'start'])->name('mock-interview.start');
+        Route::post('/speech', [MockInterviewController::class, 'speech'])->name('mock-interview.speech');
+        Route::post('/transcribe', [MockInterviewController::class, 'transcribe'])->name('mock-interview.transcribe');
+        Route::post('/{token}/reply', [MockInterviewController::class, 'reply'])->name('mock-interview.reply');
+        Route::post('/{token}/finish', [MockInterviewController::class, 'finish'])->name('mock-interview.finish');
+    });
     Route::get('/{token}', [MockInterviewController::class, 'show'])->name('mock-interview.show');
-    Route::post('/speech', [MockInterviewController::class, 'speech'])->name('mock-interview.speech');
-    Route::post('/transcribe', [MockInterviewController::class, 'transcribe'])->name('mock-interview.transcribe');
-    Route::post('/{token}/reply', [MockInterviewController::class, 'reply'])->name('mock-interview.reply');
-    Route::post('/{token}/finish', [MockInterviewController::class, 'finish'])->name('mock-interview.finish');
 });
 
 // Scraper Admin (password-protected via session)
