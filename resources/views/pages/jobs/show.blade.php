@@ -129,20 +129,20 @@
                     </article>
 
                     @if(isset($relatedJobs) && $relatedJobs->count() > 0)
-                        <section class="animate-fade-up delay-200">
-                            <div class="mb-4 flex items-center justify-between gap-4">
+                        <section class="animate-fade-up delay-200 rounded-[1.75rem] border border-white/80 bg-white/80 p-4 sm:p-5 shadow-xl shadow-slate-950/5">
+                            <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                                 <div>
-                                    <h2 class="font-[family-name:var(--font-display)] text-2xl font-bold text-slate-900">Lowongan Terkait</h2>
-                                    <p class="text-sm text-slate-500">Peluang lain yang mungkin cocok untuk Anda.</p>
+                                    <h2 class="font-[family-name:var(--font-display)] text-xl sm:text-2xl font-bold text-slate-900">Lowongan Terkait</h2>
+                                    <p class="mt-1 text-sm text-slate-500">Peluang lain yang mungkin cocok untuk Anda.</p>
                                 </div>
-                                <a href="{{ route('jobs.index') }}" class="hidden sm:inline-flex items-center gap-2 text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition-colors">
+                                <a href="{{ route('jobs.index') }}" class="inline-flex w-max items-center gap-2 text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition-colors">
                                     Lihat semua
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                                 </a>
                             </div>
-                            <div class="grid md:grid-cols-3 gap-4">
+                            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
                                 @foreach($relatedJobs as $relatedJob)
-                                    <x-job-card :job="$relatedJob" compact />
+                                    <x-job-card :job="$relatedJob" :compact="true" />
                                 @endforeach
                             </div>
                         </section>
