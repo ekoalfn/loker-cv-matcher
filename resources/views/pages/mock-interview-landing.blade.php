@@ -1,6 +1,8 @@
 <x-layout
     title="Latihan Interview AI - Live Call Interview Kerja Gratis | Lamaraja"
     description="Latihan interview kerja dengan AI seperti panggilan telepon HR. AI bertanya dengan suara, kamu menjawab dengan bicara, dan dapatkan skor serta feedback. Gratis, tanpa daftar."
+    :robots="request()->hasAny(['role', 'job_id']) ? 'noindex, follow' : 'index, follow'"
+    canonical="{{ route('mock-interview.landing') }}"
 >
     @php
         $faqLd = json_encode([

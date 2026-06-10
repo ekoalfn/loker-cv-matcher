@@ -1,6 +1,8 @@
 <x-layout
     title="AI CV Rewrite & ATS Optimizer Gratis | Lamaraja"
     description="Ubah pengalaman kerja di CV jadi bullet point ATS-friendly dengan AI. Optimalkan CV agar lolos screening ATS dan lebih menonjol di mata recruiter."
+    robots="index, follow"
+    canonical="{{ route('ai-tools.cv-rewrite') }}"
 >
     <div class="bg-gradient-to-br from-emerald-50 via-white to-teal-50" x-data="cvRewriteTool()">
         <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">

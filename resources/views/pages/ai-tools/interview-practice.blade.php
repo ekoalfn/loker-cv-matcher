@@ -1,6 +1,8 @@
 <x-layout
     title="AI Interview Question Generator - Latihan Interview per Posisi | Lamaraja"
     description="Generate pertanyaan interview spesifik dari deskripsi lowongan dengan AI. Latihan interview untuk posisi yang kamu tuju, lengkap dengan tips menjawab."
+    :robots="request()->has('job_id') ? 'noindex, follow' : 'index, follow'"
+    canonical="{{ route('ai-tools.interview-practice') }}"
 >
     <div class="bg-gradient-to-br from-emerald-50 via-white to-teal-50" x-data="interviewQuestionTool()">
         <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">

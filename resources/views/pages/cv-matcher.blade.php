@@ -1,6 +1,8 @@
 <x-layout>
     <x-slot:title>CV Matcher AI & ATS Checker - Cek Kecocokan CV dengan Lowongan | Lamaraja</x-slot:title>
     <x-slot:description>Upload CV PDF dan gunakan CV Matcher AI Lamaraja: cek skor kecocokan, skill cocok, skill gap, dan saran perbaikan CV agar lebih ATS-friendly. Gratis.</x-slot:description>
+    <x-slot:robots>index, follow</x-slot:robots>
+    <x-slot:canonical>{{ route('cv-matcher.index') }}</x-slot:canonical>
 
     @php
         $faqLd = json_encode([

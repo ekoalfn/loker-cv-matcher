@@ -1,6 +1,8 @@
 <x-layout
     title="AI Career Tools Gratis - CV, Cover Letter, Interview | Lamaraja"
     description="Kumpulan AI career tools gratis: generator surat lamaran, CV rewrite ATS, skill gap analyzer, career path, dan interview question generator untuk pencari kerja Indonesia."
+    robots="index, follow"
+    canonical="{{ route('ai-tools.index') }}"
 >
     <section class="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50/60 to-white">
         <div class="absolute -top-24 -right-24 h-80 w-80 rounded-full bg-emerald-200/50 blur-3xl" aria-hidden="true"></div>

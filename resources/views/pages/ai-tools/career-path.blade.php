@@ -1,6 +1,8 @@
 <x-layout
     title="AI Career Path - Rekomendasi Jalur Karier dari CV | Lamaraja"
     description="Dapatkan rekomendasi jalur karier berikutnya dari AI berdasarkan CV-mu. Lihat role yang realistis, timeline, dan skill yang perlu dibangun."
+    robots="index, follow"
+    canonical="{{ route('ai-tools.career-path') }}"
 >
     <div class="bg-gradient-to-br from-emerald-50 via-white to-teal-50" x-data="careerPathTool()">
         <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">

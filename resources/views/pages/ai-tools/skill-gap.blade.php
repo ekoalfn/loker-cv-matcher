@@ -1,6 +1,8 @@
 <x-layout
     title="AI Skill Gap Analyzer - Cek Skill yang Kurang | Lamaraja"
     description="Analisis skill gap dengan AI: dari CV dan target role, lihat skill yang sudah dimiliki, yang masih kurang, dan rencana belajar untuk menutup kesenjangan."
+    robots="index, follow"
+    canonical="{{ route('ai-tools.skill-gap') }}"
 >
     <div class="bg-gradient-to-br from-emerald-50 via-white to-teal-50" x-data="skillGapTool()">
         <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">

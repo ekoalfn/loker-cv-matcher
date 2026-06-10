@@ -1,6 +1,8 @@
 <x-layout
     title="AI Generator Surat Lamaran Kerja Gratis | Lamaraja"
     description="Buat surat lamaran kerja (cover letter) otomatis dengan AI berdasarkan CV dan lowongan yang dituju. Gratis, instan, dan dalam Bahasa Indonesia."
+    :robots="request()->has('job_id') ? 'noindex, follow' : 'index, follow'"
+    canonical="{{ route('ai-tools.cover-letter') }}"
 >
     <div class="bg-gradient-to-br from-emerald-50 via-white to-teal-50" x-data="coverLetterTool()">
         <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
