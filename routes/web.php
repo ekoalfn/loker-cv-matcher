@@ -15,6 +15,8 @@ Route::domain('promo.lamaraja.web.id')->group(function (): void {
 // SEO
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/sitemap-pages.xml', [SitemapController::class, 'pages'])->name('sitemap.pages');
+Route::get('/sitemap-locations.xml', [SitemapController::class, 'locations'])->name('sitemap.locations');
+Route::get('/sitemap-categories.xml', [SitemapController::class, 'categories'])->name('sitemap.categories');
 Route::get('/sitemap-jobs-{page}.xml', [SitemapController::class, 'jobs'])->whereNumber('page')->name('sitemap.jobs');
 
 // Home
