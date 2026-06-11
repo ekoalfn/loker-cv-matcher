@@ -265,6 +265,7 @@
 
                         <div class="mt-8 flex flex-col sm:flex-row justify-center gap-3">
                             <button type="button" @click="resetAll()" class="rounded-2xl bg-emerald-500 px-6 py-3 font-bold text-white transition hover:bg-emerald-400">Mulai Panggilan Baru</button>
+                            <button type="button" @click="exportPdf()" class="rounded-2xl border border-emerald-400/40 bg-emerald-500/10 px-6 py-3 font-bold text-emerald-300 text-center transition hover:bg-emerald-500/20">⬇ Export PDF</button>
                             <a href="{{ route('cv-matcher.index') }}" class="rounded-2xl border border-white/15 bg-white/5 px-6 py-3 font-bold text-white text-center transition hover:bg-white/10">Cek CV Saya</a>
                         </div>
                     </section>
@@ -590,20 +591,158 @@
                 },
 
                 resetAll() {
-                    this.teardownAudio();
+                    if (this.currentAudio) { this.currentAudio.pause(); this.currentAudio = null; }
                     this.file = null;
                     this.token = null;
-                    this.transcript = [];
-                    this.feedback = null;
-                    this.currentQuestion = '';
                     this.questionNumber = 0;
+                    this.currentQuestion = '';
+                    this.feedback = null;
+                    this.transcript = [];
                     this.error = null;
                     this.muted = false;
                     this.phase = 'setup';
                     this.callState = 'connecting';
                     document.body.style.overflow = '';
                 },
+
+                async exportPdf() {
+                    if (!this.feedback) return;
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+                    const W = doc.internal.pageSize.getWidth();
+                    const margin = 18;
+                    const maxW = W - margin * 2;
+                    let y = 20;
+
+                    const addText = (text, opts = {}) => {
+                        const { size = 10, bold = false, color = [30,30,30], indent = 0 } = opts;
+                        doc.setFontSize(size);
+                        doc.setFont('helvetica', bold ? 'bold' : 'normal');
+                        doc.setTextColor(...color);
+                        const lines = doc.splitTextToSize(String(text), maxW - indent);
+                        lines.forEach(line => {
+                            if (y > 275) { doc.addPage(); y = 20; }
+                            doc.text(line, margin + indent, y);
+                            y += size * 0.45;
+                        });
+                        y += 2;
+                    };
+
+                    const addSection = (title, color = [16,185,129]) => {
+                        if (y > 260) { doc.addPage(); y = 20; }
+                        y += 3;
+                        doc.setFillColor(...color);
+                        doc.rect(margin, y - 4, 3, 6, 'F');
+                        addText(title, { size: 12, bold: true, color });
+                    };
+
+                    // Header
+                    doc.setFillColor(15, 23, 42);
+                    doc.rect(0, 0, W, 28, 'F');
+                    doc.setFontSize(16); doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(52, 211, 153);
+                    doc.text('Lamaraja', margin, 12);
+                    doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+                    doc.setTextColor(148, 163, 184);
+                    doc.text('Hasil Latihan Interview AI', margin, 19);
+                    const dateStr = new Date().toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+                    doc.text(dateStr, W - margin, 19, { align: 'right' });
+                    y = 38;
+
+                    // Skor keseluruhan
+                    const score = this.feedback.overall_score || 0;
+                    const scoreColor = score >= 80 ? [16,185,129] : score >= 60 ? [245,158,11] : [239,68,68];
+                    doc.setFontSize(36); doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(...scoreColor);
+                    doc.text(`${score}`, margin, y + 10);
+                    doc.setFontSize(14); doc.setTextColor(100,100,100);
+                    doc.text('/100', margin + 20, y + 10);
+                    doc.setFontSize(10); doc.setFont('helvetica', 'normal');
+                    doc.setTextColor(60,60,60);
+                    const role = this.role || 'Umum';
+                    doc.text(`Target Role: ${role}`, margin + 40, y + 5);
+                    doc.text(`Mode: ${this.interviewMode || 'Mixed'}`, margin + 40, y + 11);
+                    y += 24;
+
+                    // Sub-scores
+                    const subScores = [
+                        ['Komunikasi', this.feedback.communication_score],
+                        ['Relevansi', this.feedback.relevance_score],
+                        ['Kepercayaan Diri', this.feedback.confidence_score],
+                        ['Kesesuaian Role', this.feedback.role_fit_score],
+                    ].filter(([,v]) => v != null);
+                    if (subScores.length) {
+                        const colW = maxW / subScores.length;
+                        subScores.forEach(([label, val], i) => {
+                            const x = margin + i * colW;
+                            doc.setFillColor(240,253,244);
+                            doc.roundedRect(x, y, colW - 3, 16, 2, 2, 'F');
+                            doc.setFontSize(14); doc.setFont('helvetica','bold'); doc.setTextColor(...scoreColor);
+                            doc.text(`${val}`, x + colW/2 - 1.5, y + 8, { align: 'center' });
+                            doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(80,80,80);
+                            doc.text(label, x + colW/2 - 1.5, y + 13, { align: 'center' });
+                        });
+                        y += 22;
+                    }
+
+                    // Ringkasan
+                    if (this.feedback.summary) {
+                        addSection('Ringkasan');
+                        addText(this.feedback.summary, { color: [50,50,50] });
+                    }
+
+                    // Kekuatan
+                    if (this.feedback.strengths?.length) {
+                        addSection('Kekuatan', [16,185,129]);
+                        this.feedback.strengths.forEach(s => addText(`• ${s}`, { indent: 4 }));
+                    }
+
+                    // Kelemahan
+                    if (this.feedback.weaknesses?.length) {
+                        addSection('Perlu Dilatih', [245,158,11]);
+                        this.feedback.weaknesses.forEach(s => addText(`• ${s}`, { indent: 4, color: [80,60,10] }));
+                    }
+
+                    // Improved answers
+                    if (this.feedback.improved_answers?.length) {
+                        addSection('Saran Jawaban Lebih Baik', [99,102,241]);
+                        this.feedback.improved_answers.forEach((item, i) => {
+                            addText(`${i+1}. Isu: ${item.original_issue}`, { bold: true, color: [80,80,80], indent: 2 });
+                            addText(`Lebih baik: ${item.better_answer}`, { color: [60,60,120], indent: 6 });
+                            y += 2;
+                        });
+                    }
+
+                    // Action plan
+                    if (this.feedback.action_plan?.length) {
+                        addSection('Rencana Aksi', [59,130,246]);
+                        this.feedback.action_plan.forEach((s, i) => addText(`${i+1}. ${s}`, { indent: 4, color: [30,60,100] }));
+                    }
+
+                    // Transkrip
+                    if (this.transcript.length) {
+                        addSection('Transkrip Percakapan', [100,100,100]);
+                        this.transcript.filter(m => m.role !== 'system').forEach(m => {
+                            const isCandidate = m.role === 'candidate';
+                            addText(isCandidate ? 'Kamu:' : 'Interviewer:', { bold: true, size: 9, color: isCandidate ? [16,120,80] : [60,60,60], indent: 2 });
+                            addText(m.content_text, { size: 9, color: [50,50,50], indent: 6 });
+                            y += 1;
+                        });
+                    }
+
+                    // Footer
+                    const pageCount = doc.internal.getNumberOfPages();
+                    for (let i = 1; i <= pageCount; i++) {
+                        doc.setPage(i);
+                        doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(150,150,150);
+                        doc.text(`Lamaraja — lamaraja.web.id | Halaman ${i} dari ${pageCount}`, W/2, 290, { align: 'center' });
+                    }
+
+                    const filename = `lamaraja-interview-${role.toLowerCase().replace(/\s+/g,'-')}-${new Date().toISOString().slice(0,10)}.pdf`;
+                    doc.save(filename);
+                },
             };
         }
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </x-layout>
