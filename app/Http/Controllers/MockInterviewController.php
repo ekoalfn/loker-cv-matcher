@@ -93,6 +93,7 @@ class MockInterviewController extends Controller
             $cvText = $this->extractPdfText($path);
             $job = isset($data['job_id']) ? Job::find($data['job_id']) : null;
             $session = $this->interviews->start($data, $cvText, $job);
+            session(['mock_interview_token_'.$session->session_token => true]);
 
             return response()->json($this->sessionPayload($session));
         } catch (\Throwable $e) {
@@ -235,6 +236,7 @@ class MockInterviewController extends Controller
             ->firstOrFail();
 
         $isOwner = ($session->ip_address === $request->ip())
+            || session('mock_interview_token_'.$token) === true
             || (auth()->check() && $session->user_id === auth()->id());
 
         abort_unless($isOwner, 403);
