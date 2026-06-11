@@ -4,6 +4,65 @@
     robots="index, follow"
     canonical="{{ route('ai-tools.career-path') }}"
 >
+    @php
+        $faqLd = json_encode([
+            chr(64) . 'context' => 'https://schema.org',
+            '@type' => 'FAQPage',
+            'mainEntity' => [
+                [
+                    '@type' => 'Question',
+                    'name' => 'Apa itu AI Career Path Lamaraja?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'AI Career Path adalah tool gratis yang menganalisis CV kamu dan memberikan rekomendasi jalur karier berikutnya yang realistis, termasuk role yang cocok, timeline, dan skill yang perlu dibangun.',
+                    ],
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Seberapa akurat rekomendasi career path dari AI?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Rekomendasi didasarkan pada pengalaman, skill, dan pola karier umum di industri. Hasilnya adalah panduan, bukan keputusan final — pertimbangkan juga minat dan kondisi pasarmu.',
+                    ],
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Apakah rekomendasi career path spesifik untuk pasar kerja Indonesia?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Ya, AI dioptimasi untuk konteks pasar kerja Indonesia, termasuk industri, role, dan tren karier yang relevan di Indonesia.',
+                    ],
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Bisakah saya coba beberapa skenario karier?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Ya, kamu bisa menjalankan analisis berkali-kali dengan menambahkan target industri atau role yang berbeda untuk melihat berbagai kemungkinan jalur karier.',
+                    ],
+                ],
+            ],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        $softwareLd = json_encode([
+            chr(64) . 'context' => 'https://schema.org',
+            '@type' => 'SoftwareApplication',
+            'name' => 'AI Career Path Lamaraja',
+            'applicationCategory' => 'BusinessApplication',
+            'operatingSystem' => 'Web',
+            'url' => route('ai-tools.career-path'),
+            'description' => 'Tool gratis untuk mendapatkan rekomendasi jalur karier berikutnya berdasarkan CV menggunakan AI.',
+            'offers' => [
+                '@type' => 'Offer',
+                'price' => '0',
+                'priceCurrency' => 'IDR',
+            ],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    @endphp
+
+    <script type="application/ld+json">{!! $faqLd !!}</script>
+    <script type="application/ld+json">{!! $softwareLd !!}</script>
+
     <div class="bg-gradient-to-br from-emerald-50 via-white to-teal-50" x-data="careerPathTool()">
         <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
             <div class="text-center max-w-2xl mx-auto">

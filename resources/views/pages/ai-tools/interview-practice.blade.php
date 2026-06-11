@@ -4,6 +4,65 @@
     :robots="request()->has('job_id') ? 'noindex, follow' : 'index, follow'"
     canonical="{{ route('ai-tools.interview-practice') }}"
 >
+    @php
+        $faqLd = json_encode([
+            chr(64) . 'context' => 'https://schema.org',
+            '@type' => 'FAQPage',
+            'mainEntity' => [
+                [
+                    '@type' => 'Question',
+                    'name' => 'Apa itu AI Interview Question Generator Lamaraja?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'AI Interview Question Generator adalah tool gratis yang menghasilkan pertanyaan interview spesifik berdasarkan deskripsi lowongan yang kamu tuju, lengkap dengan tips menjawab untuk setiap pertanyaan.',
+                    ],
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Bagaimana cara menggunakan Interview Question Generator?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Paste deskripsi lowongan atau masukkan nama posisi, lalu AI akan menghasilkan pertanyaan interview yang relevan untuk posisi tersebut beserta panduan menjawabnya.',
+                    ],
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Berapa banyak pertanyaan yang dihasilkan?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'AI menghasilkan pertanyaan interview yang mencakup berbagai aspek: pertanyaan teknis, behavioral, situational, dan pertanyaan umum sesuai posisi yang dituju.',
+                    ],
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Apakah pertanyaan interview yang dihasilkan relevan dengan posisi saya?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Ya, pertanyaan disesuaikan dengan deskripsi lowongan yang kamu masukkan. Semakin detail deskripsi lowongannya, semakin relevan pertanyaan yang dihasilkan.',
+                    ],
+                ],
+            ],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        $softwareLd = json_encode([
+            chr(64) . 'context' => 'https://schema.org',
+            '@type' => 'SoftwareApplication',
+            'name' => 'AI Interview Question Generator Lamaraja',
+            'applicationCategory' => 'BusinessApplication',
+            'operatingSystem' => 'Web',
+            'url' => route('ai-tools.interview-practice'),
+            'description' => 'Tool gratis untuk generate pertanyaan interview spesifik per posisi menggunakan AI, lengkap dengan tips menjawab.',
+            'offers' => [
+                '@type' => 'Offer',
+                'price' => '0',
+                'priceCurrency' => 'IDR',
+            ],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    @endphp
+
+    <script type="application/ld+json">{!! $faqLd !!}</script>
+    <script type="application/ld+json">{!! $softwareLd !!}</script>
+
     <div class="bg-gradient-to-br from-emerald-50 via-white to-teal-50" x-data="interviewQuestionTool()">
         <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
             <div class="text-center max-w-2xl mx-auto">

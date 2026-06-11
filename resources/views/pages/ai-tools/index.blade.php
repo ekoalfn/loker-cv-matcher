@@ -4,6 +4,95 @@
     robots="index, follow"
     canonical="{{ route('ai-tools.index') }}"
 >
+    @php
+        $faqLd = json_encode([
+            chr(64) . 'context' => 'https://schema.org',
+            '@type' => 'FAQPage',
+            'mainEntity' => [
+                [
+                    '@type' => 'Question',
+                    'name' => 'Apa saja AI Career Tools yang tersedia di Lamaraja?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Lamaraja menyediakan 6 AI career tools gratis: CV Matcher (ATS Checker), Latihan Interview AI, Generator Surat Lamaran, CV Rewrite & ATS Optimizer, Skill Gap Analyzer, Career Path Recommender, dan Interview Question Generator.',
+                    ],
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Apakah semua AI tools di Lamaraja gratis?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Ya, semua AI career tools di Lamaraja gratis digunakan tanpa perlu daftar atau login.',
+                    ],
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Bagaimana cara memulai menggunakan AI tools Lamaraja?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Pilih tool yang sesuai kebutuhan, upload CV PDF atau masukkan informasi yang diminta, lalu AI akan langsung memproses dan menghasilkan rekomendasi atau output dalam hitungan detik.',
+                    ],
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Apakah data CV saya aman di Lamaraja?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'CV yang diupload hanya digunakan untuk proses analisis AI dan tidak disimpan secara permanen. File dihapus setelah proses selesai.',
+                    ],
+                ],
+            ],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        $itemListLd = json_encode([
+            chr(64) . 'context' => 'https://schema.org',
+            '@type' => 'ItemList',
+            'name' => 'AI Career Tools Lamaraja',
+            'description' => 'Kumpulan tool AI gratis untuk pencari kerja Indonesia',
+            'itemListElement' => [
+                [
+                    '@type' => 'ListItem',
+                    'position' => 1,
+                    'name' => 'CV Matcher (ATS Checker)',
+                    'url' => route('cv-matcher.index'),
+                ],
+                [
+                    '@type' => 'ListItem',
+                    'position' => 2,
+                    'name' => 'Generator Surat Lamaran',
+                    'url' => route('ai-tools.cover-letter'),
+                ],
+                [
+                    '@type' => 'ListItem',
+                    'position' => 3,
+                    'name' => 'CV Rewrite & ATS Optimizer',
+                    'url' => route('ai-tools.cv-rewrite'),
+                ],
+                [
+                    '@type' => 'ListItem',
+                    'position' => 4,
+                    'name' => 'Skill Gap Analyzer',
+                    'url' => route('ai-tools.skill-gap'),
+                ],
+                [
+                    '@type' => 'ListItem',
+                    'position' => 5,
+                    'name' => 'AI Career Path',
+                    'url' => route('ai-tools.career-path'),
+                ],
+                [
+                    '@type' => 'ListItem',
+                    'position' => 6,
+                    'name' => 'Latihan Interview AI',
+                    'url' => route('mock-interview.landing'),
+                ],
+            ],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    @endphp
+
+    <script type="application/ld+json">{!! $faqLd !!}</script>
+    <script type="application/ld+json">{!! $itemListLd !!}</script>
+
     <section class="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50/60 to-white">
         <div class="absolute -top-24 -right-24 h-80 w-80 rounded-full bg-emerald-200/50 blur-3xl" aria-hidden="true"></div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20 text-center">

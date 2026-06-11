@@ -4,6 +4,65 @@
     robots="index, follow"
     canonical="{{ route('ai-tools.cv-rewrite') }}"
 >
+    @php
+        $faqLd = json_encode([
+            chr(64) . 'context' => 'https://schema.org',
+            '@type' => 'FAQPage',
+            'mainEntity' => [
+                [
+                    '@type' => 'Question',
+                    'name' => 'Apa itu AI CV Rewrite Lamaraja?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'AI CV Rewrite Lamaraja adalah tool gratis yang mengubah pengalaman kerja di CV menjadi bullet point ATS-friendly berbasis pencapaian, sehingga CV lebih mudah lolos screening otomatis rekruter.',
+                    ],
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Apa itu ATS dan kenapa CV perlu dioptimasi?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'ATS (Applicant Tracking System) adalah software yang dipakai perusahaan untuk filter CV secara otomatis. CV yang tidak ATS-friendly bisa otomatis tersingkir sebelum dibaca rekruter.',
+                    ],
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Format CV apa yang didukung?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Saat ini AI CV Rewrite mendukung input teks langsung. Salin pengalaman kerja dari CV kamu ke dalam form, lalu AI akan merewritenya.',
+                    ],
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Apakah hasil rewrite bisa langsung dipakai?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Ya, hasil rewrite bisa langsung disalin ke CV kamu. Disarankan untuk review dan sesuaikan dengan gaya penulisan personalmu.',
+                    ],
+                ],
+            ],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        $softwareLd = json_encode([
+            chr(64) . 'context' => 'https://schema.org',
+            '@type' => 'SoftwareApplication',
+            'name' => 'AI CV Rewrite & ATS Optimizer Lamaraja',
+            'applicationCategory' => 'BusinessApplication',
+            'operatingSystem' => 'Web',
+            'url' => route('ai-tools.cv-rewrite'),
+            'description' => 'Tool gratis untuk mengoptimasi CV agar ATS-friendly dengan AI, mengubah pengalaman kerja jadi bullet point berbasis pencapaian.',
+            'offers' => [
+                '@type' => 'Offer',
+                'price' => '0',
+                'priceCurrency' => 'IDR',
+            ],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    @endphp
+
+    <script type="application/ld+json">{!! $faqLd !!}</script>
+    <script type="application/ld+json">{!! $softwareLd !!}</script>
+
     <div class="bg-gradient-to-br from-emerald-50 via-white to-teal-50" x-data="cvRewriteTool()">
         <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
             <div class="text-center max-w-2xl mx-auto">

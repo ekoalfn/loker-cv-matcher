@@ -4,6 +4,65 @@
     robots="index, follow"
     canonical="{{ route('ai-tools.skill-gap') }}"
 >
+    @php
+        $faqLd = json_encode([
+            chr(64) . 'context' => 'https://schema.org',
+            '@type' => 'FAQPage',
+            'mainEntity' => [
+                [
+                    '@type' => 'Question',
+                    'name' => 'Apa itu Skill Gap Analyzer Lamaraja?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Skill Gap Analyzer adalah tool AI gratis yang menganalisis CV kamu dan membandingkannya dengan target role atau lowongan, lalu menunjukkan skill yang sudah dimiliki, yang masih kurang, dan rencana belajar untuk menutup kesenjangan.',
+                    ],
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Bagaimana cara menggunakan Skill Gap Analyzer?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Upload CV PDF atau paste teks CV, lalu masukkan target role atau deskripsi lowongan yang dituju. AI akan menganalisis dan menghasilkan laporan skill gap dalam hitungan detik.',
+                    ],
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Apakah hasil analisis skill gap akurat?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Hasil analisis didasarkan pada CV dan deskripsi yang kamu berikan. Semakin lengkap CV dan deskripsi lowongan, semakin akurat rekomendasinya.',
+                    ],
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Skill gap apa saja yang bisa dideteksi?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Tool ini bisa mendeteksi skill teknis (hard skills), soft skills, sertifikasi, pengalaman industri, dan tools spesifik yang dibutuhkan untuk posisi yang dituju.',
+                    ],
+                ],
+            ],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        $softwareLd = json_encode([
+            chr(64) . 'context' => 'https://schema.org',
+            '@type' => 'SoftwareApplication',
+            'name' => 'AI Skill Gap Analyzer Lamaraja',
+            'applicationCategory' => 'BusinessApplication',
+            'operatingSystem' => 'Web',
+            'url' => route('ai-tools.skill-gap'),
+            'description' => 'Tool gratis untuk menganalisis skill gap antara CV dan target role menggunakan AI, lengkap dengan rencana pengembangan skill.',
+            'offers' => [
+                '@type' => 'Offer',
+                'price' => '0',
+                'priceCurrency' => 'IDR',
+            ],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    @endphp
+
+    <script type="application/ld+json">{!! $faqLd !!}</script>
+    <script type="application/ld+json">{!! $softwareLd !!}</script>
+
     <div class="bg-gradient-to-br from-emerald-50 via-white to-teal-50" x-data="skillGapTool()">
         <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
             <div class="text-center max-w-2xl mx-auto">

@@ -4,6 +4,65 @@
     :robots="request()->has('job_id') ? 'noindex, follow' : 'index, follow'"
     canonical="{{ route('ai-tools.cover-letter') }}"
 >
+    @php
+        $faqLd = json_encode([
+            chr(64) . 'context' => 'https://schema.org',
+            '@type' => 'FAQPage',
+            'mainEntity' => [
+                [
+                    '@type' => 'Question',
+                    'name' => 'Apa itu AI Generator Surat Lamaran Lamaraja?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'AI generator surat lamaran Lamaraja adalah tool gratis yang membuat cover letter personal berdasarkan CV dan lowongan yang kamu tuju, menggunakan kecerdasan buatan. Hasilnya langsung dalam Bahasa Indonesia.',
+                    ],
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Apakah perlu daftar akun untuk pakai generator surat lamaran ini?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Tidak perlu daftar atau login. Cukup upload CV PDF dan pilih atau paste lowongan, AI langsung generate surat lamaran.',
+                    ],
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Berapa lama proses generate surat lamaran?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Proses biasanya selesai dalam 10–30 detik tergantung panjang deskripsi lowongan dan koneksi internet.',
+                    ],
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Apakah hasil surat lamaran bisa diedit?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Ya, hasil cover letter bisa langsung disalin dan diedit sesuai kebutuhan sebelum dikirim ke perusahaan.',
+                    ],
+                ],
+            ],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        $softwareLd = json_encode([
+            chr(64) . 'context' => 'https://schema.org',
+            '@type' => 'SoftwareApplication',
+            'name' => 'AI Generator Surat Lamaran Lamaraja',
+            'applicationCategory' => 'BusinessApplication',
+            'operatingSystem' => 'Web',
+            'url' => route('ai-tools.cover-letter'),
+            'description' => 'Tool gratis untuk generate surat lamaran kerja otomatis berbasis CV dan deskripsi lowongan menggunakan AI.',
+            'offers' => [
+                '@type' => 'Offer',
+                'price' => '0',
+                'priceCurrency' => 'IDR',
+            ],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    @endphp
+
+    <script type="application/ld+json">{!! $faqLd !!}</script>
+    <script type="application/ld+json">{!! $softwareLd !!}</script>
+
     <div class="bg-gradient-to-br from-emerald-50 via-white to-teal-50" x-data="coverLetterTool()">
         <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
             <div class="text-center max-w-2xl mx-auto">
