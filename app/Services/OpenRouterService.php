@@ -116,6 +116,7 @@ class OpenRouterService implements AiServiceInterface
                 'messages' => $messages,
                 'temperature' => 0.3,
                 'max_tokens' => $this->maxTokens,
+                'stream' => false,
             ];
 
             Log::info('OpenRouter API request', [
