@@ -15,10 +15,13 @@ UA={
     'Accept-Language':'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
     'Connection':'keep-alive',
 }
-TARGETS=os.getenv('JOB_TARGETS','https://dealls.com/loker/lokasi,https://dealls.com/loker,https://www.kalibrr.com/job-board/te/Indonesia,https://glints.com/id/job-category/software-engineering-jobs').split(',')
+TARGETS=os.getenv('JOB_TARGETS','https://dealls.com/loker/lokasi,https://dealls.com/loker,https://www.kalibrr.com/job-board/te/Indonesia,https://glints.com/id/job-category/software-engineering-jobs,https://weworkremotely.com/remote-jobs,https://arc.dev/remote-jobs,https://getonbrd.com/jobs').split(',')
 GREENHOUSE_BOARDS=[x.strip() for x in os.getenv('GREENHOUSE_BOARDS','xendit').split(',') if x.strip()]
 LINKEDIN_SEARCHES=[x.strip() for x in os.getenv('LINKEDIN_SEARCHES','https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=&location=Indonesia').split(',') if x.strip()]
 LINKEDIN_PAGES=int(os.getenv('LINKEDIN_PAGES','5'))
+HIMALAYAS_LIMIT=int(os.getenv('HIMALAYAS_LIMIT','50'))
+REMOTIVE_LIMIT=int(os.getenv('REMOTIVE_LIMIT','50'))
+REMOTIVE_CATEGORIES=os.getenv('REMOTIVE_CATEGORIES','software-dev,devops-sysadmin,product,design').split(',')
 EMP={'full-time','part-time','contract','internship','freelance'}
 
 
@@ -31,7 +34,6 @@ def scrape(url):
     d=res.get('data') or res
     return d.get('markdown') or '', d.get('links') or []
 
-
 def get_text(url, timeout=30):
     req=urllib.request.Request(url,headers=UA)
     with urllib.request.urlopen(req,timeout=timeout) as r: return r.read().decode('utf-8','ignore')
@@ -41,7 +43,6 @@ def dealls_location_targets():
     if not any(t.rstrip('/') == 'https://dealls.com/loker/lokasi' for t in TARGETS):
         return []
     try:
-        # Gunakan Firecrawl untuk bypass Cloudflare di Dealls
         md_text, links_fc = scrape('https://dealls.com/loker/lokasi')
         for lk in links_fc:
             u = lk if isinstance(lk, str) else lk.get('url', '')
@@ -89,6 +90,111 @@ def linkedin_urls():
                 print('LINKEDIN_FAIL',str(e)[:120],flush=True); break
     return urls
 
+def himalayas_jobs():
+    """Himalayas API publik - structured data, logo CDN tersedia."""
+    jobs_out=[]
+    try:
+        url=f'https://himalayas.app/jobs/api?limit={HIMALAYAS_LIMIT}'
+        data=json.loads(get_text(url,30))
+        raw=data.get('jobs',[])
+        print('HIMALAYAS_API', len(raw), 'jobs', flush=True)
+        for j in raw:
+            try:
+                source_url=j.get('applicationLink') or j.get('guid','')
+                if not source_url or not source_url.startswith('http'): continue
+                logo=j.get('companyLogo','')
+                if not logo or not logo.startswith('http'): continue
+                desc_html=j.get('description','')
+                desc=re.sub(r'<[^>]+>','',desc_html).strip()
+                desc=re.sub(r'\n{3,}','\n\n',desc)
+                if len(desc)<300: continue
+                emp_raw=(j.get('employmentType') or 'full_time').lower().replace('_','-')
+                emp='full-time'
+                if 'part' in emp_raw: emp='part-time'
+                elif 'contract' in emp_raw or 'contractor' in emp_raw: emp='contract'
+                elif 'intern' in emp_raw: emp='internship'
+                elif 'freelance' in emp_raw: emp='freelance'
+                sal_min=j.get('minSalary'); sal_max=j.get('maxSalary')
+                currency=j.get('currency','USD')
+                loc=', '.join(j.get('locationRestrictions',[]) or ['Remote'])[:255]
+                tags=[c.lower().replace('-',' ')[:40] for c in (j.get('categories') or [])[:5]]
+                excerpt=j.get('excerpt','') or ''
+                job={
+                    'title': str(j.get('title',''))[:255],
+                    'company': str(j.get('companyName',''))[:255],
+                    'company_logo': logo,
+                    'location': loc,
+                    'employment_type': emp,
+                    'salary_min': int(sal_min) if sal_min else None,
+                    'salary_max': int(sal_max) if sal_max else None,
+                    'salary_currency': currency,
+                    'description_raw': desc,
+                    'summary_ai': re.sub(r'\s+',' ',excerpt or desc[:280])[:500],
+                    'tags': tags,
+                    'source_url': source_url,
+                    'expires_at': None,
+                }
+                jobs_out.append(job)
+            except Exception as e:
+                print('HIMALAYAS_JOB_ERR', str(e)[:80], flush=True)
+        print('HIMALAYAS_VALID', len(jobs_out), flush=True)
+    except Exception as e:
+        print('HIMALAYAS_FAIL', str(e)[:120], flush=True)
+    return jobs_out
+
+def remotive_jobs():
+    """Remotive API publik - structured, ada logo URL."""
+    jobs_out=[]
+    for cat in REMOTIVE_CATEGORIES:
+        cat=cat.strip()
+        if not cat: continue
+        try:
+            url=f'https://remotive.com/api/remote-jobs?category={cat}&limit={REMOTIVE_LIMIT}'
+            data=json.loads(get_text(url,30))
+            raw=data.get('jobs',[])
+            print(f'REMOTIVE_API {cat}', len(raw), 'jobs', flush=True)
+            for j in raw:
+                try:
+                    source_url=j.get('url','')
+                    if not source_url or not source_url.startswith('http'): continue
+                    logo=j.get('company_logo','')
+                    if not logo or not logo.startswith('http'): continue
+                    desc_html=j.get('description','')
+                    desc=re.sub(r'<[^>]+>','',desc_html).strip()
+                    desc=re.sub(r'\n{3,}','\n\n',desc)
+                    if len(desc)<300: continue
+                    emp_raw=(j.get('job_type') or 'full_time').lower().replace('_','-')
+                    emp='full-time'
+                    if 'part' in emp_raw: emp='part-time'
+                    elif 'contract' in emp_raw: emp='contract'
+                    elif 'intern' in emp_raw: emp='internship'
+                    elif 'freelance' in emp_raw: emp='freelance'
+                    loc=(j.get('candidate_required_location') or 'Remote')[:255]
+                    tags=[t.lower()[:40] for t in (j.get('tags') or [])[:5]]
+                    job={
+                        'title': str(j.get('title',''))[:255],
+                        'company': str(j.get('company_name',''))[:255],
+                        'company_logo': logo,
+                        'location': loc,
+                        'employment_type': emp,
+                        'salary_min': None,
+                        'salary_max': None,
+                        'salary_currency': 'USD',
+                        'description_raw': desc,
+                        'summary_ai': re.sub(r'\s+',' ',desc[:280])[:500],
+                        'tags': tags,
+                        'source_url': source_url,
+                        'expires_at': None,
+                    }
+                    jobs_out.append(job)
+                except Exception as e:
+                    print('REMOTIVE_JOB_ERR', str(e)[:80], flush=True)
+        except Exception as e:
+            print(f'REMOTIVE_FAIL {cat}', str(e)[:120], flush=True)
+        time.sleep(0.5)
+    print('REMOTIVE_VALID', len(jobs_out), flush=True)
+    return jobs_out
+
 def links_from(md,links):
     raw=set([x if isinstance(x,str) else x.get('url','') for x in links])
     raw |= set(re.findall(r'https?://[^\s)\]"\']+',md))
@@ -121,7 +227,7 @@ MARKDOWN:
 """
     base=(os.getenv('OPENROUTER_API_ENDPOINT') or os.getenv('OPENROUTER_BASE_URL') or 'https://openrouter.ai/api/v1').strip()
     res=post_json(base.rstrip('/')+'/chat/completions',{
-        'model':MODEL,'temperature':0.1,'max_tokens':1800,
+        'model':MODEL,'temperature':0.1,'max_tokens':1800,'stream':False,
         'messages':[{'role':'user','content':prompt}]
     },{'Authorization':'Bearer '+OR,'HTTP-Referer':'https://lamaraja.web.id','X-Title':'Lamaraja'},180)
     c=res['choices'][0]['message']['content'].strip()
@@ -157,6 +263,27 @@ def valid(job,url):
     job['expires_at']=None
     return job
 
+def valid_direct(job):
+    """Validasi job dari API langsung (Himalayas/Remotive) - sudah structured."""
+    if not isinstance(job,dict) or not job: return None
+    for k in ['title','company','location','description_raw','source_url','company_logo']:
+        if not isinstance(job.get(k),str) or not job[k].strip(): return None
+    if not job['source_url'].startswith('http'): return None
+    if job.get('employment_type') not in EMP: job['employment_type']='full-time'
+    if len(job['description_raw']) < 300: return None
+    # Logo: coba HEAD check, fallback ke pattern match (beberapa CDN reject HEAD)
+    st,ct=head(job['company_logo'])
+    logo_ok=ct.startswith('image/') or re.search(r'\.(png|jpe?g|webp|svg)(\?.*)?$',job['company_logo'],re.I)
+    if not logo_ok and not re.search(r'cdn|logo|image|img',job['company_logo'],re.I):
+        return None
+    job['title']=job['title'][:255]; job['company']=job['company'][:255]; job['location']=job['location'][:255]
+    job['salary_currency']=job.get('salary_currency') or 'USD'
+    job['summary_ai']=(job.get('summary_ai') or re.sub(r'[#*`>-]','',job['description_raw'])[:280]).strip()[:500]
+    tags=job.get('tags') if isinstance(job.get('tags'),list) else []
+    job['tags']=[str(t).lower()[:40] for t in tags if str(t).strip()][:5]
+    job['expires_at']=None
+    return job
+
 jobs=[]; seen=set()
 expanded_targets=[]
 for t in TARGETS:
@@ -168,7 +295,23 @@ for t in TARGETS:
 for url in greenhouse_urls()+linkedin_urls():
     if url and url not in seen: expanded_targets.append(url)
 
+# Sumber API langsung - Himalayas & Remotive (structured, tanpa Firecrawl per-job)
+print('=== HIMALAYAS + REMOTIVE API ===', flush=True)
+for job in himalayas_jobs()+remotive_jobs():
+    if len(jobs)>=MAX_JOBS: break
+    url=job.get('source_url','')
+    if not url or url in seen: continue
+    seen.add(url)
+    j=valid_direct(job)
+    if j:
+        jobs.append(j); print('OK_API',len(jobs),j['title'],flush=True)
+    else:
+        print('REJECT_API',url,flush=True)
+
+# Sumber Firecrawl scrape
+print('=== FIRECRAWL SCRAPE TARGETS ===', flush=True)
 for target in expanded_targets:
+    if len(jobs)>=MAX_JOBS: break
     print('INDEX',target,flush=True)
     try: md,links=scrape(target)
     except Exception as e: print('INDEX_FAIL',e,flush=True); continue
