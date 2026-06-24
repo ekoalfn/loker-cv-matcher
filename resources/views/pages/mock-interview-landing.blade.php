@@ -19,33 +19,32 @@
         $maxQuestions = (int) config('mock_interview.max_questions', 6);
     @endphp
     <script type="application/ld+json">{!! $faqLd !!}</script>
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": "Latihan Interview AI Lamaraja",
-        "applicationCategory": "BusinessApplication",
-        "operatingSystem": "Web",
-        "description": "Simulasi interview kerja dengan AI. Latihan menjawab pertanyaan interview, dapatkan skor dan feedback. Gratis.",
-        "offers": {"@type": "Offer", "price": "0", "priceCurrency": "IDR"},
-        "url": "https://lamaraja.web.id/latihan-interview"
-    }
-    </script>
-
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "HowTo",
-        "name": "Cara Latihan Interview Kerja dengan AI",
-        "description": "Simulasi interview kerja dengan AI gratis — latihan menjawab pertanyaan HR dan dapatkan feedback",
-        "step": [
-            {"@type": "HowToStep", "name": "Pilih jenis interview", "text": "Pilih tipe interview: umum, teknikal, atau spesifik industri"},
-            {"@type": "HowToStep", "name": "Mulai sesi interview", "text": "Klik mulai dan AI akan memperkenalkan diri seperti HR sungguhan"},
-            {"@type": "HowToStep", "name": "Jawab pertanyaan dengan suara", "text": "AI mengajukan pertanyaan dengan suara, kamu menjawab secara lisan"},
-            {"@type": "HowToStep", "name": "Dapatkan skor dan feedback", "text": "Setelah sesi selesai, dapatkan skor performa dan feedback detail untuk improvement"}
-        ]
-    }
-    </script>
+    @php
+        $appLd = json_encode([
+            chr(64).'context' => 'https://schema.org',
+            '@type' => 'SoftwareApplication',
+            'name' => 'Latihan Interview AI Lamaraja',
+            'applicationCategory' => 'BusinessApplication',
+            'operatingSystem' => 'Web',
+            'description' => 'Simulasi interview kerja dengan AI. Latihan menjawab pertanyaan interview, dapatkan skor dan feedback. Gratis.',
+            'offers' => ['@type' => 'Offer', 'price' => '0', 'priceCurrency' => 'IDR'],
+            'url' => 'https://lamaraja.web.id/latihan-interview',
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $howToLd = json_encode([
+            chr(64).'context' => 'https://schema.org',
+            '@type' => 'HowTo',
+            'name' => 'Cara Latihan Interview Kerja dengan AI',
+            'description' => 'Simulasi interview kerja dengan AI gratis - latihan menjawab pertanyaan HR dan dapatkan feedback',
+            'step' => [
+                ['@type' => 'HowToStep', 'name' => 'Pilih jenis interview', 'text' => 'Pilih tipe interview: umum, teknikal, atau spesifik industri'],
+                ['@type' => 'HowToStep', 'name' => 'Mulai sesi interview', 'text' => 'Klik mulai dan AI akan memperkenalkan diri seperti HR sungguhan'],
+                ['@type' => 'HowToStep', 'name' => 'Jawab pertanyaan dengan suara', 'text' => 'AI mengajukan pertanyaan dengan suara, kamu menjawab secara lisan'],
+                ['@type' => 'HowToStep', 'name' => 'Dapatkan skor dan feedback', 'text' => 'Setelah sesi selesai, dapatkan skor performa dan feedback detail untuk improvement'],
+            ],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    @endphp
+    <script type="application/ld+json">{!! $appLd !!}</script>
+    <script type="application/ld+json">{!! $howToLd !!}</script>
 
     <div x-data="liveInterview('{{ $targetRole }}')" x-init="init()">
         {{-- HERO + SETUP --}}
