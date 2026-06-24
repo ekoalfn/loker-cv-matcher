@@ -3,6 +3,7 @@
     description="Analisis skill gap dengan AI: dari CV dan target role, lihat skill yang sudah dimiliki, yang masih kurang, dan rencana belajar untuk menutup kesenjangan."
     robots="index, follow"
     canonical="{{ route('ai-tools.skill-gap') }}"
+    ogImage="{{ url('/images/og-skill-gap.jpg') }}"
 >
     @php
         $howToLd = json_encode([

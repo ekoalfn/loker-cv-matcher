@@ -3,6 +3,7 @@
     description="Buat surat lamaran kerja (cover letter) otomatis dengan AI berdasarkan CV dan lowongan yang dituju. Gratis, instan, dan dalam Bahasa Indonesia."
     :robots="request()->has('job_id') ? 'noindex, follow' : 'index, follow'"
     canonical="{{ route('ai-tools.cover-letter') }}"
+    ogImage="{{ url('/images/og-cover-letter.jpg') }}"
 >
     @php
         $faqLd = json_encode([

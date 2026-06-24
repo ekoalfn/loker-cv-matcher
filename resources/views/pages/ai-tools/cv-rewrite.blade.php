@@ -3,6 +3,7 @@
     description="Ubah pengalaman kerja di CV jadi bullet point ATS-friendly dengan AI. Optimalkan CV agar lolos screening ATS dan lebih menonjol di mata recruiter."
     robots="index, follow"
     canonical="{{ route('ai-tools.cv-rewrite') }}"
+    ogImage="{{ url('/images/og-cv-rewrite.jpg') }}"
 >
     @php
         $howToLd = json_encode([

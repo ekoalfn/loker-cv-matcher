@@ -1,8 +1,9 @@
 <x-layout
     title="Latihan Interview AI - Live Call Interview Kerja Gratis | Lamaraja"
-    description="Latihan interview kerja dengan AI seperti panggilan telepon HR. AI bertanya dengan suara, kamu menjawab dengan bicara, dan dapatkan skor serta feedback. Gratis, tanpa daftar."
+    description="Simulasi interview kerja dengan AI: AI bertanya dengan suara, kamu jawab lisan, lalu dapat skor & feedback. Gratis, tanpa daftar. Mulai sekarang!"
     :robots="request()->hasAny(['role', 'job_id']) ? 'noindex, follow' : 'index, follow'"
     canonical="{{ route('mock-interview.landing') }}"
+    ogImage="{{ url('/images/og-latihan-interview.jpg') }}"
 >
     @php
         $faqLd = json_encode([
@@ -18,6 +19,33 @@
         $maxQuestions = (int) config('mock_interview.max_questions', 6);
     @endphp
     <script type="application/ld+json">{!! $faqLd !!}</script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Latihan Interview AI Lamaraja",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "description": "Simulasi interview kerja dengan AI. Latihan menjawab pertanyaan interview, dapatkan skor dan feedback. Gratis.",
+        "offers": {"@type": "Offer", "price": "0", "priceCurrency": "IDR"},
+        "url": "https://lamaraja.web.id/latihan-interview"
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        "name": "Cara Latihan Interview Kerja dengan AI",
+        "description": "Simulasi interview kerja dengan AI gratis — latihan menjawab pertanyaan HR dan dapatkan feedback",
+        "step": [
+            {"@type": "HowToStep", "name": "Pilih jenis interview", "text": "Pilih tipe interview: umum, teknikal, atau spesifik industri"},
+            {"@type": "HowToStep", "name": "Mulai sesi interview", "text": "Klik mulai dan AI akan memperkenalkan diri seperti HR sungguhan"},
+            {"@type": "HowToStep", "name": "Jawab pertanyaan dengan suara", "text": "AI mengajukan pertanyaan dengan suara, kamu menjawab secara lisan"},
+            {"@type": "HowToStep", "name": "Dapatkan skor dan feedback", "text": "Setelah sesi selesai, dapatkan skor performa dan feedback detail untuk improvement"}
+        ]
+    }
+    </script>
 
     <div x-data="liveInterview('{{ $targetRole }}')" x-init="init()">
         {{-- HERO + SETUP --}}
@@ -27,7 +55,7 @@
                 <div class="grid lg:grid-cols-2 gap-10 items-center">
                     <div>
                         <span class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-xs font-bold text-emerald-700 ring-1 ring-emerald-100 shadow-sm">Live Call Interview · Beta</span>
-                        <h1 class="mt-5 font-[family-name:var(--font-display)] text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-950 leading-[1.1]">Interview live <span class="text-emerald-600">dengan AI</span>, seperti telepon HR</h1>
+                        <h1 class="mt-5 font-[family-name:var(--font-display)] text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-950 leading-[1.1]">Latihan Interview Kerja <span class="text-emerald-600">dengan AI</span> — Seperti Telepon HR Sungguhan</h1>
                         <p class="mt-4 text-lg leading-8 text-slate-600">Hands-free: AI interviewer membacakan pertanyaan, kamu menjawab dengan suara, dan percakapan berlanjut otomatis. Di akhir sesi kamu dapat skor dan feedback.</p>
                         <ul class="mt-5 space-y-2 text-sm text-slate-600">
                             <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span> AI bicara, kamu jawab dengan suara</li>
