@@ -5,6 +5,19 @@
     canonical="{{ route('ai-tools.skill-gap') }}"
 >
     @php
+        $howToLd = json_encode([
+            chr(64) . 'context' => 'https://schema.org',
+            '@type' => 'HowTo',
+            'name' => 'Cara Menganalisis Skill Gap dengan AI',
+            'description' => 'Analisis skill gap kamu berdasarkan posisi yang dituju secara gratis menggunakan AI Lamaraja',
+            'step' => [
+                ['@type' => 'HowToStep', 'name' => 'Masukkan posisi yang dituju', 'text' => 'Ketik posisi pekerjaan yang ingin kamu lamar, misalnya Frontend Developer atau Marketing Manager'],
+                ['@type' => 'HowToStep', 'name' => 'Upload CV kamu', 'text' => 'Upload file CV dalam format PDF atau paste teks CV kamu'],
+                ['@type' => 'HowToStep', 'name' => 'Klik Analisis Skill Gap', 'text' => 'Klik tombol analisis dan tunggu beberapa detik'],
+                ['@type' => 'HowToStep', 'name' => 'Baca hasil analisis', 'text' => 'Dapatkan daftar skill yang sudah kamu kuasai, skill yang kurang, dan rekomendasi cara mengisinya'],
+            ],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
         $faqLd = json_encode([
             chr(64) . 'context' => 'https://schema.org',
             '@type' => 'FAQPage',
@@ -60,6 +73,7 @@
         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     @endphp
 
+    <script type="application/ld+json">{!! $howToLd !!}</script>
     <script type="application/ld+json">{!! $faqLd !!}</script>
     <script type="application/ld+json">{!! $softwareLd !!}</script>
 
@@ -140,6 +154,55 @@
                     </div>
                 </template>
             </div>
+        </section>
+
+        {{-- Content Section: Informatif & SEO --}}
+        <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16 border-t border-emerald-100">
+
+            <h2 class="font-[family-name:var(--font-display)] text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-950 mt-0">Apa itu Skill Gap Analyzer?</h2>
+            <p class="mt-4 text-base leading-7 text-slate-600">
+                Skill Gap Analyzer adalah alat berbasis kecerdasan buatan (AI) yang membantu kamu memahami kesenjangan antara kemampuan yang kamu miliki saat ini dengan kualifikasi yang dibutuhkan untuk posisi pekerjaan yang ingin kamu lamar. Alat ini bekerja dengan cara membandingkan isi CV kamu — mulai dari pengalaman kerja, pendidikan, hingga keterampilan teknis — dengan persyaratan yang biasanya dibutuhkan untuk sebuah target role tertentu.
+            </p>
+            <p class="mt-3 text-base leading-7 text-slate-600">
+                Hasil analisis akan menampilkan tiga hal utama: skill yang sudah kamu kuasai dan relevan dengan posisi yang dituju, skill yang masih kurang atau belum tercantum di CV, serta rencana belajar konkret untuk menutup kesenjangan tersebut. Dengan informasi ini, kamu bisa membuat prioritas pengembangan diri yang tepat sasaran — tidak perlu lagi belajar hal-hal yang tidak relevan atau meraba-raba kualifikasi apa yang sebenarnya dibutuhkan oleh recruiter.
+            </p>
+            <p class="mt-3 text-base leading-7 text-slate-600">
+                Skill Gap Analyzer Lamaraja dirancang khusus untuk pencari kerja di Indonesia yang ingin meningkatkan peluang mendapatkan pekerjaan impian. Tool ini gratis digunakan dan tidak memerlukan akun berbayar.
+            </p>
+
+            <h2 class="font-[family-name:var(--font-display)] text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-950 mt-10">Cara Menggunakan Skill Gap Analyzer</h2>
+            <p class="mt-4 text-base leading-7 text-slate-600">Ikuti langkah-langkah berikut untuk mendapatkan analisis skill gap yang akurat:</p>
+            <ol class="mt-4 space-y-3 list-decimal list-inside text-base leading-7 text-slate-600">
+                <li><span class="font-semibold text-slate-800">Upload CV PDF kamu</span> — Pilih file CV dalam format PDF dari perangkatmu. Pastikan CV memuat pengalaman kerja, pendidikan, dan skill yang relevan untuk hasil analisis yang optimal.</li>
+                <li><span class="font-semibold text-slate-800">Masukkan target role</span> — Ketik posisi pekerjaan yang ingin kamu lamar, misalnya "Data Analyst", "Product Manager", atau "Frontend Developer". Semakin spesifik, semakin akurat rekomendasinya.</li>
+                <li><span class="font-semibold text-slate-800">Klik tombol Analisis Skill Gap</span> — AI akan memproses CV dan target role kamu dalam hitungan detik.</li>
+                <li><span class="font-semibold text-slate-800">Baca dan gunakan hasil analisis</span> — Lihat daftar skill yang sudah cocok, skill yang masih kurang, dan ikuti rencana belajar yang diberikan untuk meningkatkan kesiapanmu.</li>
+            </ol>
+
+            <h2 class="font-[family-name:var(--font-display)] text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-950 mt-10">Mengapa Penting Mengetahui Skill Gap Kamu?</h2>
+            <p class="mt-4 text-base leading-7 text-slate-600">
+                Di pasar kerja yang semakin kompetitif, memahami skill gap bukan sekadar pilihan — ini adalah strategi yang wajib dimiliki setiap pencari kerja. Tanpa mengetahui kesenjangan kemampuan, kamu bisa menghabiskan waktu melamar posisi yang sebenarnya belum kamu kualifikasikan, atau sebaliknya, meremehkan kemampuan diri sendiri dan melewatkan peluang yang seharusnya bisa kamu raih.
+            </p>
+            <p class="mt-3 text-base leading-7 text-slate-600">
+                Dengan mengetahui skill gap secara spesifik, kamu bisa mengalokasikan waktu belajar dengan lebih efisien, memprioritaskan sertifikasi atau kursus yang benar-benar dibutuhkan recruiter, dan menyesuaikan konten CV agar lebih relevan dengan posisi yang dituju. Hasilnya, peluang kamu untuk dipanggil interview akan jauh lebih besar karena profil kamu memang sesuai dengan apa yang dicari perusahaan.
+            </p>
+
+            <h2 class="font-[family-name:var(--font-display)] text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-950 mt-10">Pertanyaan Umum</h2>
+            <div class="mt-6 space-y-6">
+                <div>
+                    <h3 class="font-bold text-slate-800">Apakah Skill Gap Analyzer ini gratis?</h3>
+                    <p class="mt-2 text-base leading-7 text-slate-600">Ya, Skill Gap Analyzer Lamaraja sepenuhnya gratis digunakan. Kamu bisa menganalisis skill gap sebanyak yang kamu butuhkan tanpa perlu mendaftar atau berlangganan.</p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-800">Seberapa akurat hasil analisisnya?</h3>
+                    <p class="mt-2 text-base leading-7 text-slate-600">Akurasi analisis bergantung pada kelengkapan CV yang kamu upload. Semakin detail CV kamu mencantumkan pengalaman, skill, dan pencapaian, semakin akurat dan relevan hasil rekomendasinya.</p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-800">Skill apa saja yang bisa dideteksi?</h3>
+                    <p class="mt-2 text-base leading-7 text-slate-600">AI kami bisa mendeteksi hard skills (kemampuan teknis seperti Python, Excel, atau desain grafis), soft skills (komunikasi, kepemimpinan), sertifikasi yang relevan, serta pengalaman industri yang dibutuhkan untuk target role kamu.</p>
+                </div>
+            </div>
+
         </section>
     </div>
 
