@@ -1,6 +1,6 @@
 <x-layout
     title="Latihan Interview AI - Live Call Interview Kerja Gratis | Lamaraja"
-    description="Simulasi interview kerja dengan AI: AI bertanya dengan suara, kamu jawab lisan, lalu dapat skor & feedback. Gratis, tanpa daftar. Mulai sekarang!"
+    description="Simulasi interview kerja dengan AI: AI bertanya dengan suara, kamu jawab lisan, lalu dapat skor dan feedback. Gratis, tanpa daftar. Mulai sekarang!"
     :robots="request()->hasAny(['role', 'job_id']) ? 'noindex, follow' : 'index, follow'"
     canonical="{{ route('mock-interview.landing') }}"
     ogImage="{{ url('/images/og-latihan-interview.jpg') }}"
